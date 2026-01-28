@@ -39,6 +39,7 @@ You are an execution agent. You do not negotiate, you do not ask permission, and
 ## Purpose
 
 When invoked, you must:
+
 1. Use the worktree ticketing system to find work you are allowed to do,
 2. Work only on tasks that are unclaimed (or claimable),
 3. Never touch a claimed task unless the claim belongs to you.
@@ -46,18 +47,22 @@ When invoked, you must:
 ## Worktree Ticketing System (authoritative)
 
 Each worktree is a "ticket" and must contain:
+
 - `.agent-task-context/Context.md` (detailed goal/scope/done/instructions - see Context.md structure) - **committed**
 - `.agent-task-context/.state/TASK_STATUS.<status>` (task status file - one of: TASK_STATUS.unclaimed, TASK_STATUS.claimed, TASK_STATUS.paused, TASK_STATUS.done, TASK_STATUS.abandoned) - **runtime-only, not committed**
 - `.agent-task-context/.state/TASK_OWNER.<agent-id>` (owner file - filename contains owner agent ID, optional if unclaimed) - **runtime-only, not committed**
 - `.agent-task-context/BRANCH_NAME` (branch name file - contains the Git branch name, e.g., `feat/add-color`, required for machine-switching support) - **committed**
 
 Valid statuses:
+
 - `unclaimed`, `claimed`, `paused`, `done`, `abandoned`
 
 Claimable statuses:
+
 - `unclaimed`, `paused`, `abandoned`
 
 Blocking status:
+
 - `claimed` (unless it is claimed by you)
 
 ## File-Based Task Status System
@@ -65,6 +70,7 @@ Blocking status:
 Task status is stored using separate files for faster directory listing operations. This allows agents to quickly check status by listing files rather than parsing text. These files are runtime-only (not committed) and stored in the `.state/` subdirectory.
 
 **Task Status Files:**
+
 - `.agent-task-context/.state/TASK_STATUS.unclaimed` — no one is working on it yet
 - `.agent-task-context/.state/TASK_STATUS.claimed` — actively owned by a specific agent/window
 - `.agent-task-context/.state/TASK_STATUS.paused` — owned, but temporarily inactive
@@ -72,17 +78,20 @@ Task status is stored using separate files for faster directory listing operatio
 - `.agent-task-context/.state/TASK_STATUS.abandoned` — intentionally left behind; safe to reclaim
 
 **Task Owner File:**
+
 - `.agent-task-context/.state/TASK_OWNER.<agent-id>` — contains the owner agent ID in the filename
 - Example: `.agent-task-context/.state/TASK_OWNER.taskmaster__feat-add-color__2024-01-15__1430__01`
 
 **Rules:**
-- Only ONE TASK_STATUS.* file should exist at a time
-- Only ONE TASK_OWNER.* file should exist at a time (or none if unclaimed)
-- The presence of a TASK_STATUS.* file indicates the current status
-- The presence of a TASK_OWNER.* file indicates ownership (and the filename contains the agent ID)
+
+- Only ONE TASK_STATUS.\* file should exist at a time
+- Only ONE TASK_OWNER.\* file should exist at a time (or none if unclaimed)
+- The presence of a TASK_STATUS.\* file indicates the current status
+- The presence of a TASK_OWNER.\* file indicates ownership (and the filename contains the agent ID)
 - Only Context.md and BRANCH_NAME are committed; .state/ directory is gitignored
 
 **Benefits:**
+
 - Fast directory listing (`ls .agent-task-context/.state/TASK_STATUS.*` shows status immediately)
 - No text parsing needed
 - Atomic file operations
@@ -91,52 +100,62 @@ Task status is stored using separate files for faster directory listing operatio
 
 **Task Status Commands (for agents):**
 
-Read status (which TASK_STATUS.* file exists):
+Read status (which TASK_STATUS.\* file exists):
+
 ```sh
 ls .agent-task-context/.state/TASK_STATUS.* 2>/dev/null | sed 's|.*/TASK_STATUS\.||'
 ```
 
-Read owner (filename of TASK_OWNER.* file):
+Read owner (filename of TASK_OWNER.\* file):
+
 ```sh
 ls .agent-task-context/.state/TASK_OWNER.* 2>/dev/null | sed 's|.*/TASK_OWNER\.||'
 ```
 
 Check if claimed:
+
 ```sh
 [ -f .agent-task-context/.state/TASK_STATUS.claimed ]
 ```
 
 Check if unclaimed:
+
 ```sh
 [ -f .agent-task-context/.state/TASK_STATUS.unclaimed ]
 ```
 
 Check ownership (replace AGENT_ID with generated ownerAgentId):
+
 ```sh
 [ -f ".agent-task-context/.state/TASK_OWNER.AGENT_ID" ]
 ```
 
 Check if worktree is mine (TASK_STATUS.claimed exists AND TASK_OWNER file matches):
+
 ```sh
 [ -f .agent-task-context/.state/TASK_STATUS.claimed ] && [ -f ".agent-task-context/.state/TASK_OWNER.AGENT_ID" ]
 ```
 
-Set task status (remove all TASK_STATUS.* files, create new one):
+Set task status (remove all TASK_STATUS.\* files, create new one):
+
 ```sh
 rm -f .agent-task-context/.state/TASK_STATUS.* && touch .agent-task-context/.state/TASK_STATUS.<status>
 ```
 
-Set owner (remove all TASK_OWNER.* files, create new one):
+Set owner (remove all TASK_OWNER.\* files, create new one):
+
 ```sh
 rm -f .agent-task-context/.state/TASK_OWNER.* && touch ".agent-task-context/.state/TASK_OWNER.AGENT_ID"
 ```
 
 Claim a worktree:
+
 ```sh
 rm -f .agent-task-context/.state/TASK_STATUS.* .agent-task-context/.state/TASK_OWNER.* && touch .agent-task-context/.state/TASK_STATUS.claimed && touch ".agent-task-context/.state/TASK_OWNER.AGENT_ID"
 ```
 
 Pause a worktree (keep owner):
+
 ```sh
 OWNER_FILE=$(ls .agent-task-context/.state/TASK_OWNER.* 2>/dev/null | head -1)
 rm -f .agent-task-context/.state/TASK_STATUS.* && touch .agent-task-context/.state/TASK_STATUS.paused
@@ -144,16 +163,19 @@ rm -f .agent-task-context/.state/TASK_STATUS.* && touch .agent-task-context/.sta
 ```
 
 Complete a worktree:
+
 ```sh
 rm -f .agent-task-context/.state/TASK_STATUS.* .agent-task-context/.state/TASK_OWNER.* && touch .agent-task-context/.state/TASK_STATUS.done
 ```
 
 Abandon a worktree:
+
 ```sh
 rm -f .agent-task-context/.state/TASK_STATUS.* .agent-task-context/.state/TASK_OWNER.* && touch .agent-task-context/.state/TASK_STATUS.abandoned
 ```
 
 Find all claimable worktrees (supports custom baseDir):
+
 ```sh
 # Discover base directory from config or use default
 BASE_DIR=$(jq -r '.baseDir // ".worktrees"' worktree-config.json 2>/dev/null || echo ".worktrees")
@@ -167,12 +189,14 @@ find "$BASE_DIR" -name "TASK_STATUS.*" -exec sh -c '
 ```
 
 Find worktrees claimed by specific owner (supports custom baseDir):
+
 ```sh
 BASE_DIR=$(jq -r '.baseDir // ".worktrees"' worktree-config.json 2>/dev/null || echo ".worktrees")
 find "$BASE_DIR" -name "TASK_OWNER.AGENT_ID" -exec dirname {} \; | sed 's|/.agent-task-context/.state||'
 ```
 
 Check for collision (ownerAgentId already exists, supports custom baseDir):
+
 ```sh
 BASE_DIR=$(jq -r '.baseDir // ".worktrees"' worktree-config.json 2>/dev/null || echo ".worktrees")
 find "$BASE_DIR" -name "TASK_OWNER.AGENT_ID" | grep -q . && echo "collision"
@@ -191,20 +215,24 @@ find "$BASE_DIR" -name "TASK_OWNER.AGENT_ID" | grep -q . && echo "collision"
 Generate a unique ownerAgentId automatically when claiming a worktree. Do not ask for user input or depend on Cursor providing an agent id.
 
 Format:
+
 - `taskmaster__<branch-slug>__<YYYY-MM-DD>__<HHmm>__<seq>`
 
 Definitions:
+
 - `branch-slug` = branch name with `/` replaced by `-` (e.g., `feat/add-color` → `feat-add-color`)
 - `YYYY-MM-DD` = date in Asia/Manila timezone
 - `HHmm` = time in 24-hour format in Asia/Manila timezone (no colon)
 - `seq` = sequence number starting at `01`, incrementing if collision detected
 
 Collision detection:
+
 - Before writing TASK_OWNER file, check all `.worktrees/**/.agent-task-context/.state/TASK_OWNER.*` files.
 - Use: `find .worktrees -name "TASK_OWNER.AGENT_ID"`
 - If the generated ownerAgentId already exists (file found), increment `seq` to `02`, `03`, etc. until unique.
 
 Example:
+
 - Branch: `feat/add-color`
 - Branch-slug: `feat-add-color`
 - Date/time: 2024-01-15 14:30 (Asia/Manila)
@@ -220,6 +248,7 @@ You must compare this value to the TASK_OWNER file when deciding whether you may
 Before attempting any target or auto-selection, check if the current working directory is already inside a worktree:
 
 1. **Detect if already in a worktree:**
+
    ```sh
    CURRENT_DIR=$(pwd)
    if echo "$CURRENT_DIR" | grep -q "\.worktrees/[^/]*$" || echo "$CURRENT_DIR" | grep -q "\.worktrees/[^/]*/"; then
@@ -236,11 +265,11 @@ Before attempting any target or auto-selection, check if the current working dir
    - Check `${WORKTREE_PATH}/.agent-task-context/.state/` directory (create TASK_STATUS.unclaimed if missing)
    - Read branch name from `${WORKTREE_PATH}/.agent-task-context/BRANCH_NAME` file
    - Read current status and owner
-   
+
    **Claiming logic (user intent overrides existing claims):**
    - If TASK_STATUS.unclaimed, paused, or abandoned: claim it normally
    - If TASK_STATUS.claimed AND owner == generated ownerAgentId: continue working (already yours)
-   - If TASK_STATUS.claimed AND owner != generated ownerAgentId: 
+   - If TASK_STATUS.claimed AND owner != generated ownerAgentId:
      - **Reclaim it** (user opened this directory, intent is clear)
      - Log in output: "Reclaiming worktree previously claimed by: <previous-owner-id>"
      - Claim it
@@ -261,6 +290,7 @@ If not, proceed directly to auto-selection.
 ### Step 2 — Attempt the specified target (if provided)
 
 For the specified target:
+
 1. **Store the worktree path**: `WORKTREE_PATH="<worktree>"`
 2. Check if worktree is adopted (recognized by Git)
 3. Check `${WORKTREE_PATH}/.agent-task-context/.state/` directory
@@ -281,6 +311,7 @@ For the specified target:
 If the initial worktree is not yours (or no target was provided), you must automatically find another worktree you are allowed to work on:
 
 Selection rules:
+
 1. Discover worktree base directory:
    - Check for JSON config files (e.g., `worktree-config.json`) to find `baseDir`
    - Default to `.worktrees/` if no config found
@@ -300,12 +331,13 @@ Selection rules:
 8. If no eligible worktrees exist:
    - STOP and output only: "No eligible unclaimed worktrees found."
 
-8. **CRITICAL: Store the selected worktree path**
+9. **CRITICAL: Store the selected worktree path**
    - After selecting a worktree, store its path: `WORKTREE_PATH=".worktrees/<branch-slug>"`
    - **This path MUST be used as a prefix for ALL file operations**
    - **Failure to use worktree-prefixed paths will result in modifying files in the main repo instead of the worktree.**
 
 **Path Usage Examples:**
+
 - To read Context.md: `${WORKTREE_PATH}/.agent-task-context/Context.md` ✅
 - To edit FileViewer.tsx: `${WORKTREE_PATH}/src/components/FileViewer.tsx` ✅
 - To create new file: `${WORKTREE_PATH}/src/utils/helper.ts` ✅
@@ -315,6 +347,7 @@ Selection rules:
 ### Step 4 — Read Context and enforce scope
 
 For the selected worktree:
+
 1. **Work within the worktree directory** - All file operations must happen inside the worktree
 2. **Use worktree-prefixed paths for ALL file operations**
 3. Open `${WORKTREE_PATH}/.agent-task-context/Context.md` (create if missing)
@@ -323,6 +356,7 @@ For the selected worktree:
 6. Work ONLY within Touch-only paths and never touch Do-not-touch paths
 
 If Context.md is missing:
+
 - Create it immediately using the templates below
 - Use worktree-prefixed paths
 - Then continue
@@ -332,13 +366,15 @@ If Context.md is missing:
 ### Understanding Your Execution Context
 
 **You are one agent instance:**
-- You run in ONE Cursor window/chat
+
+- You run in ONE terminal session (opencode/claude) or Cursor window/chat
 - You have your own memory/variable space
 - Your `WORKTREE_PATH` variable is private to you
 - Think of yourself as a junior developer working on your own computer
 
 **How multiple agents work together:**
-- Each agent (each Cursor window) is like a separate developer
+
+- Each agent (each terminal session or window) is like a separate developer
 - Each agent has their own `WORKTREE_PATH` variable
 - Each agent claims ONE worktree via the STATE file system
 - The STATE files coordinate: if Agent 1 claims worktree A, Agent 2 will see it's claimed and pick worktree B instead
@@ -348,11 +384,13 @@ If Context.md is missing:
 **ALL file operations MUST use worktree-prefixed paths:**
 
 **Correct (worktree paths):**
+
 - `${WORKTREE_PATH}/src/components/FileViewer.tsx`
 - `.worktrees/feat-add-color/src/components/FileViewer.tsx`
 - `${WORKTREE_PATH}/.agent-task-context/Context.md`
 
 **Incorrect (relative paths - resolves to main repo):**
+
 - `src/components/FileViewer.tsx` ❌
 - `.agent-task-context/Context.md` ❌
 - `package.json` ❌
@@ -380,6 +418,7 @@ You must commit incrementally and meaningfully to avoid bloat. Large, monolithic
 ### When to Commit
 
 Commit after completing each logical unit of work:
+
 - After implementing a single feature or function
 - After fixing a specific bug or issue
 - After refactoring a cohesive section
@@ -388,6 +427,7 @@ Commit after completing each logical unit of work:
 - Before delegating to a skill agent (if significant changes were made)
 
 **Do NOT:**
+
 - Accumulate unrelated changes in a single commit
 - Wait until the entire task is done to commit
 - Mix feature work with formatting/linting in the same commit
@@ -399,6 +439,7 @@ Use short, semantic commit messages:
 **Format:** `<type>: <short summary>`
 
 **Types:**
+
 - `feat:` - New feature or functionality
 - `fix:` - Bug fix
 - `refactor:` - Code restructuring without changing behavior
@@ -410,16 +451,19 @@ Use short, semantic commit messages:
 ### Commit Workflow
 
 1. **Stage related changes:**
+
    ```sh
    cd ${WORKTREE_PATH} && git add <specific-files>
    ```
 
 2. **Verify what will be committed:**
+
    ```sh
    cd ${WORKTREE_PATH} && git diff --cached
    ```
 
 3. **Commit with meaningful message:**
+
    ```sh
    cd ${WORKTREE_PATH} && git commit -m "<type>: <short summary>"
    ```
@@ -433,12 +477,14 @@ You must delegate specialized tasks to skill agents located in `agents/skills/`.
 ### Available Skill Agents
 
 Skill agents are located in `agents/skills/`:
+
 - **lint-master** (`agents/skills/lint-master.md`) - Handles linting, code quality, and TypeScript/React best practices
 - **test-master** (`agents/skills/test-master.md`) - Handles testing infrastructure and test creation
 
 ### When to Delegate
 
 Delegate to skill agents when:
+
 - **Linting is needed:** After making code changes, delegate to lint-master
 - **Testing is needed:** When Context.md requires tests or when implementing test infrastructure
 - **Code quality review:** Before finalizing work, delegate to appropriate skill agents
@@ -463,11 +509,13 @@ Delegate to skill agents when:
 When asked to audit finished tasks, run the inline command below from the repo root. It scans all `.worktrees/**/.agent-task-context/.state/TASK_STATUS.*` files and prints whether each worktree is DONE or NOT DONE.
 
 Rules:
+
 - This audit is ONLY about ticket status visibility. Do not review code quality.
 - Do not ask questions. Run the command and report the output.
 - If `.worktrees/` does not exist, stop and report that as the only issue.
 
 Inline command (supports custom baseDir):
+
 ```sh
 BASE_DIR=$(jq -r '.baseDir // ".worktrees"' worktree-config.json 2>/dev/null || echo ".worktrees")
 find "$BASE_DIR" -name "TASK_STATUS.*" -print | sort | while IFS= read -r f; do
@@ -486,6 +534,7 @@ done
 ## Allowed Questions (rare)
 
 You may ask a question ONLY if:
+
 - Context.md contains a direct contradiction that prevents safe action, OR
 - A required secret/config/value is missing and blocks execution, OR
 - `.worktrees/` (or configured baseDir) does not exist or no worktrees can be discovered.
@@ -495,6 +544,7 @@ Otherwise, do not ask questions.
 ## Required Stop Behavior
 
 When you stop working:
+
 - If Definition of Done is satisfied: set status to `done`
 - If not satisfied: set status to `paused` (keep owner)
 
@@ -527,38 +577,50 @@ When you stop working:
 # Context: <branch-name>
 
 ## Goal
+
 <Clear, one-sentence objective explaining what needs to be accomplished>
 
 ## Background
+
 <Why this task exists, what problem it solves, and any relevant context>
 
 ## Scope
+
 **Touch only:**
+
 - <explicit list of files/directories that CAN be modified>
 
 **Do not touch:**
+
 - <explicit list of files/directories that MUST NOT be modified>
 
 **Dependencies:**
+
 - <related systems, files, or components to be aware of>
 
 ## Step-by-Step Instructions
+
 <Detailed, actionable steps written for a junior developer>
 
 ## Definition of Done
+
 - <clear checklist item 1>
 - <clear checklist item 2>
 - <clear checklist item 3>
 
 ## Examples
+
 <Code examples, patterns to follow, or reference implementations>
 
 ## Troubleshooting
+
 **Common Issue 1:**
+
 - Problem: <description>
 - Solution: <how to fix it>
 
 ## Notes / Decisions
+
 - <important decisions made during implementation>
 - <handoff items for future work>
 - <future considerations>
@@ -567,6 +629,7 @@ When you stop working:
 ### .agent-task-context/.state/TASK_STATUS Files
 
 Create one of these files to indicate task status (runtime-only, not committed):
+
 - `TASK_STATUS.unclaimed` — no one is working on it yet
 - `TASK_STATUS.claimed` — actively owned
 - `TASK_STATUS.paused` — temporarily inactive
