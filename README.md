@@ -101,9 +101,11 @@ This applies your agents, skills, hooks, and settings globally without copying f
 | Agent | Purpose |
 |-------|---------|
 | `code-reviewer` | Git-based PR review with enterprise-grade analysis |
-| `task-master` | Worktree task execution with scope enforcement |
-| `multitasker` | Parallel worktree management |
+| `task-master` | Execute single task in a worktree autonomously |
+| `multitasker` | Sprint orchestrator - creates worktrees and spawns parallel subagents |
 | `agentic-workflow` | Multi-agent coordination architecture |
+
+**Compatibility:** All agents work with both **Claude Code** and **OpenCode**.
 
 ## Available Skills
 
@@ -112,25 +114,32 @@ This applies your agents, skills, hooks, and settings globally without copying f
 | `lint-master` | Multi-tool linting workflow (ESLint > Oxlint > Biome) |
 | `test-master` | Testing infrastructure and implementation |
 
-## Sprint Modes (Choose One Per Sprint)
+## Sprint Modes
 
-You can run this plugin in two modes depending on task overlap and how hands-off you want to be.
+### Mode A: Parallel Worktrees (Recommended)
 
-### Mode A: Parallel Worktrees (Fastest When Tasks Do Not Overlap)
+Give the multitasker a list of tasks - it creates worktrees and spawns subagents:
 
-- Best for many small, independent tasks.
-- One worktree per task; one agent per worktree.
-- Uses `task-master` and `multitasker`.
+```
+"I need to work on auth, dashboard, and API features"
+```
 
-**Start here:** `ai/scripts/README.md` → "CLI-Native Worktree Workflow"
+The multitasker will:
+1. Create `.worktrees/feat-auth`, `.worktrees/feat-dashboard`, `.worktrees/feat-api`
+2. Spawn task-master subagents via Task tool (in parallel)
+3. Report results when done
 
-### Mode B: Sequential Ralph Loop (Safest When Tasks Overlap)
+**Philosophy:** Git is the only source of truth. No Context.md, no .state files, no metadata.
 
-- Best for tasks that touch the same files or require strict sequencing.
-- Uses a single loop that runs one small task per iteration.
-- Ralph memory is persisted in git, `progress.txt`, and `prd.json`.
+### Mode B: Sequential Ralph Loop
 
-**Start here:** `ai/scripts/ralph/` and `ai/scripts/README.md` → "Ralph Loop Workflow"
+For tasks that touch the same files or need strict sequencing:
+
+```sh
+./ai/scripts/ralph/ralph.sh 10
+```
+
+**Start here:** `ai/scripts/ralph/`
 
 ## Combining with Project-Specific Config
 
