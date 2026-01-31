@@ -81,6 +81,138 @@ To avoid Biome↔ESLint conflicts:
 - Keep module boundaries typed: API payloads, domain models, component props
 - Handle `null` / `undefined` deliberately with strict checks
 
+## Type-Safe Patterns Reference
+
+### 1. API Response Validation (Zod)
+
+Replace type assertions on fetch responses with Zod schema validation:
+
+```typescript
+// ❌ Bad: Type assertion
+const data = (await response.json()) as { ok: boolean; items: Item[] };
+
+// ✅ Good: Zod schema with safeParse
+const ResponseSchema = z.object({
+  ok: z.boolean(),
+  items: z.array(ItemSchema),
+});
+
+const json: unknown = await response.json();
+const result = ResponseSchema.safeParse(json);
+if (!result.success) {
+  throw new Error('Invalid API response');
+}
+const data = result.data; // Fully typed
+```
+
+### 2. Error Response Handling
+
+Create a reusable helper for error extraction:
+
+```typescript
+// Schema for error responses
+const ErrorResponseSchema = z.object({
+  error: z.string().optional(),
+  message: z.string().optional(),
+  details: z.string().optional(),
+});
+
+function getErrorMessage(data: unknown, fallback: string): string {
+  const result = ErrorResponseSchema.safeParse(data);
+  if (result.success) {
+    return result.data.message ?? result.data.error ?? result.data.details ?? fallback;
+  }
+  return fallback;
+}
+
+// Usage
+const errorData: unknown = await response.json().catch(() => null);
+throw new Error(getErrorMessage(errorData, 'Request failed'));
+```
+
+### 3. DOM Event Type Guards
+
+Replace `event.target as Node` with instanceof checks:
+
+```typescript
+// ❌ Bad: Type assertion
+if (!container.contains(event.target as Node)) { ... }
+
+// ✅ Good: instanceof guard
+if (event.target instanceof Node && !container.contains(event.target)) { ... }
+```
+
+### 4. Custom Type Guards for Complex Types
+
+For SDK boundaries or complex objects, create type guard functions:
+
+```typescript
+interface IToolInvocation {
+  type: 'tool-invocation';
+  toolName: string;
+  args: Record<string, unknown>;
+}
+
+function isToolInvocation(part: unknown): part is IToolInvocation {
+  return (
+    typeof part === 'object' &&
+    part !== null &&
+    'type' in part &&
+    part.type === 'tool-invocation' &&
+    'toolName' in part &&
+    typeof part.toolName === 'string'
+  );
+}
+
+// Usage
+if (isToolInvocation(part)) {
+  // part is now typed as IToolInvocation
+}
+```
+
+### 5. Object Property Merging with `in` Operator
+
+For merging partial objects without type assertions:
+
+```typescript
+// ❌ Bad: Type assertion
+const next = { ...prev, ...updates } as IConfig;
+
+// ✅ Good: Explicit property checks
+function mergeConfig(base: IConfig, updates: Record<string, string>): IConfig {
+  return {
+    apiKey: 'apiKey' in updates ? updates.apiKey : base.apiKey,
+    endpoint: 'endpoint' in updates ? updates.endpoint : base.endpoint,
+    timeout: base.timeout, // Preserve non-string fields
+  };
+}
+```
+
+### 6. Primitive Type Narrowing with `typeof`
+
+For values from external sources (Auth0, localStorage, etc.):
+
+```typescript
+// ❌ Bad: Type assertion
+const nickname = user?.nickname as string | undefined;
+
+// ✅ Good: typeof check
+const nickname = typeof user?.nickname === 'string' ? user.nickname : undefined;
+```
+
+### 7. Centralized Schema Location
+
+Keep API response schemas in a dedicated file for reuse:
+
+```
+src/schemas/apiResponses.ts  // Zod schemas for all API responses
+```
+
+This enables:
+- Consistent validation across components
+- Single source of truth for API contracts
+- Easy updates when API changes
+
 ## Enterprise React Requirements
 
 - Components stay small; logic extracted into hooks
