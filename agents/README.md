@@ -40,16 +40,17 @@ When asked about agents, provide clear, concise information from the documentati
 
 ## Available Agents
 
-| Agent | Purpose |
-|-------|---------|
-| `code-reviewer` | Git-based PR review with enterprise-grade analysis |
-| `task-master` | Worktree task execution with scope enforcement |
-| `multitasker` | Parallel worktree management |
-| `agentic-workflow` | Multi-agent coordination architecture |
-| `debugger` | Debug and troubleshoot code issues |
-| `migrator` | Migrate code between frameworks or versions |
-| `app-bundler` | Bundle and package applications |
-| `test-generator` | Generate test cases for code |
+| Agent                   | Purpose                                            |
+| ----------------------- | -------------------------------------------------- |
+| `code-reviewer`         | Git-based PR review with enterprise-grade analysis |
+| `task-master`           | Worktree task execution with scope enforcement     |
+| `multitasker`           | Parallel worktree management                       |
+| `agentic-workflow`      | Multi-agent coordination architecture              |
+| `debugger`              | Debug and troubleshoot code issues                 |
+| `migrator`              | Migrate code between frameworks or versions        |
+| `app-bundler`           | Bundle and package applications                    |
+| `test-generator`        | Generate test cases for code                       |
+| `vite-nginx-playground` | Vite dev server + Nginx slug setup for judigot.com |
 
 ## Agent File Format
 
@@ -79,17 +80,17 @@ tools: ["Read", "Write", "Bash", "Grep"]
 
 ### Required Fields
 
-| Field | Description |
-|-------|-------------|
-| `name` | Lowercase identifier with hyphens (e.g., `code-reviewer`) |
-| `description` | Starts with "Use this agent when..." with examples |
-| `model` | Usually `inherit` to use parent model, or `haiku` for simple tasks |
-| `color` | Visual identifier: `blue`, `green`, `orange`, `red`, `purple` |
+| Field         | Description                                                        |
+| ------------- | ------------------------------------------------------------------ |
+| `name`        | Lowercase identifier with hyphens (e.g., `code-reviewer`)          |
+| `description` | Starts with "Use this agent when..." with examples                 |
+| `model`       | Usually `inherit` to use parent model, or `haiku` for simple tasks |
+| `color`       | Visual identifier: `blue`, `green`, `orange`, `red`, `purple`      |
 
 ### Optional Fields
 
-| Field | Description |
-|-------|-------------|
+| Field   | Description                                                         |
+| ------- | ------------------------------------------------------------------- |
 | `tools` | Array of allowed tools: `["Read", "Write", "Bash", "Grep", "Glob"]` |
 
 ## Adding New Agents
