@@ -1,5 +1,3 @@
-
-
 # General
 
 - I want the code to be self-documenting.
@@ -16,9 +14,212 @@
 - ESLint: Follow 'plugin:@typescript-eslint/strict-type-checked'.
 - Use short, semantic git commit messages following Conventional Commits format
 
+## Strict TypeScript Enforcement
+
+- Assume TypeScript strict mode is non-negotiable (`strict`, `noImplicitAny`, `strictNullChecks`, `noUncheckedIndexedAccess` mindset).
+- Prefer narrowing and type guards over assertions.
+- Favor compile-time safety over convenience shortcuts.
+
+### Common Lint Traps (with fixes)
+
+#### 1) `no-explicit-any`
+
+```ts
+// Bad
+function parse(value: any): any {
+  return value.data;
+}
+
+// Good
+function parse(value: unknown): { data: unknown } | null {
+  if (typeof value === "object" && value !== null && "data" in value) {
+    return value as { data: unknown };
+  }
+  return null;
+}
+```
+
+Rule: never introduce `any` unless user explicitly requests it for a known interoperability boundary.
+
+#### 2) Unsafe type assertions
+
+```ts
+// Bad
+const userId = (payload as { user: { id: string } }).user.id;
+
+// Good
+if (typeof payload === "object" && payload !== null && "user" in payload) {
+  const user = (payload as { user: unknown }).user;
+  if (
+    typeof user === "object" &&
+    user !== null &&
+    "id" in user &&
+    typeof (user as { id: unknown }).id === "string"
+  ) {
+    const userId = (user as { id: string }).id;
+  }
+}
+```
+
+Rule: do not use `as` to skip validation; validate first, narrow second.
+
+#### 3) `eslint-disable-next-line` / `@ts-ignore`
+
+```ts
+// Bad
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const x: any = foo;
+
+// Bad
+// @ts-ignore
+dangerousCall();
+```
+
+```ts
+// Good (last resort, documented, scoped)
+// @ts-expect-error -- third-party typing bug: upstream issue #1234
+knownBrokenTypedCall();
+```
+
+Rule: do not use `eslint-disable-next-line` or `@ts-ignore` by default. If unavoidable, use the narrowest suppression with a specific reason and prefer `@ts-expect-error`.
+
+#### 4) `require-await` in tests and mocks
+
+```ts
+// Bad
+verifyAuthToken: async () => ({ ok: true, status: 200, auth0UserId: "u1" });
+
+// Good
+verifyAuthToken: () =>
+  Promise.resolve({ ok: true, status: 200, auth0UserId: "u1" });
+```
+
+Rule: if a function has no `await`, do not mark it `async`.
+
+#### 5) Prefer object literals with `as const` over enums (default)
+
+```ts
+// Prefer
+export const WORKSPACE_STATUS = {
+  QUEUED: "queued",
+  READY: "ready",
+  FAILED: "failed",
+} as const;
+
+export type IWorkspaceStatus =
+  (typeof WORKSPACE_STATUS)[keyof typeof WORKSPACE_STATUS];
+
+// Avoid by default
+enum WorkspaceStatus {
+  QUEUED = "queued",
+  READY = "ready",
+  FAILED = "failed",
+}
+```
+
+Rule: use enums only when interop explicitly requires enum semantics.
+
+#### 6) Narrow HTTP status types
+
+```ts
+// Bad
+interface IErrorResult {
+  status: number;
+}
+
+// Good
+interface IErrorResult {
+  status: 400 | 401 | 404 | 500;
+}
+```
+
+Rule: prefer literal unions over broad primitive types when values are finite.
+
+### TypeScript Dos and Don'ts
+
+- Do: use `unknown` at trust boundaries (request bodies, external API responses).
+- Do: validate with schema/type guards before property access.
+- Do: model finite states with `as const` object literals + union types.
+- Do: make impossible states impossible with discriminated unions.
+- Don't: widen types early (`string`, `number`) when literal unions are available.
+- Don't: use non-null assertions (`!`) unless proven safe by control flow.
+- Don't: hide type errors with blanket assertions or disable comments.
+
+### Pre-Finish Type Safety Checklist
+
+Before marking any TypeScript task complete, run:
+
+```sh
+bun run lint:tsc
+bun run lint:eslint
+bun test <affected-tests>
+```
+
+Do not finalize while any type/lint errors remain.
+
+## Runtime Validation (Zod)
+
+- Use Zod at untrusted boundaries and business-critical flows.
+- Do not add Zod everywhere by default; validate where data enters or crosses trust boundaries.
+
+### Where Zod is Required
+
+- API request/response validation (server routes, webhooks, external callbacks).
+- Auth/session payloads and permission-critical claims.
+- Payment/billing/infra provisioning payloads.
+- DB write inputs from user or external systems.
+- Environment/config parsing at startup.
+
+### Where Zod is Usually Not Needed
+
+- Internal values already typed and produced in the same trusted module.
+- Tight inner loops/hot paths with no untrusted input.
+- Purely local transformations after prior validated parsing.
+
+### Zod Usage Rules
+
+```ts
+// Prefer safeParse for request handlers (no exceptions for control flow)
+const parsed = WorkspaceProvisionRequestSchema.safeParse(body);
+if (!parsed.success) {
+  return c.json(
+    { error: "Invalid request body", details: parsed.error.issues },
+    400,
+  );
+}
+const data = parsed.data;
+```
+
+```ts
+// Use parse when failure should throw and fail fast (startup/config)
+const env = EnvSchema.parse(process.env);
+```
+
+- Default object behavior strips unknown keys; use `strictObject` / `.strict()` when unknown keys must be rejected.
+- Use `.passthrough()` only when extra keys are intentionally allowed.
+- Define schemas once per module and reuse; avoid rebuilding schemas repeatedly in handlers.
+- Derive TS types from schemas (`z.infer`) to avoid drift.
+
+### Example: Strict boundary schema
+
+```ts
+import { z } from "zod";
+
+export const WorkspaceProvisionRequestSchema = z.strictObject({
+  workspaceName: z.string().trim().min(1),
+  domain: z.string().trim().min(1),
+  region: z.string().trim().min(1).optional(),
+});
+
+export type IWorkspaceProvisionRequest = z.infer<
+  typeof WorkspaceProvisionRequestSchema
+>;
+```
+
 # Token Efficiency
 
 ## Response Rules
+
 - No preambles ("Let me...", "I'll...", "Sure!", "Great question!")
 - No summaries after completing tasks
 - No repeating the user's request back
@@ -26,9 +227,10 @@
 - Code blocks only - skip prose when code is self-explanatory
 - One-line answers when possible
 - Prefer explicit rules over implicit assumptions; restate key rules when asked
-- Use ai_* aliases when they map to the requested action
+- Use ai\_\* aliases when they map to the requested action
 
 ## Tool Usage
+
 - Batch file reads in parallel
 - Don't re-read files already in context
 - Use grep/codebase_search before reading large files
@@ -37,6 +239,7 @@
 - Use Context7 for docs lookup to avoid verbose explanations
 
 ## Code Output
+
 - Show only changed lines with context, not full files
 - Skip unchanged imports/boilerplate in explanations
 
@@ -82,6 +285,7 @@
 **NEVER run destructive commands without explicit prior approval in the same conversation.**
 
 If the user has NOT explicitly instructed you to run destructive commands, you MUST:
+
 1. Stop and explain what you intend to do
 2. List the exact command(s) and their consequences
 3. Wait for explicit approval before proceeding
@@ -90,16 +294,16 @@ Skip permission only if the user explicitly requested the destructive action bef
 
 ### Destructive Commands List
 
-| Git (can lose history/commits) | System (can lose data/corrupt files) |
-|--------------------------------|--------------------------------------|
-| `git reset --hard` | `rm -rf`, `rm -r` |
-| `git push --force`, `--force-with-lease` | `del /s /q`, `rmdir /s` |
-| `git clean -fd`, `-fx` | `format`, `diskpart` |
-| `git rebase` (on pushed/shared branches) | `shutdown`, `reboot` |
-| `git branch -D` (force delete) | `chmod -R`, `chown -R` |
-| `git stash drop`, `stash clear` | `mkfs`, `dd` |
-| `git reflog expire`, `gc --prune` | Registry edits (`reg delete`) |
-| `git filter-branch`, `filter-repo` | `takeown`, `icacls` (permissions) |
+| Git (can lose history/commits)           | System (can lose data/corrupt files) |
+| ---------------------------------------- | ------------------------------------ |
+| `git reset --hard`                       | `rm -rf`, `rm -r`                    |
+| `git push --force`, `--force-with-lease` | `del /s /q`, `rmdir /s`              |
+| `git clean -fd`, `-fx`                   | `format`, `diskpart`                 |
+| `git rebase` (on pushed/shared branches) | `shutdown`, `reboot`                 |
+| `git branch -D` (force delete)           | `chmod -R`, `chown -R`               |
+| `git stash drop`, `stash clear`          | `mkfs`, `dd`                         |
+| `git reflog expire`, `gc --prune`        | Registry edits (`reg delete`)        |
+| `git filter-branch`, `filter-repo`       | `takeown`, `icacls` (permissions)    |
 
 ### Pre-Flight Checklist (MANDATORY before any destructive git command)
 
@@ -112,11 +316,13 @@ Even with explicit user approval, you MUST complete these steps IN ORDER before 
 5. ONLY THEN execute the destructive command
 
 **If `git reset --hard` is requested:**
+
 - ALWAYS run `git stash push -u -m "backup before reset"` FIRST (includes untracked files)
 - Record the current HEAD SHA in the conversation so it can be recovered via reflog
 - Prefer `git reset --soft` or `git reset --mixed` when the goal is just to uncommit (not discard changes)
 
 **If `git clean` is requested:**
+
 - Run `git clean -nd` (dry run) first and show the user what will be deleted
 - Never run `git clean -fx` without showing dry run output first
 
@@ -152,12 +358,14 @@ downloadGithubRepo judigot/project-core
 ```
 
 **Formatting rules:**
+
 - Use newlines as padding (empty line after opening quote, before closing quote)
 - One command per line for human readability and easy copy-paste
 
 When already in MSYS2 bash, run commands directly.
 
 **How to detect terminal:**
+
 - PowerShell errors contain `At C:\...\ps-script-...`
 - PowerShell rejects `&&` with "not a valid statement separator"
 
@@ -171,22 +379,22 @@ When already in MSYS2 bash, run commands directly.
 
 Format: `<type>: <description>`
 
-| Type | Purpose |
-|------|---------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation |
-| `style` | Formatting (no code change) |
+| Type       | Purpose                           |
+| ---------- | --------------------------------- |
+| `feat`     | New feature                       |
+| `fix`      | Bug fix                           |
+| `docs`     | Documentation                     |
+| `style`    | Formatting (no code change)       |
 | `refactor` | Code restructure (no feature/fix) |
-| `perf` | Performance improvement |
-| `test` | Add/update tests |
-| `chore` | Maintenance, deps, config |
+| `perf`     | Performance improvement           |
+| `test`     | Add/update tests                  |
+| `chore`    | Maintenance, deps, config         |
 
 Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update deps`
 
 # Snippets (~/.devrc)
 
-- Location: `~/.devrc` (sourced by .bashrc)
+- Location: `~/.devrc`
 - Prefer using existing snippets over writing new scripts
 - When adding new utilities, add them to `~/.devrc` with descriptive function names and multiple aliases. But always ask permission first.
 - Usage: `bash -c ". ~/.devrc && functionName"`
@@ -194,46 +402,46 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 
 ## User Aliases
 
-| Command | Purpose |
-|---------|---------|
-| `helloWorld` | Test greeting |
-| `updateCurrentBranch` | Merge origin/main and push |
-| `updater` | Update shell configs from GitHub |
-| `bbvite` | Scaffold Vite project |
-| `bblaravel` | Scaffold Laravel project |
-| `getssh` | Display SSH public key |
-| `generatessh` | Create new SSH key |
-| `testssh` | Test GitHub SSH connection |
-| `personalssh` | Switch to personal SSH key |
-| `workssh` | Switch to work SSH key |
-| `deleteall` | Delete all files in cwd (confirm) |
-| `loadsnippets` | Add devrc to .bashrc |
-| `newagent` | Create Cursor/agents structure |
+| Command                        | Purpose                           |
+| ------------------------------ | --------------------------------- |
+| `helloWorld`                   | Test greeting                     |
+| `updateCurrentBranch`          | Merge origin/main and push        |
+| `updater`                      | Update shell configs from GitHub  |
+| `bbvite`                       | Scaffold Vite project             |
+| `bblaravel`                    | Scaffold Laravel project          |
+| `getssh`                       | Display SSH public key            |
+| `generatessh`                  | Create new SSH key                |
+| `testssh`                      | Test GitHub SSH connection        |
+| `personalssh`                  | Switch to personal SSH key        |
+| `workssh`                      | Switch to work SSH key            |
+| `deleteall`                    | Delete all files in cwd (confirm) |
+| `loadsnippets`                 | Add devrc to .bashrc              |
+| `newagent`                     | Create Cursor/agents structure    |
 | `downloadGithubRepo user/repo` | Download GitHub repo without .git |
 
 ## Agent Aliases (Token-Efficient)
 
-| Command | Purpose |
-|---------|---------|
-| `ai_diffnav [branch]` | Show raw PR diff between main/current branch |
-| `ai_prdiff [branch]` | Alternative alias for ai_diffnav |
-| `ai_gitdiff [branch]` | Alternative alias for ai_diffnav |
-| `ai_gc "msg"` | Stage all + commit (no push) |
-| `ai_gcp` | Preview staged changes |
-| `ai_gpr` | Create PR (gh cli) |
-| `ai_nr "script"` | Run bun script |
-| `ai_status` | Git status (short) |
-| `ai_diff` | Git diff (unstaged) |
-| `ai_diffstaged` | Git diff (staged) |
-| `ai_log` | Git log (recent) |
-| `ai_add` | Git add all |
-| `ai_pull` | Git pull with rebase |
-| `ai_search "pattern" [path]` | Ripgrep search |
-| `ai_replace "file" "old" "new"` | Replace string in file |
-| `ai_mkdir "dir"` | Make directory (parents) |
-| `ai_touch "file"` | Touch file |
-| `ai_copy "src" "dest"` | Copy file/dir |
-| `ai_move "src" "dest"` | Move/rename file/dir |
+| Command                         | Purpose                                      |
+| ------------------------------- | -------------------------------------------- |
+| `ai_diffnav [branch]`           | Show raw PR diff between main/current branch |
+| `ai_prdiff [branch]`            | Alternative alias for ai_diffnav             |
+| `ai_gitdiff [branch]`           | Alternative alias for ai_diffnav             |
+| `ai_gc "msg"`                   | Stage all + commit (no push)                 |
+| `ai_gcp`                        | Preview staged changes                       |
+| `ai_gpr`                        | Create PR (gh cli)                           |
+| `ai_nr "script"`                | Run bun script                               |
+| `ai_status`                     | Git status (short)                           |
+| `ai_diff`                       | Git diff (unstaged)                          |
+| `ai_diffstaged`                 | Git diff (staged)                            |
+| `ai_log`                        | Git log (recent)                             |
+| `ai_add`                        | Git add all                                  |
+| `ai_pull`                       | Git pull with rebase                         |
+| `ai_search "pattern" [path]`    | Ripgrep search                               |
+| `ai_replace "file" "old" "new"` | Replace string in file                       |
+| `ai_mkdir "dir"`                | Make directory (parents)                     |
+| `ai_touch "file"`               | Touch file                                   |
+| `ai_copy "src" "dest"`          | Copy file/dir                                |
+| `ai_move "src" "dest"`          | Move/rename file/dir                         |
 
 # TypeScript/JavaScript
 
@@ -264,31 +472,31 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 
   ```sh
   #!/bin/sh
-  
+
   readonly GLOBAL_VARIABLE="Hello, World!"
-  
+
   readonly PROJECT_DIRECTORY=$(cd "$(dirname "$0")" || exit 1; pwd) # Directory of this script
-  
+
   main() {
       action1
       action2
   }
-  
+
   action1() {
       cd "$PROJECT_DIRECTORY" || exit 1
       printf '%s\n' "Action 1"
   }
-  
+
   action2() {
       cd "$PROJECT_DIRECTORY" || exit 1
       printf '%s\n' "Action 2"
   }
-  
+
   main "$@"
   ```
 
-  *the main function should be at the very top to easily have an idea on what the script is all about
-  
+  \*the main function should be at the very top to easily have an idea on what the script is all about
+
 - Omit unused global variables.
 
 # SPA Content Extraction
