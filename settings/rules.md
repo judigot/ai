@@ -238,6 +238,12 @@ export type IWorkspaceProvisionRequest = z.infer<
 - Prefer targeted reads and diffs; avoid full-file dumps
 - Use Context7 for docs lookup to avoid verbose explanations
 
+## Git Stash Over Re-editing
+
+- When changes need to be temporarily reverted (e.g. switching branches, resetting to HEAD for a clean diff), use `git stash` / `git stash pop` instead of discarding edits and reapplying them from scratch.
+- Re-reading files and re-applying edits wastes tokens and time when the changes already exist in the working tree.
+- Rule: if you already have working uncommitted changes, **stash them** — never throw them away and redo them.
+
 ## Code Output
 
 - Show only changed lines with context, not full files
