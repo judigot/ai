@@ -466,6 +466,35 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 - Include all dependencies in hooks.
 - Fix click handlers on non-interactive elements.
 
+## Invariant-First UI State Workflow
+
+- For interaction-heavy UI (chat heads, toggles, wizards, tab/panel systems), define invariants before editing code.
+- Write 3-7 invariants in plain language, then map every user action path to one invariant.
+- Prefer explicit state fields over inferred visual state.
+- If multiple states become coupled (`selected` vs `active` vs `collapsed`), move to `useReducer`.
+
+### Required Invariant Loop
+
+1. Define invariants first.
+2. Enumerate interaction paths (tap, second tap, drag end, open/close).
+3. Implement transitions only after path→invariant mapping is complete.
+4. Verify each invariant manually after build/deploy.
+
+### Example Invariants (Bubble/Panel UX)
+
+- Closed identity: when closed, all panel identity fields match.
+- Selection first: first tap selects/activates, not minimize.
+- Minimize on second tap: minimize only on second tap of selected+active bubble.
+- Collapse ownership: bubble that triggered minimize becomes collapsed identity.
+- Stable positions: bubble positions are deterministic and only mirror by dock side.
+- Active highlight: highlighted bubble always matches active panel.
+
+### Anti-Patterns
+
+- Do not drive behavior by icon swapping alone.
+- Do not encode state implicitly in CSS classes without state variables.
+- Do not patch interaction bugs with one-off conditionals before writing invariants.
+
 # Formatting
 
 - Block Comments: Use `/* This is a comment */` for inline comments.
