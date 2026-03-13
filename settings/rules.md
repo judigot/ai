@@ -502,7 +502,9 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 
 # Shell/Bash
 
-- Avoid grep; prefer awk.
+- Prefer specialized search tools first (`Grep` tool for code search, `rg` for terminal search).
+- Use `awk` when you need parsing, extraction, or column-based processing.
+- Do not use `grep` as a blanket substitute for structured parsing.
 - Follow this structure in script files:
 
   ```sh
