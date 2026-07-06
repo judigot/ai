@@ -11,7 +11,12 @@
     "fetch": {
       "command": "npx",
       "args": ["-y", "@anthropic/mcp-server-fetch"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
     }
   }
 }
-
