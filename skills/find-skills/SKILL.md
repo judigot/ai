@@ -12,7 +12,7 @@ URLs: `settings/references.md`.
 ## How to look up
 
 1. Identify domain and task.
-2. If it matches this stack (React, Next.js, Vercel, Neon, AWS), use the official URL in `settings/references.md` first.
+2. If it matches this stack (React, Next.js, Vercel, Turborepo), use the official URL in `settings/stack.md` first.
 3. Otherwise open https://skills.sh/official, then https://skills.sh.
 4. Fetch the skill page. Prefer official makers over random catalog hits.
 5. Show the user the name, what it does, and the URL.

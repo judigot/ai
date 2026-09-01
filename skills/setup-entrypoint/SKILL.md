@@ -13,8 +13,7 @@ Run this before implementation. The overlay lives in `judigot/ai`. Coding happen
 2. Decide workspace:
    - User is changing this plugin → stay in `judigot/ai`.
    - Otherwise the app repo is the workspace. Do not clone this overlay as the project.
-3. Match https://github.com/judigot/template-monorepo for layout unless the app already differs.
-4. External work is **URLs only**. Prefer [skills.sh/official](https://skills.sh/official) maker packs listed in `settings/references.md`. Do not clone those repos, copy their files here, or run `npx skills add`.
+3. External work is **URLs only**. Pick the official pack from `settings/stack.md`. Do not clone those repos, copy their files here, or run `npx skills add`.
 
 ## Clarify or route
 

@@ -12,7 +12,7 @@ Before writing code:
 
 1. Follow `settings/rules.md`, `settings/stack.md`, and this file.
 2. Confirm the workspace is the **app repo**, not this overlay.
-3. Match [judigot/template-monorepo](https://github.com/judigot/template-monorepo) for layout and scripts unless the app already differs.
+3. Use the official skill for that layer in `settings/stack.md`. Do not invent a parallel stack.
 4. If the goal, UX, or success criteria are ambiguous, **ask clarifying questions**. For a full grilling session, fetch the grill URL in `settings/references.md`. Do not implement yet.
 5. If the destination is nameable but the route is not, and the work will not fit one session, fetch and follow **wayfinder** from `settings/references.md`. Plan and decide. Do not build.
 6. Never `git clone` / `npx skills add` third-party skill repos to satisfy a route.
@@ -25,11 +25,12 @@ Before writing code:
 | Effort bigger than one session, route unclear | Fetch wayfinder. Plan and decide, do not build. |
 | Locked spec or ticket | TDD, then implement |
 | Hard bug with no reliable repro | Fetch diagnosing-bugs, else debugger agent |
-| React / Next.js / Vercel | Fetch the matching **official** URL in `settings/references.md` |
-| Neon PostgreSQL | Fetch neon-postgres official skill |
-| AWS | Fetch aws-toolkit / aws-sdk-js-v3 official skill |
-| Vite | Template `apps/vite` + https://vite.dev/guide/ (no official skills.sh pack) |
-| New app layout | Fetch https://github.com/judigot/template-monorepo README and copy its structure |
+| React | Fetch vercel-react-best-practices and vercel-composition-patterns |
+| Next.js | Fetch https://www.skills.sh/vercel/next.js |
+| Vercel deploy | Fetch deploy-to-vercel |
+| Turborepo | Fetch https://www.skills.sh/vercel/turborepo |
+| Vite | https://vite.dev/guide/ (no official skills.sh pack) |
+| Hono / Zod / Playwright / lint | Overlay rules + `lint-master` / `tdd-ci`. No official maker pack. |
 | "Is there a skill for X?" | Official makers first (https://skills.sh/official), then the catalog |
 | Lint-only or formatter fights | `lint-master` |
 | Unsure which Matt Pocock flow | Fetch ask-matt |

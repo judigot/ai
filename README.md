@@ -48,7 +48,7 @@ Do not start implementation chats with `github.com/judigot/ai` as the workspace 
 
 First-message fallback: `prompts/prompt-init-chat.md`.
 
-Third-party skills are **links only** — `settings/references.md`. Stack defaults and [template-monorepo](https://github.com/judigot/template-monorepo) are in `settings/stack.md`. Do not clone or install third-party skills into this repo.
+Third-party skills are **links only** — `settings/references.md`. Stack and which official skill to fetch are in `settings/stack.md`. Do not clone or install third-party skills into this repo.
 
 ## Directory Structure
 
@@ -75,7 +75,7 @@ ai/
 ├── settings/
 │   ├── rules.md              # Coding rules
 │   ├── workflow.md           # Session protocol
-│   ├── stack.md              # TypeScript / React / Vite / Next / Vercel / Neon / AWS
+│   ├── stack.md              # Current packages → official skills.sh packs
 │   ├── references.md         # URLs to official + other skills (no downloads)
 │   └── pr-body.md            # PR template with manual checklist
 ├── prompts/
@@ -136,11 +136,11 @@ Listed in `settings/references.md`. Fetch the page when the route needs it. Neve
 
 | Pack | URL |
 | --- | --- |
-| Stack template | https://github.com/judigot/template-monorepo |
 | Official makers | https://skills.sh/official |
-| Vercel Labs (React / deploy) | https://www.skills.sh/vercel-labs/agent-skills |
-| Neon | https://www.skills.sh/neondatabase/agent-skills |
-| AWS | https://www.skills.sh/aws/agent-toolkit-for-aws |
+| React performance | https://www.skills.sh/vercel-labs/agent-skills/vercel-react-best-practices |
+| Next.js | https://www.skills.sh/vercel/next.js |
+| Turborepo | https://www.skills.sh/vercel/turborepo |
+| Vercel deploy | https://www.skills.sh/vercel-labs/agent-skills/deploy-to-vercel |
 | Matt Pocock | https://www.skills.sh/mattpocock/skills |
 
 ## Sprint Modes

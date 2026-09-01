@@ -4,26 +4,24 @@ Point at other people's work. Do not clone those repos, copy their files here, o
 
 When a route below applies, **open or fetch the URL** and follow that text for this turn only.
 
-Stack layout lives in `settings/stack.md`. This file is URLs only.
+Which official pack to pick is in `settings/stack.md`. This file is URLs only.
 
 ## Official makers ([skills.sh/official](https://skills.sh/official))
 
-Makers teaching their own products. Prefer these over random catalog hits for this stack.
+These match the packages in the stack (React 19, Next.js, Vite, Turborepo, Vercel). There is no official pack for TypeScript, Vite, Hono, Zod, Bun, Tailwind, Playwright, Biome, or Oxlint.
 
 | When | URL |
 | --- | --- |
 | Official index | https://skills.sh/official |
-| React / Vercel deploy / composition | https://www.skills.sh/vercel-labs/agent-skills |
-| React + Next.js performance | https://www.skills.sh/vercel-labs/agent-skills/vercel-react-best-practices |
+| React performance | https://www.skills.sh/vercel-labs/agent-skills/vercel-react-best-practices |
+| React composition (React 19) | https://www.skills.sh/vercel-labs/agent-skills/vercel-composition-patterns |
 | Next.js | https://www.skills.sh/vercel/next.js |
 | Turborepo | https://www.skills.sh/vercel/turborepo |
+| Deploy to Vercel | https://www.skills.sh/vercel-labs/agent-skills/deploy-to-vercel |
 | Vercel platform / CLI | https://www.skills.sh/vercel |
-| Neon PostgreSQL | https://www.skills.sh/neondatabase/agent-skills |
-| Neon core | https://www.skills.sh/neondatabase/agent-skills/neon-postgres |
-| AWS | https://www.skills.sh/aws/agent-toolkit-for-aws |
-| AWS SDK for JS/TS | https://www.skills.sh/aws/agent-toolkit-for-aws/aws-sdk-js-v3-usage |
+| Vercel Labs pack | https://www.skills.sh/vercel-labs/agent-skills |
 
-TypeScript and Vite have no official maker pack on that index. Use `settings/rules.md`, the template-monorepo, and https://vite.dev/guide/.
+Vite docs (not official-on-skills.sh): https://vite.dev/guide/
 
 ## Broader catalog
 

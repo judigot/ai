@@ -253,7 +253,7 @@ export type IWorkspaceProvisionRequest = z.infer<
 
 Do not ask about these. Do ask when the goal, UX, data model, or success criteria are ambiguous — see `settings/workflow.md`.
 
-- Stack and repo shape: `settings/stack.md` and https://github.com/judigot/template-monorepo
+- Stack: `settings/stack.md`. Official skills: `settings/references.md`.
 - TypeScript strict mode, ESM imports
 - Latest stable versions
 - Bun as package manager

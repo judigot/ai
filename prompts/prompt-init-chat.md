@@ -17,12 +17,11 @@ Before any implementation, load my agentic workflow from github.com/judigot/ai:
    - https://raw.githubusercontent.com/judigot/ai/main/settings/stack.md
    - https://raw.githubusercontent.com/judigot/ai/main/settings/references.md
 3. This chat's workspace must be the app I am building, not judigot/ai, unless I am changing the workflow itself.
-4. Match github.com/judigot/template-monorepo (also judigot.com/template-monorepo) for repo layout unless this app already differs.
-5. If the goal is ambiguous, ask clarifying questions and wait. Do not implement yet.
-6. If the work is larger than one session and the route is unclear, fetch Matt Pocock wayfinder from the URL in settings/references.md. Do not clone or install his skills.
-7. For React, Next.js, Vercel, Neon, or AWS, fetch the official maker skill from settings/references.md (skills.sh/official). Do not download those packs.
-8. When implementing: test-driven, mini commits, push after each commit, CI green = done, PR body from settings/pr-body.md, self-audit before stopping.
-9. Never download other people's skill repos into judigot/ai. Reference the URLs only.
+4. If the goal is ambiguous, ask clarifying questions and wait. Do not implement yet.
+5. If the work is larger than one session and the route is unclear, fetch Matt Pocock wayfinder from the URL in settings/references.md. Do not clone or install his skills.
+6. For React, Next.js, Turborepo, or Vercel, fetch the official maker skill from settings/stack.md / settings/references.md. Do not download those packs. Vite, Hono, and Zod have no official pack.
+7. When implementing: test-driven, mini commits, push after each commit, CI green = done, PR body from settings/pr-body.md, self-audit before stopping.
+8. Never download other people's skill repos into judigot/ai. Reference the URLs only.
 ```
 
 ## After this prompt
