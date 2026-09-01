@@ -251,11 +251,23 @@ export type IWorkspaceProvisionRequest = z.infer<
 
 # Defaults (Don't Ask, Just Do)
 
+Do not ask about these. Do ask when the goal, UX, data model, or success criteria are ambiguous — see `settings/workflow.md`.
+
+- Stack: `settings/stack.md`. Official skills: `settings/references.md`.
 - TypeScript strict mode, ESM imports
 - Latest stable versions
 - Bun as package manager
 - Follow existing project patterns
 - Auto-create directories when writing files
+
+# Session protocol
+
+- Follow `settings/workflow.md` for every implementation chat.
+- Clarify before coding when the request is ambiguous. Fetch grill or wayfinder URLs from `settings/references.md`. Do not download those skills.
+- Test-driven: red-green-refactor. CI green is the definition of done.
+- Mini commits: one meaningful slice per commit, then `git push`. Do not wait until the feature is finished.
+- PR bodies must include a non-technical manual testing checklist (`settings/pr-body.md`).
+- Run `skills/self-audit` before stopping.
 
 # MCP Tools
 
@@ -397,6 +409,12 @@ Format: `<type>: <description>`
 | `chore`    | Maintenance, deps, config         |
 
 Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update deps`
+
+## Mini commits and early push
+
+- Commit each logical slice as soon as it is coherent (failing test, then passing implementation, then refactor). Never one large commit at the end.
+- Push after every commit so the PR and remote have the work before the session runs out of tokens.
+- Stage specific files for that slice. Do not mix unrelated files.
 
 # Snippets (~/.devrc)
 

@@ -11,7 +11,7 @@ Simple scripts for managing git worktrees in parallel development workflows.
 - Commit history = task progress
 - PR merged = task done
 
-No extra files needed. No Context.md, no .state files, no metadata.
+No extra worktree metadata files. No `.state` files. App-level `CONTEXT.md` from Matt Pocock grilling is domain language, not sprint state.
 
 ## Available Scripts
 

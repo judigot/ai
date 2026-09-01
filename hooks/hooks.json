@@ -10,6 +10,10 @@
         {
           "type": "command",
           "command": "cat ${CLAUDE_PLUGIN_ROOT}/settings/rules.md"
+        },
+        {
+          "type": "command",
+          "command": "cat ${CLAUDE_PLUGIN_ROOT}/settings/workflow.md"
         }
       ]
     }
@@ -40,7 +44,7 @@
       "hooks": [
         {
           "type": "prompt",
-          "prompt": "Before finishing: Ensure commit messages are short and semantic. Verify no console.log statements were added."
+          "prompt": "Before finishing: run self-audit. Mini commits must be pushed. Tests/CI must be green. PR body must include a non-technical manual testing checklist. No console.log. Unpushed work is a failure."
         }
       ]
     }
