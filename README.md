@@ -33,26 +33,21 @@ cc
 
 All your agents, skills, hooks, and rules are now available!
 
-### 4. Attach official + Matt Pocock skills (once per machine)
-
-```sh
-~/ai/scripts/install-external-skills.sh
-```
-
-This overlay does **not** vendor those skill files. Install them globally, then in each app repo run `/setup-matt-pocock-skills` once.
-
-### 5. Point other agents at this overlay
+### 4. Point other agents at this overlay
 
 In each app repo, keep a short `AGENTS.md` (and `CLAUDE.md` → `@AGENTS.md`):
 
 ```md
 @~/ai/settings/rules.md
 @~/ai/settings/workflow.md
+@~/ai/settings/references.md
 ```
 
 Do not start implementation chats with `github.com/judigot/ai` as the workspace unless you are changing this plugin. Load this overlay first, then work in the app.
 
 First-message fallback: `prompts/prompt-init-chat.md`.
+
+Third-party skills (Matt Pocock, skills.sh, and so on) are **links only** — `settings/references.md`. Do not clone or install them into this repo.
 
 ## Directory Structure
 
@@ -67,7 +62,7 @@ ai/
 │   └── agentic-workflow.md   # Multi-agent coordination
 ├── skills/                   # Overlay skills (subdirectories)
 │   ├── setup-entrypoint/     # Load overlay, clarify, route
-│   ├── find-skills/          # skills.sh registry
+│   ├── find-skills/          # skills.sh lookup (URLs only)
 │   ├── tdd-ci/               # Red-green-refactor; CI = done
 │   ├── self-audit/           # Pre-stop checklist
 │   ├── lint-master/
@@ -79,6 +74,7 @@ ai/
 ├── settings/
 │   ├── rules.md              # Coding rules
 │   ├── workflow.md           # Session protocol
+│   ├── references.md         # URLs to other people's skills (no downloads)
 │   └── pr-body.md            # PR template with manual checklist
 ├── prompts/
 │   └── prompt-init-chat.md   # First message when includes are missing
@@ -98,7 +94,7 @@ Your personal coding rules are stored in `settings/rules.md`, separate from `~/.
 
 Session start loads `settings/rules.md` and `settings/workflow.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping.
 
-Matt Pocock `/grill-with-docs` may create a `CONTEXT.md` in the **app** repo. That is domain language, not worktree state. Worktrees still use git only.
+If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 
 ### Global Plugin Loading
 
@@ -126,20 +122,20 @@ This applies your agents, skills, hooks, and settings globally without copying f
 | Skill | Purpose |
 |-------|---------|
 | `setup-entrypoint` | Load this overlay, clarify, route to wayfinder/TDD before coding |
-| `find-skills` | Search and install from [skills.sh](https://skills.sh) |
+| `find-skills` | Look up skills on [skills.sh](https://skills.sh) and fetch the page. Do not install. |
 | `tdd-ci` | Red-green-refactor; CI is the success signal |
 | `self-audit` | Pre-stop checklist: commits, push, CI, PR |
 | `lint-master` | Multi-tool linting workflow (ESLint > Oxlint > Biome) |
 | `test-master` | Testing infrastructure and implementation |
 
-### External skills (not in this repo)
+### External work (URLs only)
 
-| Pack | Why |
+Listed in `settings/references.md`. Fetch the page when the route needs it. Never clone those repos into `judigot/ai`.
+
+| Pack | URL |
 | --- | --- |
-| [skills.sh](https://skills.sh) / `npx skills` | Official registry. Use `find-skills` instead of inventing a catalog. |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | `/setup-matt-pocock-skills`, `/grill-with-docs`, `/tdd`, `/wayfinder`, `/ask-matt` |
-
-Install once with `~/ai/scripts/install-external-skills.sh`. Do not copy those files into `~/ai`. Pick either the Claude Code plugin **or** `npx skills add` for Matt Pocock, not both.
+| Official catalog | https://skills.sh |
+| Matt Pocock catalog | https://www.skills.sh/mattpocock/skills |
 
 ## Sprint Modes
 
@@ -174,7 +170,7 @@ Local projects can have their own settings that extend the global ones:
 
 ```
 my-project/
-├── AGENTS.md                 # @~/ai/settings/rules.md and workflow.md
+├── AGENTS.md                 # @~/ai/settings/rules.md, workflow.md, references.md
 ├── CLAUDE.md                 # @AGENTS.md
 ├── .claude/
 │   └── settings.local.json   # Project-specific settings

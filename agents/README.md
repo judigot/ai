@@ -57,7 +57,7 @@ When asked about agents, provide clear, concise information from the documentati
 | Skill               | Purpose                                              |
 | ------------------- | ---------------------------------------------------- |
 | `setup-entrypoint`  | Session start: load overlay, clarify, route          |
-| `find-skills`       | Official skills.sh discovery                         |
+| `find-skills`       | Look up skills.sh URLs; do not install         |
 | `tdd-ci`            | Red-green-refactor; CI is done                       |
 | `self-audit`        | Pre-stop: push, tests, PR checklist                  |
 

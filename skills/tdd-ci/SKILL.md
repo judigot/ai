@@ -1,13 +1,13 @@
 ---
 name: tdd-ci
-description: Use this skill when implementing a feature or bugfix that can be covered by tests. Drive red-green-refactor, commit each slice, and treat CI as the success signal. Prefer Matt Pocock /tdd when that skill is installed.
+description: Use this skill when implementing a feature or bugfix that can be covered by tests. Drive red-green-refactor, commit each slice, and treat CI as the success signal. Fetch Matt Pocock tdd from settings/references.md if you want his loop; do not install it.
 ---
 
 # Test-driven delivery
 
 Users often only look at CI. A change is not done because it looks right locally. It is done when the suite that CI runs is green for this change.
 
-If Matt Pocock `/tdd` is installed, follow that skill for the red-green-refactor loop. This file adds the overlay's CI and commit rules.
+If you want Matt Pocock's red-green-refactor detail, fetch the tdd URL in `settings/references.md`. Do not install it. This file is the overlay's CI and commit rules.
 
 ## Loop (one vertical slice)
 

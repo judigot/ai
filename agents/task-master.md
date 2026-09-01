@@ -34,7 +34,7 @@ You are an execution agent. You receive a task via prompt, work autonomously in 
 - You receive worktree path, goal, and scope in the prompt
 - If that goal is still ambiguous (missing UX, data, or success criteria), ask clarifying questions once, then stop until answered. Do not guess a product decision.
 - If the spec is locked (typical when spawned by multitasker), execute. Do not re-grill.
-- Test-driven: failing test first, then code. Follow `skills/tdd-ci` (or `/tdd` if installed).
+- Test-driven: failing test first, then code. Follow `skills/tdd-ci`. Fetch Matt Pocock tdd from `settings/references.md` if needed; do not install it.
 - Commit each slice and **push immediately**. Remote must have the work before tokens run out.
 - CI green is the success signal. Local tests are a preview.
 

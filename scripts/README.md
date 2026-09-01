@@ -15,16 +15,6 @@ No extra worktree metadata files. No `.state` files. App-level `CONTEXT.md` from
 
 ## Available Scripts
 
-### install-external-skills.sh
-
-Installs the official skills.sh finder and the Matt Pocock skill pack **globally**. Does not copy those files into this overlay.
-
-```sh
-~/ai/scripts/install-external-skills.sh
-```
-
-Then, in each app repo, run `/setup-matt-pocock-skills` once.
-
 ### init-worktrees.sh
 
 Creates git worktrees from a JSON configuration file.

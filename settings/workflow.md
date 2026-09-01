@@ -1,6 +1,8 @@
 # Session protocol
 
-This repository is the overlay for every agentic chat: coding rules, routing, and delivery discipline. It does not replace [skills.sh](https://skills.sh) or [mattpocock/skills](https://github.com/mattpocock/skills). Install those separately (`scripts/install-external-skills.sh`). Do not copy their skill files into this repo.
+This repository is the overlay for every agentic chat: coding rules, routing, and delivery discipline.
+
+Other people's skills live on the web. **Reference them. Do not download them.** See `settings/references.md`.
 
 Implement in the user's project. Only edit `judigot/ai` when the user is changing this workflow.
 
@@ -10,26 +12,26 @@ Before writing code:
 
 1. Follow `settings/rules.md` and this file.
 2. Confirm the workspace is the **app repo**, not this overlay.
-3. If the goal, UX, or success criteria are ambiguous, **ask clarifying questions** (use `/grill-me` or `/grill-with-docs` when those skills are installed). Do not implement yet.
-4. If the destination is nameable but the route is not, and the work will not fit one session, use `/wayfinder`. That requires Matt Pocock skills plus `/setup-matt-pocock-skills` once in the target repo.
-5. If those skills are missing, tell the user to run `~/ai/scripts/install-external-skills.sh` rather than inventing a parallel process.
+3. If the goal, UX, or success criteria are ambiguous, **ask clarifying questions**. For a full grilling session, fetch the grill URL in `settings/references.md`. Do not implement yet.
+4. If the destination is nameable but the route is not, and the work will not fit one session, fetch and follow **wayfinder** from `settings/references.md`. Plan and decide. Do not build.
+5. Never `git clone` / `npx skills add` third-party skill repos to satisfy a route.
 
 ## 2. Route
 
 | Situation | Do this |
 | --- | --- |
-| Ambiguous product or behavior | Clarify / grill. Do not code. |
-| Effort bigger than one session, route unclear | `/wayfinder` (plan and decide, do not build) |
+| Ambiguous product or behavior | Clarify / fetch grill. Do not code. |
+| Effort bigger than one session, route unclear | Fetch wayfinder. Plan and decide, do not build. |
 | Locked spec or ticket | TDD, then implement |
-| Hard bug with no reliable repro | `/diagnosing-bugs` if installed, else debugger agent |
-| "Is there a skill for X?" | `find-skills` / `npx skills find` |
+| Hard bug with no reliable repro | Fetch diagnosing-bugs, else debugger agent |
+| "Is there a skill for X?" | Open https://skills.sh and fetch the matching page |
 | Lint-only or formatter fights | `lint-master` |
-| Unsure which Matt Pocock flow | `/ask-matt` |
+| Unsure which Matt Pocock flow | Fetch ask-matt |
 
 ## 3. Test-driven delivery
 
 - Red → green → refactor, one vertical slice at a time.
-- Prefer Matt Pocock `/tdd` when installed; otherwise follow `skills/tdd-ci/SKILL.md`.
+- Overlay rules: `skills/tdd-ci/SKILL.md`. For Matt Pocock's loop, fetch the tdd URL in `settings/references.md` — do not install it.
 - Write the failing test first. Commit it. Then write the minimum code that makes it pass.
 - **CI is the success signal.** Local tests are a preview. Do not treat the task as done while CI is red or missing for a change that should be covered.
 - Users will often only look at CI. Make that status trustworthy.

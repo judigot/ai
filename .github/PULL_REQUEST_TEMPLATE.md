@@ -14,12 +14,13 @@ Do these in order. Check each box when that step matches. Written so someone who
 - [ ] Read `settings/workflow.md`. You should see the session steps: setup → clarify or wayfinder → TDD → mini commits → PR checklist → self-audit.
 - [ ] Open `prompts/prompt-init-chat.md`. You should see a first message you can paste into a new agent chat.
 - [ ] Open `settings/pr-body.md`. You should see a checklist template meant for non-technical testers.
-- [ ] If this change is only documentation/skills: there is nothing to click in an app. Success is that the files above match what this PR describes.
+- [ ] Open `settings/references.md`. You should see links to skills.sh and Matt Pocock pages, and a rule not to download those repos.
+- [ ] Confirm there is no `scripts/install-external-skills.sh`.
 
 ## Automated checks
 
-- [ ] CI is green, or this repo has no CI and `shellcheck scripts/install-external-skills.sh` was run.
+- [ ] CI is green, or this repo has no CI and the listed files exist.
 
 ## Out of scope
 
-- Installing Matt Pocock or skills.sh files into this repository (they stay external).
+- Downloading or vendoring Matt Pocock / skills.sh files into this repository. URLs only.
