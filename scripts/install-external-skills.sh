@@ -3,7 +3,8 @@
 # Install official skills.sh finder + Matt Pocock skills globally.
 # Do not copy those files into this overlay; they update on their own.
 
-readonly PROJECT_DIRECTORY=$(cd "$(dirname "$0")/.." || exit 1; pwd)
+PROJECT_DIRECTORY=$(cd "$(dirname "$0")/.." || exit 1; pwd)
+readonly PROJECT_DIRECTORY
 
 main() {
 	cd "$PROJECT_DIRECTORY" || exit 1
