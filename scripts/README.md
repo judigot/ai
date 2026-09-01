@@ -11,9 +11,19 @@ Simple scripts for managing git worktrees in parallel development workflows.
 - Commit history = task progress
 - PR merged = task done
 
-No extra files needed. No Context.md, no .state files, no metadata.
+No extra worktree metadata files. No `.state` files. App-level `CONTEXT.md` from Matt Pocock grilling is domain language, not sprint state.
 
 ## Available Scripts
+
+### install-external-skills.sh
+
+Installs the official skills.sh finder and the Matt Pocock skill pack **globally**. Does not copy those files into this overlay.
+
+```sh
+~/ai/scripts/install-external-skills.sh
+```
+
+Then, in each app repo, run `/setup-matt-pocock-skills` once.
 
 ### init-worktrees.sh
 

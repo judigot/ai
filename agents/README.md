@@ -52,6 +52,15 @@ When asked about agents, provide clear, concise information from the documentati
 | `test-generator`        | Generate test cases for code                       |
 | `vite-nginx-playground` | Vite dev server + Nginx slug setup for judigot.com |
 
+## Overlay skills
+
+| Skill               | Purpose                                              |
+| ------------------- | ---------------------------------------------------- |
+| `setup-entrypoint`  | Session start: load overlay, clarify, route          |
+| `find-skills`       | Official skills.sh discovery                         |
+| `tdd-ci`            | Red-green-refactor; CI is done                       |
+| `self-audit`        | Pre-stop: push, tests, PR checklist                  |
+
 ## Agent File Format
 
 All agents follow the Claude Code standard format with YAML frontmatter:

@@ -33,6 +33,27 @@ cc
 
 All your agents, skills, hooks, and rules are now available!
 
+### 4. Attach official + Matt Pocock skills (once per machine)
+
+```sh
+~/ai/scripts/install-external-skills.sh
+```
+
+This overlay does **not** vendor those skill files. Install them globally, then in each app repo run `/setup-matt-pocock-skills` once.
+
+### 5. Point other agents at this overlay
+
+In each app repo, keep a short `AGENTS.md` (and `CLAUDE.md` → `@AGENTS.md`):
+
+```md
+@~/ai/settings/rules.md
+@~/ai/settings/workflow.md
+```
+
+Do not start implementation chats with `github.com/judigot/ai` as the workspace unless you are changing this plugin. Load this overlay first, then work in the app.
+
+First-message fallback: `prompts/prompt-init-chat.md`.
+
 ## Directory Structure
 
 ```
@@ -44,18 +65,25 @@ ai/
 │   ├── task-master.md        # Worktree task execution
 │   ├── multitasker.md        # Parallel worktree management
 │   └── agentic-workflow.md   # Multi-agent coordination
-├── skills/                   # Specialized skills (subdirectories)
+├── skills/                   # Overlay skills (subdirectories)
+│   ├── setup-entrypoint/     # Load overlay, clarify, route
+│   ├── find-skills/          # skills.sh registry
+│   ├── tdd-ci/               # Red-green-refactor; CI = done
+│   ├── self-audit/           # Pre-stop checklist
 │   ├── lint-master/
-│   │   └── SKILL.md          # Multi-tool linting workflow
 │   └── test-master/
-│       └── SKILL.md          # Testing infrastructure
 ├── hooks/
 │   └── hooks.json            # SessionStart, PreToolUse, Stop hooks
 ├── commands/                 # Slash commands (.md files)
 ├── scripts/                  # Helper scripts
-├── settings/                 # Personal settings (compartmentalized)
-│   └── rules.md              # Coding rules loaded on session start
-├── CLAUDE.md                 # Plugin entry point
+├── settings/
+│   ├── rules.md              # Coding rules
+│   ├── workflow.md           # Session protocol
+│   └── pr-body.md            # PR template with manual checklist
+├── prompts/
+│   └── prompt-init-chat.md   # First message when includes are missing
+├── AGENTS.md                 # First file agents read
+├── CLAUDE.md                 # Points at AGENTS.md
 └── README.md
 ```
 
@@ -68,23 +96,9 @@ Your personal coding rules are stored in `settings/rules.md`, separate from `~/.
 - **Version control**: Track changes to your rules over time
 - **Portability**: Same settings across all machines
 
-The `hooks/hooks.json` loads your rules on every session start:
+Session start loads `settings/rules.md` and `settings/workflow.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping.
 
-```json
-{
-  "SessionStart": [
-    {
-      "matcher": "*",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "cat ${CLAUDE_PLUGIN_ROOT}/settings/rules.md"
-        }
-      ]
-    }
-  ]
-}
-```
+Matt Pocock `/grill-with-docs` may create a `CONTEXT.md` in the **app** repo. That is domain language, not worktree state. Worktrees still use git only.
 
 ### Global Plugin Loading
 
@@ -111,8 +125,21 @@ This applies your agents, skills, hooks, and settings globally without copying f
 
 | Skill | Purpose |
 |-------|---------|
+| `setup-entrypoint` | Load this overlay, clarify, route to wayfinder/TDD before coding |
+| `find-skills` | Search and install from [skills.sh](https://skills.sh) |
+| `tdd-ci` | Red-green-refactor; CI is the success signal |
+| `self-audit` | Pre-stop checklist: commits, push, CI, PR |
 | `lint-master` | Multi-tool linting workflow (ESLint > Oxlint > Biome) |
 | `test-master` | Testing infrastructure and implementation |
+
+### External skills (not in this repo)
+
+| Pack | Why |
+| --- | --- |
+| [skills.sh](https://skills.sh) / `npx skills` | Official registry. Use `find-skills` instead of inventing a catalog. |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | `/setup-matt-pocock-skills`, `/grill-with-docs`, `/tdd`, `/wayfinder`, `/ask-matt` |
+
+Install once with `~/ai/scripts/install-external-skills.sh`. Do not copy those files into `~/ai`. Pick either the Claude Code plugin **or** `npx skills add` for Matt Pocock, not both.
 
 ## Sprint Modes
 
@@ -129,7 +156,7 @@ The multitasker will:
 2. Spawn task-master subagents via Task tool (in parallel)
 3. Report results when done
 
-**Philosophy:** Git is the only source of truth. No Context.md, no .state files, no metadata.
+**Philosophy:** Git is the only source of truth for worktrees. No `.state` files. An app-level `CONTEXT.md` from Matt Pocock grilling is optional domain language, not sprint metadata.
 
 ### Mode B: Sequential Ralph Loop
 
@@ -147,7 +174,8 @@ Local projects can have their own settings that extend the global ones:
 
 ```
 my-project/
-├── CLAUDE.md                 # Project-specific rules
+├── AGENTS.md                 # @~/ai/settings/rules.md and workflow.md
+├── CLAUDE.md                 # @AGENTS.md
 ├── .claude/
 │   └── settings.local.json   # Project-specific settings
 └── agents/                   # Project-specific agents (optional)
