@@ -4,15 +4,34 @@ Point at other people's work. Do not clone those repos, copy their files here, o
 
 When a route below applies, **open or fetch the URL** and follow that text for this turn only.
 
-## Official registry
+Stack layout lives in `settings/stack.md`. This file is URLs only.
+
+## Official makers ([skills.sh/official](https://skills.sh/official))
+
+Makers teaching their own products. Prefer these over random catalog hits for this stack.
+
+| When | URL |
+| --- | --- |
+| Official index | https://skills.sh/official |
+| React / Vercel deploy / composition | https://www.skills.sh/vercel-labs/agent-skills |
+| React + Next.js performance | https://www.skills.sh/vercel-labs/agent-skills/vercel-react-best-practices |
+| Next.js | https://www.skills.sh/vercel/next.js |
+| Turborepo | https://www.skills.sh/vercel/turborepo |
+| Vercel platform / CLI | https://www.skills.sh/vercel |
+| Neon PostgreSQL | https://www.skills.sh/neondatabase/agent-skills |
+| Neon core | https://www.skills.sh/neondatabase/agent-skills/neon-postgres |
+| AWS | https://www.skills.sh/aws/agent-toolkit-for-aws |
+| AWS SDK for JS/TS | https://www.skills.sh/aws/agent-toolkit-for-aws/aws-sdk-js-v3-usage |
+
+TypeScript and Vite have no official maker pack on that index. Use `settings/rules.md`, the template-monorepo, and https://vite.dev/guide/.
+
+## Broader catalog
 
 | What | URL |
 | --- | --- |
-| Catalog | https://skills.sh |
+| Full skills.sh catalog | https://skills.sh |
 | Vercel Labs skills CLI repo | https://github.com/vercel-labs/skills |
 | `find-skills` (source) | https://github.com/vercel-labs/skills/blob/main/skills/find-skills/SKILL.md |
-
-Search by opening https://skills.sh or fetching a skill page. Do not install.
 
 ## Matt Pocock
 

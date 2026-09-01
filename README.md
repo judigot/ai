@@ -40,6 +40,7 @@ In each app repo, keep a short `AGENTS.md` (and `CLAUDE.md` → `@AGENTS.md`):
 ```md
 @~/ai/settings/rules.md
 @~/ai/settings/workflow.md
+@~/ai/settings/stack.md
 @~/ai/settings/references.md
 ```
 
@@ -47,7 +48,7 @@ Do not start implementation chats with `github.com/judigot/ai` as the workspace 
 
 First-message fallback: `prompts/prompt-init-chat.md`.
 
-Third-party skills (Matt Pocock, skills.sh, and so on) are **links only** — `settings/references.md`. Do not clone or install them into this repo.
+Third-party skills are **links only** — `settings/references.md`. Stack defaults and [template-monorepo](https://github.com/judigot/template-monorepo) are in `settings/stack.md`. Do not clone or install third-party skills into this repo.
 
 ## Directory Structure
 
@@ -74,7 +75,8 @@ ai/
 ├── settings/
 │   ├── rules.md              # Coding rules
 │   ├── workflow.md           # Session protocol
-│   ├── references.md         # URLs to other people's skills (no downloads)
+│   ├── stack.md              # TypeScript / React / Vite / Next / Vercel / Neon / AWS
+│   ├── references.md         # URLs to official + other skills (no downloads)
 │   └── pr-body.md            # PR template with manual checklist
 ├── prompts/
 │   └── prompt-init-chat.md   # First message when includes are missing
@@ -134,8 +136,12 @@ Listed in `settings/references.md`. Fetch the page when the route needs it. Neve
 
 | Pack | URL |
 | --- | --- |
-| Official catalog | https://skills.sh |
-| Matt Pocock catalog | https://www.skills.sh/mattpocock/skills |
+| Stack template | https://github.com/judigot/template-monorepo |
+| Official makers | https://skills.sh/official |
+| Vercel Labs (React / deploy) | https://www.skills.sh/vercel-labs/agent-skills |
+| Neon | https://www.skills.sh/neondatabase/agent-skills |
+| AWS | https://www.skills.sh/aws/agent-toolkit-for-aws |
+| Matt Pocock | https://www.skills.sh/mattpocock/skills |
 
 ## Sprint Modes
 
@@ -170,7 +176,7 @@ Local projects can have their own settings that extend the global ones:
 
 ```
 my-project/
-├── AGENTS.md                 # @~/ai/settings/rules.md, workflow.md, references.md
+├── AGENTS.md                 # @~/ai/settings/rules.md, workflow.md, stack.md, references.md
 ├── CLAUDE.md                 # @AGENTS.md
 ├── .claude/
 │   └── settings.local.json   # Project-specific settings
