@@ -1,2 +1,3 @@
-@~/ai/README.md
-@~/ai/settings/rules.md
+@README.md
+@settings/rules.md
+@settings/workflow.md
