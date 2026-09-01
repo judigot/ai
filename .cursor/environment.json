@@ -1,0 +1,5 @@
+{
+  "name": "AI Claude Code Plugin",
+  "user": "ubuntu",
+  "install": "sh ./.cursor/install.sh"
+}
