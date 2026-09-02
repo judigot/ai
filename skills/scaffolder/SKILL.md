@@ -52,13 +52,14 @@ Column: `name:type[?][!u][#pk][>fk_table]`
 | `:b` | boolean |
 | `:D` | Date |
 | `:o` | object |
+| `:u` or `:uuid` | uuid |
 
 Modifiers: `?` nullable, `!u` unique, `#pk` primary key, `>table` foreign key to `table.id`.  
 Relationships after `|`: `|<a,b` belongsTo, `|>a,b` hasMany, `|^a` hasOne, `|*a` belongsToMany.
 
-Always apply without asking: hashed passwords (`hashed_password`, never plain `password`), unique email, `id` PK, `created_at`/`updated_at`, snake_case names, pivot tables for many-to-many.
+Always apply without asking: hashed passwords (`hashed_password`, never plain `password`), unique email, `id` PK, timestamps, pivot tables for many-to-many.
 
-Compact types are only `s/n/b/D/o`. There is no compact `uuid`. JSON `data_type` accepted by the API is only `string`, `number`, `boolean`, `Date`, `object`. Column and table names must be snake_case (`^[a-z][a-z0-9_]*$`).
+JSON `data_type` values: `string`, `number`, `boolean`, `Date`, `object`, `uuid`. Compact codes are `s/n/b/D/o/u` (`:uuid` is an alias for `:u`). Table names stay snake_case (`^[a-z][a-z0-9_]*$`). Column names are identifiers (`^[A-Za-z][A-Za-z0-9_]*$`): snake_case or camelCase. Use camelCase when the project filter or Lucia-style auth columns need it (`userId`, `createdAt`).
 
 ### Project: `hono-react`
 
@@ -69,9 +70,16 @@ Default fullstack MVP project. Its `$SCHEMA_FILTER` requires all of:
 - `user.id.data_type=uuid`
 - `session.userId` has a foreign key
 
-That filter and the API validator currently disagree: compact cannot express `uuid`, and JSON `data_type: "uuid"` is rejected. Do **not** retry `hono-react` with numeric ids (filter fails). Do **not** invent a local file write into the target repo. Report the API error (`INVALID_SCHEMA` or `SCHEMA_FILTER_FAILED`) and wait. A validator/filter fix belongs in `judigot/scaffolder` only if the user authorized that repo.
+Send uuid ids and camelCase `session.userId`. Do **not** retry `hono-react` with numeric ids (filter fails). Example:
 
-If the user accepts a different stack, pick a project **without** a uuid filter and say so before calling.
+```
+<@@SCHEMA@@>
+@user:id:u#pk,email:s!u,hashed_password:s,createdAt:D,updatedAt:D|>session
+@session:id:s#pk,userId:u>user,expiresAt:D|<user
+<@@/SCHEMA@@>
+```
+
+Equivalent JSON uses `"data_type": "uuid"` and `"column_name": "userId"`. If a deployed host still returns `INVALID_SCHEMA` for uuid or camelCase, the API is behind this contract — do not rewrite the schema to numeric ids. Do **not** invent a local file write into the target repo.
 
 ## Call the API
 
