@@ -35,7 +35,11 @@ All your agents, skills, hooks, and rules are now available!
 
 ### 4. Point other agents at this overlay
 
-In each app repo, keep a short `AGENTS.md` (and `CLAUDE.md` → `@AGENTS.md`):
+Do not copy this overlay into an app. Seed each app from
+[`judigot/project-core`](https://github.com/judigot/project-core) so it has
+`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, and `agents/`.
+
+`AGENTS.md` should start with:
 
 ```md
 @~/ai/settings/rules.md
@@ -44,6 +48,9 @@ In each app repo, keep a short `AGENTS.md` (and `CLAUDE.md` → `@AGENTS.md`):
 @~/ai/settings/references.md
 @~/ai/settings/ecosystem.md
 ```
+
+Then add a short repo-specific section. Application code starts from
+`judigot/template-monorepo`, not from this overlay.
 
 Do not start implementation chats with `github.com/judigot/ai` as the workspace unless you are changing this plugin. Load this overlay first, then work in the app.
 
@@ -177,12 +184,13 @@ For tasks that touch the same files or need strict sequencing:
 Local projects can have their own settings that extend the global ones:
 
 ```
-my-project/
-├── AGENTS.md                 # @~/ai/settings/rules.md, workflow.md, stack.md, references.md, ecosystem.md
+my-project/                   # seeded from judigot/project-core
+├── AGENTS.md                 # overlay includes + repo-specific section
 ├── CLAUDE.md                 # @AGENTS.md
-├── .claude/
-│   └── settings.local.json   # Project-specific settings
-└── agents/                   # Project-specific agents (optional)
+├── .cursor/rules/            # always-on overlay + project agents
+├── agents/                   # project-specific agents
+└── .claude/
+    └── settings.local.json   # optional local Claude settings
 ```
 
 Claude Code loads in this order:
