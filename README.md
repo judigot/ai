@@ -4,7 +4,10 @@ A centralized Claude Code plugin containing agents, skills, hooks, and coding ru
 
 ## Quick Start
 
-### 1. Clone to a permanent location
+### 1. Optional: local Claude Code plugin
+
+Only needed if you run Claude Code with `--plugin-dir`. Agents do not clone
+this repo; they fetch `AGENTS.md` from GitHub raw.
 
 ```sh
 git clone https://github.com/judigot/ai.git ~/ai
@@ -39,11 +42,13 @@ Do not copy this overlay into an app. Seed each app from
 [`judigot/project-core`](https://github.com/judigot/project-core) so it has
 `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, and `agents/`.
 
-Each app `AGENTS.md` should load this overlay from **one entrypoint**:
-`github.com/judigot/ai` starting at `AGENTS.md`. Prefer `~/ai/AGENTS.md` when
-that clone exists; otherwise fetch
-`https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md` and the files it
-names. Then add a short repo-specific section.
+Each app `AGENTS.md` should load this overlay **remotely** from one
+entrypoint: fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md`
+and the files it names. Then add a short repo-specific section.
+
+Always fetch that live tree. Do not clone this repository to load it, and do
+not read `~/ai` or any other local clone (those copies can be stale). Cloning
+`~/ai` is only for the optional local Claude Code plugin above.
 
 The app repo is the workspace. Do not clone or treat this overlay as the
 project unless you are changing the overlay.

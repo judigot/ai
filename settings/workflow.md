@@ -10,7 +10,7 @@ Implement in the user's project. Only edit `judigot/ai` when the user is changin
 
 Before writing code:
 
-1. Start at this overlay's `AGENTS.md`, then follow the files it names (`settings/rules.md`, `settings/stack.md`, and this file).
+1. Start at this overlay's `AGENTS.md` (fetch GitHub raw on `main`; do not clone this repo to load it, and do not read `~/ai` or other local clones). Then follow the files it names (`settings/rules.md`, `settings/stack.md`, and this file). If the user is changing this overlay in the `judigot/ai` workspace, use the workspace files instead.
 2. Confirm the workspace is the **app repo**, not this overlay.
 3. Use the official skill for that layer in `settings/stack.md`. Do not invent a parallel stack.
 4. Search this project before inventing a new solution.

@@ -4,7 +4,9 @@ Run this before implementation. The overlay lives in `judigot/ai`. Coding happen
 
 ## Load
 
-1. Start at `AGENTS.md` in `github.com/judigot/ai`. If `~/ai` exists, read `~/ai/AGENTS.md`. Else fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md`. Then follow the files it names from that same tree.
+1. Start at `AGENTS.md` in `github.com/judigot/ai`.
+   - If the user is changing this overlay and the workspace is `judigot/ai`, read the workspace files.
+   - Otherwise fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md` and the files it names from that same tree. Always use that live tree. Do not clone this overlay. Do not read `~/ai` or any other local clone; those copies can be stale.
 2. Decide workspace:
    - User is changing this plugin → stay in `judigot/ai`.
    - Workspace is `judigot/template-monorepo` → also read that repo's `docs/ecosystem.md`.
