@@ -40,7 +40,7 @@ All your agents, skills, hooks, and rules are now available!
 
 Do not copy this overlay into an app. Seed each app from
 [`judigot/project-core`](https://github.com/judigot/project-core) so it has
-`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, and `agents/`.
+`AGENTS.md`, `CLAUDE.md`, and `agents/`.
 
 Each app `AGENTS.md` should load this overlay **remotely** from one
 entrypoint: fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md`
@@ -188,9 +188,8 @@ Local projects can have their own settings that extend the global ones:
 
 ```
 my-project/                   # seeded from judigot/project-core
-├── AGENTS.md                 # overlay includes + repo-specific section
-├── CLAUDE.md                 # @AGENTS.md
-├── .cursor/rules/            # always-on overlay + project agents
+├── AGENTS.md                 # overlay loader + repo-specific section
+├── CLAUDE.md                 # Follow AGENTS.md
 ├── agents/                   # project-specific agents
 └── .claude/
     └── settings.local.json   # optional local Claude settings

@@ -25,7 +25,7 @@ reusable personal engineering foundation based on real experience.
 | Repository | Role |
 | --- | --- |
 | `judigot/template-monorepo` | Shared application foundation. Generic only. |
-| `judigot/project-core` | Per-project agent stub (`AGENTS.md`, `.cursor/`, `agents/`). Copy into every app. |
+| `judigot/project-core` | Per-project agent stub (`AGENTS.md`, `CLAUDE.md`, `agents/`). Copy into every app. |
 | `judigot/bookingwars` | Active product from the template. Independent product evolution plus a source of patterns that may be promoted. |
 | `judigot/ecommerce-app` | Active product. Same dual role. Divergence is allowed when requirements differ. |
 | `judigot/ai` | This overlay. Rules, workflow, skills — not app code. |
