@@ -10,7 +10,7 @@ Implement in the user's project. Only edit `judigot/ai` when the user is changin
 
 Before writing code:
 
-1. Follow `settings/rules.md`, `settings/stack.md`, and this file.
+1. Start at this overlay's `AGENTS.md`, then follow the files it names (`settings/rules.md`, `settings/stack.md`, and this file).
 2. Confirm the workspace is the **app repo**, not this overlay.
 3. Use the official skill for that layer in `settings/stack.md`. Do not invent a parallel stack.
 4. Search this project before inventing a new solution.
@@ -18,7 +18,7 @@ Before writing code:
 6. If the destination is nameable but the route is not, and the work will not fit one session, fetch and follow **wayfinder** from `settings/references.md`. Plan and decide. Do not build.
 7. Never `git clone` / `npx skills add` third-party skill repos to satisfy a route.
 
-When the workspace is `judigot/template-monorepo`, also follow `settings/ecosystem.md`.
+When the workspace is `judigot/template-monorepo`, also follow that repo's `docs/ecosystem.md`.
 
 ## 2. Route
 

@@ -39,20 +39,18 @@ Do not copy this overlay into an app. Seed each app from
 [`judigot/project-core`](https://github.com/judigot/project-core) so it has
 `AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, and `agents/`.
 
-`AGENTS.md` should start with:
+Each app `AGENTS.md` should load this overlay from **one entrypoint**:
+`github.com/judigot/ai` starting at `AGENTS.md`. Prefer `~/ai/AGENTS.md` when
+that clone exists; otherwise fetch
+`https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md` and the files it
+names. Then add a short repo-specific section.
 
-```md
-@~/ai/settings/rules.md
-@~/ai/settings/workflow.md
-@~/ai/settings/stack.md
-@~/ai/settings/references.md
-```
+The app repo is the workspace. Do not clone or treat this overlay as the
+project unless you are changing the overlay.
 
-Then add a short repo-specific section. Product apps stay standalone. Do not
-include `settings/ecosystem.md` from a product repo. That file is for
-`judigot/template-monorepo` and for maintaining this overlay.
-
-Do not start implementation chats with `github.com/judigot/ai` as the workspace unless you are changing this plugin. Load this overlay first, then work in the app.
+Product apps stay standalone. Do not include `settings/ecosystem.md` from a
+product repo. That file is for `judigot/template-monorepo` and for maintaining
+this overlay.
 
 First-message fallback: `prompts/prompt-init-chat.md`.
 
@@ -103,7 +101,7 @@ Your personal coding rules are stored in `settings/rules.md`, separate from `~/.
 - **Version control**: Track changes to your rules over time
 - **Portability**: Same settings across all machines
 
-Session start loads `settings/rules.md` and `settings/workflow.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping. `settings/ecosystem.md` applies when the workspace is `judigot/template-monorepo`.
+Session start loads this overlay from `AGENTS.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping. The template's `docs/ecosystem.md` applies when the workspace is `judigot/template-monorepo`.
 
 If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 

@@ -4,6 +4,10 @@ Use this file only when the workspace is `judigot/template-monorepo` or when
 the user is changing this overlay. Do not include it from product `AGENTS.md`
 files. Product repos stay standalone.
 
+The overlay index is `AGENTS.md` in this repo. Apps load that file (from `~/ai`
+or GitHub raw) and then follow the files it names. They do not list each
+settings file themselves.
+
 Canonical charter: `judigot/template-monorepo` `docs/ecosystem.md`.
 
 ```text
