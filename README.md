@@ -4,7 +4,10 @@ A centralized Claude Code plugin containing agents, skills, hooks, and coding ru
 
 ## Quick Start
 
-### 1. Clone to a permanent location
+### 1. Optional: local Claude Code plugin
+
+Only needed if you run Claude Code with `--plugin-dir`. Agents do not clone
+this repo; they fetch `AGENTS.md` from GitHub raw.
 
 ```sh
 git clone https://github.com/judigot/ai.git ~/ai
@@ -35,16 +38,24 @@ All your agents, skills, hooks, and rules are now available!
 
 ### 4. Point other agents at this overlay
 
-In each app repo, keep a short `AGENTS.md` (and `CLAUDE.md` → `@AGENTS.md`):
+Do not copy this overlay into an app. Seed each app from
+[`judigot/project-core`](https://github.com/judigot/project-core) so it has
+`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, and `agents/`.
 
-```md
-@~/ai/settings/rules.md
-@~/ai/settings/workflow.md
-@~/ai/settings/stack.md
-@~/ai/settings/references.md
-```
+Each app `AGENTS.md` should load this overlay **remotely** from one
+entrypoint: fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md`
+and the files it names. Then add a short repo-specific section.
 
-Do not start implementation chats with `github.com/judigot/ai` as the workspace unless you are changing this plugin. Load this overlay first, then work in the app.
+Always fetch that live tree. Do not clone this repository to load it, and do
+not read `~/ai` or any other local clone (those copies can be stale). Cloning
+`~/ai` is only for the optional local Claude Code plugin above.
+
+The app repo is the workspace. Do not clone or treat this overlay as the
+project unless you are changing the overlay.
+
+Product apps stay standalone. Do not include `settings/ecosystem.md` from a
+product repo. That file is for `judigot/template-monorepo` and for maintaining
+this overlay.
 
 First-message fallback: `prompts/prompt-init-chat.md`.
 
@@ -77,6 +88,7 @@ ai/
 │   ├── workflow.md           # Session protocol
 │   ├── stack.md              # Current packages → official skills.sh packs
 │   ├── references.md         # URLs to official + other skills (no downloads)
+│   ├── ecosystem.md          # Template-only charter; not included from product repos
 │   └── pr-body.md            # PR template with manual checklist
 ├── prompts/
 │   └── prompt-init-chat.md   # First message when includes are missing
@@ -94,7 +106,7 @@ Your personal coding rules are stored in `settings/rules.md`, separate from `~/.
 - **Version control**: Track changes to your rules over time
 - **Portability**: Same settings across all machines
 
-Session start loads `settings/rules.md` and `settings/workflow.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping.
+Session start loads this overlay from `AGENTS.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping. The template's `docs/ecosystem.md` applies when the workspace is `judigot/template-monorepo`.
 
 If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 
@@ -175,12 +187,13 @@ For tasks that touch the same files or need strict sequencing:
 Local projects can have their own settings that extend the global ones:
 
 ```
-my-project/
-├── AGENTS.md                 # @~/ai/settings/rules.md, workflow.md, stack.md, references.md
+my-project/                   # seeded from judigot/project-core
+├── AGENTS.md                 # overlay includes + repo-specific section
 ├── CLAUDE.md                 # @AGENTS.md
-├── .claude/
-│   └── settings.local.json   # Project-specific settings
-└── agents/                   # Project-specific agents (optional)
+├── .cursor/rules/            # always-on overlay + project agents
+├── agents/                   # project-specific agents
+└── .claude/
+    └── settings.local.json   # optional local Claude settings
 ```
 
 Claude Code loads in this order:
