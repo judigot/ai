@@ -1,7 +1,8 @@
 # Software ecosystem
 
-Application work happens in product repos and `judigot/template-monorepo`.
-This overlay does not replace those repos. It tells agents how they relate.
+Use this file only when the workspace is `judigot/template-monorepo` or when
+the user is changing this overlay. Do not include it from product `AGENTS.md`
+files. Product repos stay standalone.
 
 Canonical charter: `judigot/template-monorepo` `docs/ecosystem.md`.
 
