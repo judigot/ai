@@ -17,6 +17,7 @@ Do these in order. Check each box when that step matches. Written so someone who
 - [ ] Open `prompts/prompt-init-chat.md`. You should see a first message that fetches `AGENTS.md` from GitHub raw, ignores local clones, and says not to clone `judigot/ai`. Ecosystem is listed only for `judigot/template-monorepo`.
 - [ ] Open `settings/pr-body.md`. You should see a checklist template meant for non-technical testers.
 - [ ] Open `settings/references.md`. You should see links to skills.sh and Matt Pocock pages, and a rule not to download those repos.
+- [ ] Open `skills/scaffolder/SKILL.md` if this change touches Scaffolder routing. You should see how an agent builds `schemaInfo` and opens a draft PR without writing `main`.
 - [ ] Confirm there is no `scripts/install-external-skills.sh`.
 
 ## Automated checks
