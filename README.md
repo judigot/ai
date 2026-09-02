@@ -42,6 +42,7 @@ In each app repo, keep a short `AGENTS.md` (and `CLAUDE.md` → `@AGENTS.md`):
 @~/ai/settings/workflow.md
 @~/ai/settings/stack.md
 @~/ai/settings/references.md
+@~/ai/settings/ecosystem.md
 ```
 
 Do not start implementation chats with `github.com/judigot/ai` as the workspace unless you are changing this plugin. Load this overlay first, then work in the app.
@@ -77,6 +78,7 @@ ai/
 │   ├── workflow.md           # Session protocol
 │   ├── stack.md              # Current packages → official skills.sh packs
 │   ├── references.md         # URLs to official + other skills (no downloads)
+│   ├── ecosystem.md          # Template/product reuse and promotion
 │   └── pr-body.md            # PR template with manual checklist
 ├── prompts/
 │   └── prompt-init-chat.md   # First message when includes are missing
@@ -94,7 +96,7 @@ Your personal coding rules are stored in `settings/rules.md`, separate from `~/.
 - **Version control**: Track changes to your rules over time
 - **Portability**: Same settings across all machines
 
-Session start loads `settings/rules.md` and `settings/workflow.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping.
+Session start loads `settings/rules.md`, `settings/workflow.md`, and `settings/ecosystem.md`. Agents clarify before coding, search the template and sibling products before inventing, implement test-driven, push mini commits, and self-audit before stopping.
 
 If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 
@@ -176,7 +178,7 @@ Local projects can have their own settings that extend the global ones:
 
 ```
 my-project/
-├── AGENTS.md                 # @~/ai/settings/rules.md, workflow.md, stack.md, references.md
+├── AGENTS.md                 # @~/ai/settings/rules.md, workflow.md, stack.md, references.md, ecosystem.md
 ├── CLAUDE.md                 # @AGENTS.md
 ├── .claude/
 │   └── settings.local.json   # Project-specific settings

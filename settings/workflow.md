@@ -10,12 +10,13 @@ Implement in the user's project. Only edit `judigot/ai` when the user is changin
 
 Before writing code:
 
-1. Follow `settings/rules.md`, `settings/stack.md`, and this file.
+1. Follow `settings/rules.md`, `settings/stack.md`, `settings/ecosystem.md`, and this file.
 2. Confirm the workspace is the **app repo**, not this overlay.
 3. Use the official skill for that layer in `settings/stack.md`. Do not invent a parallel stack.
-4. If the goal, UX, or success criteria are ambiguous, **ask clarifying questions**. For a full grilling session, fetch the grill URL in `settings/references.md`. Do not implement yet.
-5. If the destination is nameable but the route is not, and the work will not fit one session, fetch and follow **wayfinder** from `settings/references.md`. Plan and decide. Do not build.
-6. Never `git clone` / `npx skills add` third-party skill repos to satisfy a route.
+4. Search for an existing solution before inventing one: current project, then `template-monorepo`, then other active products, then previous projects as references. See `settings/ecosystem.md`.
+5. If the goal, UX, or success criteria are ambiguous, **ask clarifying questions**. For a full grilling session, fetch the grill URL in `settings/references.md`. Do not implement yet.
+6. If the destination is nameable but the route is not, and the work will not fit one session, fetch and follow **wayfinder** from `settings/references.md`. Plan and decide. Do not build.
+7. Never `git clone` / `npx skills add` third-party skill repos to satisfy a route.
 
 ## 2. Route
 

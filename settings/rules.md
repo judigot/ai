@@ -262,7 +262,7 @@ Do not ask about these. Do ask when the goal, UX, data model, or success criteri
 
 # Session protocol
 
-- Follow `settings/workflow.md` for every implementation chat.
+- Follow `settings/workflow.md` and `settings/ecosystem.md` for every implementation chat.
 - Clarify before coding when the request is ambiguous. Fetch grill or wayfinder URLs from `settings/references.md`. Do not download those skills.
 - Test-driven: red-green-refactor. CI green is the definition of done.
 - Mini commits: one meaningful slice per commit, then `git push`. Do not wait until the feature is finished.

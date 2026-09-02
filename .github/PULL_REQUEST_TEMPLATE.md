@@ -11,7 +11,8 @@
 Do these in order. Check each box when that step matches. Written so someone who does not write code can follow.
 
 - [ ] Open this pull request on GitHub.
-- [ ] Read `settings/workflow.md`. You should see the session steps: setup → clarify or wayfinder → TDD → mini commits → PR checklist → self-audit.
+- [ ] Read `settings/workflow.md`. You should see the session steps: setup → reuse scan → clarify or wayfinder → TDD → mini commits → PR checklist → self-audit.
+- [ ] Open `settings/ecosystem.md`. You should see repository roles and the rule to search the template and sibling products before inventing.
 - [ ] Open `prompts/prompt-init-chat.md`. You should see a first message you can paste into a new agent chat.
 - [ ] Open `settings/pr-body.md`. You should see a checklist template meant for non-technical testers.
 - [ ] Open `settings/references.md`. You should see links to skills.sh and Matt Pocock pages, and a rule not to download those repos.

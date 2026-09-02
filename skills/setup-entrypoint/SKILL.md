@@ -9,11 +9,12 @@ Run this before implementation. The overlay lives in `judigot/ai`. Coding happen
 
 ## Load
 
-1. Read `settings/rules.md`, `settings/workflow.md`, `settings/stack.md`, and `settings/references.md` (`~/ai` if present, otherwise the workspace copies, otherwise GitHub raw on `main`).
+1. Read `settings/rules.md`, `settings/workflow.md`, `settings/stack.md`, `settings/references.md`, and `settings/ecosystem.md` (`~/ai` if present, otherwise the workspace copies, otherwise GitHub raw on `main`).
 2. Decide workspace:
    - User is changing this plugin → stay in `judigot/ai`.
    - Otherwise the app repo is the workspace. Do not clone this overlay as the project.
 3. External work is **URLs only**. Pick the official pack from `settings/stack.md`. Do not clone those repos, copy their files here, or run `npx skills add`.
+4. Before inventing a foundation piece, search the current project, then `judigot/template-monorepo`, then other active products, then previous projects. Do not promote product code into the template unless the user asked or the work is already generic foundation.
 
 ## Clarify or route
 

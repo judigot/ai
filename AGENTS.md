@@ -3,3 +3,4 @@
 @settings/workflow.md
 @settings/stack.md
 @settings/references.md
+@settings/ecosystem.md
