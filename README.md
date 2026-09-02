@@ -1,56 +1,22 @@
-# AI — Centralized Claude Code Plugin
+# AI — Agent overlay
 
-A centralized Claude Code plugin containing agents, skills, hooks, and coding rules. Use this across **all your projects** without duplicating setup.
+Rules, workflow, skills, and stack for every agentic chat. This is not an app
+workspace.
 
-## Quick Start
+## How agents load this overlay
 
-### 1. Optional: local Claude Code plugin
+Do not clone https://github.com/judigot/ai to load it. Do not read `~/ai` or
+any other local clone; those copies can be stale.
 
-Only needed if you run Claude Code with `--plugin-dir`. Agents do not clone
-this repo; they fetch `AGENTS.md` from GitHub raw.
+1. Put one `AGENTS.md` in the app (from
+   [project-core](https://github.com/judigot/project-core)).
+2. That file fetches
+   `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md` and the files
+   it names from that same tree.
+3. Work in the app. Only open this overlay when you are changing it.
 
-```sh
-git clone https://github.com/judigot/ai.git ~/ai
-```
-
-### 2. Create a shell alias
-
-Add to your `.bashrc`, `.zshrc`, or shell config:
-
-```sh
-alias cc='claude --plugin-dir ~/ai'
-```
-
-Reload your shell:
-
-```sh
-source ~/.bashrc
-```
-
-### 3. Use in any project
-
-```sh
-cd /path/to/any/project
-cc
-```
-
-All your agents, skills, hooks, and rules are now available!
-
-### 4. Point other agents at this overlay
-
-Do not copy this overlay into an app. Seed each app from
-[`judigot/project-core`](https://github.com/judigot/project-core): one
-`AGENTS.md`. That file is the workflow for every coding agent
-([AGENTS.md](https://agents.md/)). Cursor, Claude Code, Codex, Copilot, and
-others already read it.
-
-Each app `AGENTS.md` should load this overlay **remotely** from one
-entrypoint: fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md`
-and the files it names. Then add a short repo-specific section.
-
-Always fetch that live tree. Do not clone this repository to load it, and do
-not read `~/ai` or any other local clone (those copies can be stale). Cloning
-`~/ai` is only for the optional local Claude Code plugin above.
+Cursor, Claude Code, Codex, Copilot, and others already read `AGENTS.md`
+([AGENTS.md](https://agents.md/)).
 
 The app repo is the workspace. Do not clone or treat this overlay as the
 project unless you are changing the overlay.
@@ -112,15 +78,12 @@ Session start loads this overlay from `AGENTS.md`. Agents clarify before coding,
 
 If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 
-### Global Plugin Loading
+### Optional: Claude Code plugin while editing this overlay
 
-The `--plugin-dir` flag tells Claude Code to load this plugin for any project:
-
-```sh
-claude --plugin-dir ~/ai
-```
-
-This applies your agents, skills, hooks, and settings globally without copying files to each project.
+If this workspace **is** https://github.com/judigot/ai because you are
+changing the overlay, Claude Code can load it with `--plugin-dir` pointed at
+this checkout. That is not how apps load the overlay. Apps still fetch GitHub
+raw.
 
 ## Available Agents
 
@@ -195,19 +158,8 @@ my-project/                   # seeded from judigot/project-core
     └── settings.local.json   # optional local Claude settings
 ```
 
-Claude Code loads in this order:
-1. Global plugin (from `--plugin-dir`) ← This repository
-2. Project `AGENTS.md`
-3. Local `.claude/` settings
-
-## Updating
-
-```sh
-cd ~/ai
-git pull
-```
-
-Changes apply to the next Claude Code session.
+Apps load this overlay from GitHub raw on each session. There is nothing to
+pull locally. To change the overlay, edit this repository and push to `main`.
 
 ## Adding New Components
 
