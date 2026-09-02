@@ -39,16 +39,14 @@ All your agents, skills, hooks, and rules are now available!
 ### 4. Point other agents at this overlay
 
 Do not copy this overlay into an app. Seed each app from
-[`judigot/project-core`](https://github.com/judigot/project-core) so it has
-`AGENTS.md` (the workflow), plus adapters (`CLAUDE.md`, `.cursor/rules/`)
-and `agents/`.
+[`judigot/project-core`](https://github.com/judigot/project-core): one
+`AGENTS.md`. That file is the workflow for every coding agent
+([AGENTS.md](https://agents.md/)). Cursor, Claude Code, Codex, Copilot, and
+others already read it.
 
 Each app `AGENTS.md` should load this overlay **remotely** from one
 entrypoint: fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md`
-and the files it names. Then add a short repo-specific section. That file is
-the workflow for every coding agent ([AGENTS.md](https://agents.md/)).
-`CLAUDE.md` and `.cursor/rules/` are adapters so Claude Code and Cursor
-follow the same instructions.
+and the files it names. Then add a short repo-specific section.
 
 Always fetch that live tree. Do not clone this repository to load it, and do
 not read `~/ai` or any other local clone (those copies can be stale). Cloning
@@ -193,16 +191,13 @@ Local projects can have their own settings that extend the global ones:
 ```
 my-project/                   # seeded from judigot/project-core
 ├── AGENTS.md                 # workflow: overlay loader + repo-specific section
-├── CLAUDE.md                 # Claude Code adapter → AGENTS.md
-├── .cursor/rules/            # Cursor adapter → AGENTS.md
-├── agents/                   # project-specific agents
 └── .claude/
     └── settings.local.json   # optional local Claude settings
 ```
 
 Claude Code loads in this order:
 1. Global plugin (from `--plugin-dir`) ← This repository
-2. Project `CLAUDE.md`
+2. Project `AGENTS.md`
 3. Local `.claude/` settings
 
 ## Updating
