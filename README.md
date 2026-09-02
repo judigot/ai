@@ -45,6 +45,7 @@ ai/
 │   ├── find-skills/          # skills.sh lookup (URLs only)
 │   ├── tdd-ci/               # Red-green-refactor; CI = done
 │   ├── self-audit/           # Pre-stop checklist
+│   ├── scaffolder/           # MVP schema → Scaffolder draft PR
 │   ├── lint-master/
 │   └── test-master/
 ├── hooks/
@@ -104,6 +105,7 @@ raw.
 | `find-skills` | Look up skills on [skills.sh](https://skills.sh) and fetch the page. Do not install. |
 | `tdd-ci` | Red-green-refactor; CI is the success signal |
 | `self-audit` | Pre-stop checklist: commits, push, CI, PR |
+| `scaffolder` | Build `schemaInfo`, call the Scaffolder agent API, open a draft PR |
 | `lint-master` | Multi-tool linting workflow (ESLint > Oxlint > Biome) |
 | `test-master` | Testing infrastructure and implementation |
 

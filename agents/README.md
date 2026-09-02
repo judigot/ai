@@ -60,6 +60,7 @@ When asked about agents, provide clear, concise information from the documentati
 | `find-skills`       | Look up skills.sh URLs; do not install         |
 | `tdd-ci`            | Red-green-refactor; CI is done                       |
 | `self-audit`        | Pre-stop: push, tests, PR checklist                  |
+| `scaffolder`        | MVP schema → Scaffolder agent API → draft PR         |
 
 ## Agent File Format
 

@@ -34,6 +34,7 @@ When the workspace is `judigot/template-monorepo`, also follow that repo's `docs
 | Turborepo | Fetch https://www.skills.sh/vercel/turborepo |
 | Vite | https://vite.dev/guide/ (no official skills.sh pack) |
 | Hono / Zod / Playwright / lint | Overlay rules + `lint-master` / `tdd-ci`. No official maker pack. |
+| Fast client MVP / generate app from schema / Scaffolder | `skills/scaffolder/SKILL.md`. Draft PR on the target repo. Do not write `main`. |
 | "Is there a skill for X?" | Official makers first (https://skills.sh/official), then the catalog |
 | Lint-only or formatter fights | `lint-master` |
 | Unsure which Matt Pocock flow | Fetch ask-matt |
