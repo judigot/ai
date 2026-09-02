@@ -4,8 +4,8 @@ Use this file only when the workspace is `judigot/template-monorepo` or when
 the user is changing this overlay. Do not include it from product `AGENTS.md`
 files. Product repos stay standalone.
 
-The overlay index is `AGENTS.md` in this repo. Apps fetch that file from GitHub
-raw (`https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md`) and then
+The overlay is https://github.com/judigot/ai. Apps fetch
+https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md and then
 follow the files it names. They do not clone this overlay, do not read `~/ai`
 or other local clones (those copies can be stale), and do not list each
 settings file themselves.
@@ -25,10 +25,10 @@ reusable personal engineering foundation based on real experience.
 | Repository | Role |
 | --- | --- |
 | `judigot/template-monorepo` | Shared application foundation. Generic only. |
-| `judigot/project-core` | Per-project agent stub (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `agents/`). Copy into every app. |
-| `judigot/bookingwars` | Active product from the template. Independent product evolution plus a source of patterns that may be promoted. |
-| `judigot/ecommerce-app` | Active product. Same dual role. Divergence is allowed when requirements differ. |
-| `judigot/ai` | This overlay. Rules, workflow, skills — not app code. |
+| https://github.com/judigot/project-core | Agent workspace files in every app (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/`, `agents/`). |
+| https://github.com/judigot/bookingwars | Active product from the template. Independent product evolution plus a source of patterns that may be promoted. |
+| https://github.com/judigot/ecommerce-app | Active product. Same dual role. Divergence is allowed when requirements differ. |
+| https://github.com/judigot/ai | This overlay. Rules, workflow, skills — not app code. |
 | `judigot/user` | Dotfiles, generators, IDE scaffolding. |
 | Previous projects | References. Consult; do not copy automatically. |
 
