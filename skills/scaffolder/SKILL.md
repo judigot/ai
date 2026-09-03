@@ -62,9 +62,23 @@ Always apply without asking: hashed passwords (`hashed_password`, never plain `p
 
 JSON `data_type` values: `string`, `number`, `boolean`, `Date`, `object`, `uuid`. Compact codes are `s/n/b/D/o/u` (`:uuid` is an alias for `:u`). Table names stay snake_case (`^[a-z][a-z0-9_]*$`). Column names are identifiers (`^[A-Za-z][A-Za-z0-9_]*$`): snake_case or camelCase. Use camelCase when the project filter or Lucia-style auth columns need it (`userId`, `createdAt`).
 
+### Identify the project with a URL
+
+`project` is a **GitHub URL** to the project folder inside the caller's **scaffolder-files** repository — not a closed catalog name. Each developer hosts their own files repo (configs, `Projects/<name>/structure.yaml`, templates). Encode the project path in the URL.
+
+- Files source + project: `https://github.com/<owner>/<scaffolder-files>/tree/<ref>/Projects/<name>`
+- Destination app repo is a different field: `target_repo`
+
+Example: `https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM Schema - Knex`  
+points at the `ORM Schema - Knex` folder in that files repo. Spaces may be literal or `%20`. A `blob/.../structure.yaml` URL is also accepted.
+
+The official `judigot/scaffolder-files` tree URL uses the host's bundled files. Any other `owner/repo` is fetched from that public GitHub repo.
+
+Legacy: a folder name such as `hono-react` or `ORM Schema - Knex` still works and reads bundled files. Do not use names in new calls.
+
 ### Project: `hono-react`
 
-Default fullstack MVP project. Its `$SCHEMA_FILTER` requires all of:
+Default fullstack MVP project (URL below). Its `$SCHEMA_FILTER` requires all of:
 
 - table `user` (singular, not `users`)
 - table `session`
@@ -84,28 +98,40 @@ Equivalent JSON uses `"data_type": "uuid"` and `"column_name": "userId"`. If a d
 
 ## Call the API
 
-Origin: `SCAFFOLDER_API_ORIGIN` if set, else `https://scaffolder.dev`.  
+Origin: `SCAFFOLDER_API_ORIGIN` if set, else `https://app-scaffolder.vercel.app`.  
 Path: `POST /api/agent-scaffold`.
 
+Never print the token. Never use `curl -v`. Put `schemaInfo` last in the JSON.
+
 ```sh
-# Token stays in the environment. Do not echo it.
-curl -sS -X POST "${SCAFFOLDER_API_ORIGIN:-https://scaffolder.dev}/api/agent-scaffold" \
-  -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
+# create
+curl -sS --max-time 120 \
+  -X POST "https://app-scaffolder.vercel.app/api/agent-scaffold" \
   -H "Content-Type: application/json" \
-  -d @payload.json
+  -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
+  -d '{"project":"https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM Schema - Knex","target_repo":"https://github.com/judigot/bookingwars","draft":true,"schemaInfo":"<@@SCHEMA@@>\n@users:id:n#pk,email:s!u,name:s,created_at:D,updated_at:D\n<@@/SCHEMA@@>"}'
 ```
 
-Body:
+```sh
+# update PR 2
+curl -sS --max-time 120 \
+  -X POST "https://app-scaffolder.vercel.app/api/agent-scaffold" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
+  -d '{"project":"https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM Schema - Knex","target_repo":"https://github.com/judigot/bookingwars","draft":true,"prNumber":2,"schemaInfo":"<@@SCHEMA@@>\n@users:id:n#pk,email:s!u,name:s,created_at:D,updated_at:D\n<@@/SCHEMA@@>"}'
+```
+
+Default fullstack MVP (`hono-react`) uses the same shape:
 
 ```json
 {
-  "schemaInfo": "<@@SCHEMA@@>\n@example:id:n#pk,created_at:D,updated_at:D\n<@@/SCHEMA@@>",
   "project": "https://github.com/judigot/scaffolder-files/tree/main/Projects/hono-react",
-  "target_repo": "https://github.com/judigot/bookingwars"
+  "target_repo": "https://github.com/judigot/bookingwars",
+  "schemaInfo": "<@@SCHEMA@@>\n@user:id:u#pk,email:s!u,hashed_password:s,createdAt:D,updatedAt:D|>session\n@session:id:s#pk,userId:u>user,expiresAt:D|<user\n<@@/SCHEMA@@>"
 }
 ```
 
-`project` may also be `hono-react` or `Projects/hono-react`. `target_repo` may be `owner/repo`.
+`target_repo` may be `owner/repo`. Do not confuse it with `project` (files repo + project path).
 
 Optional: `branch`, `prNumber`, `prUrl`, `prTitle`, `prBody`, `draft`.
 
@@ -123,10 +149,10 @@ After the first `201`, keep `prUrl` / `prNumber` / `branch` and call again with 
 
 ```json
 {
-  "schemaInfo": "<@@SCHEMA@@>\n@user:id:u#pk,email:s!u,hashed_password:s,createdAt:D,updatedAt:D|>session\n@session:id:s#pk,userId:u>user,expiresAt:D|<user\n<@@/SCHEMA@@>",
-  "project": "hono-react",
+  "project": "https://github.com/judigot/scaffolder-files/tree/main/Projects/hono-react",
   "target_repo": "https://github.com/judigot/bookingwars",
-  "prNumber": 2
+  "prNumber": 2,
+  "schemaInfo": "<@@SCHEMA@@>\n@user:id:u#pk,email:s!u,hashed_password:s,createdAt:D,updatedAt:D|>session\n@session:id:s#pk,userId:u>user,expiresAt:D|<user\n<@@/SCHEMA@@>"
 }
 ```
 
@@ -172,7 +198,9 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 | 401 | Key missing or mismatch. Stop. Do not print the key. |
 | 400 `INVALID_SCHEMA` | Fix schemaInfo. Empty payload is invalid. |
 | 400 `SCHEMA_FILTER_FAILED` | Schema does not match the project filter. See `hono-react` above. |
-| 400 `PROJECT_NOT_FOUND` | Use a name from `details.availableProjects`. |
+| 400 `PROJECT_NOT_FOUND` | The URL path (or legacy name) is not a folder in that files repo. Use a name from `details.availableProjects`. |
+| 400 `FILES_REPO_FETCH_FAILED` | Could not download that public files repo. Check the `project` URL owner/repo/ref. |
+| 400 `INVALID_REFERENCE` | `project` must be a GitHub tree/blob URL with `Projects/<name>`, or a legacy folder name. |
 | 400 `PROTECTED_BRANCH` | Pick a non-default `scaffolder/…` branch. |
 | 400 `BRANCH_CREATE_FAILED` | Unique new name collided (no force-push). Omit `branch` to get another unique name, or send the existing `branch` / `prNumber` to update. |
 | 400 `BRANCH_UPDATE_FAILED` | Fast-forward update failed (would need force-push). Stop. Do not retry with `--force`. |
