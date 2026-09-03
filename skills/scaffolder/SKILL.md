@@ -70,9 +70,29 @@ JSON `data_type` values: `string`, `number`, `boolean`, `Date`, `object`, `uuid`
 - Destination app repo is a different field: `target_repo`
 
 Example: `https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM%20Schema%20-%20Knex`  
-points at the `ORM Schema - Knex` folder in that files repo. Spaces may be literal or `%20`. A `blob/.../structure.yaml` URL is also accepted. Any public `owner/repo` in `project_url` is fetched from GitHub.
+points at the `ORM Schema - Knex` folder in that files repo. Spaces may be literal or `%20`. A `blob/.../structure.yaml` URL is also accepted.
+
+Files source: parse owner/repo from `project_url`. The Scaffolder host uses its bundled `files/` when that owner/repo is the official files repo (default `judigot/scaffolder-files`, overridable with `SCAFFOLDER_BUNDLED_FILES_OWNER` / `SCAFFOLDER_BUNDLED_FILES_REPO`). Any **other** public owner/repo is fetched as a GitHub ZIP. Do not hardcode one files repo as the only source.
 
 Legacy: optional `project` may still be a folder name such as `hono-react` or `ORM Schema - Knex` and reads bundled host files. Do not use `project` in new calls.
+
+Current bundled projects (folder names under `Projects/`):
+
+- `hono-react` (fullstack MVP; see filter below)
+- `ORM Schema - Knex`
+- `ORM Schema - Kysely`
+- `ORM Schema - MikroORM`
+- `ORM Schema - Prisma`
+- `ORM Schema - TypeORM`
+- `App Generator - Database Schema`
+- `App Generator - Express React`
+- `App Generator - Laravel`
+- `App Generator - Next.js`
+- `App Generator - ORM Tester`
+- `App Generator - Spring Boot`
+- `App Generator - Template - Frontend`
+
+`App` is a format-failure demo. Do not send it as a product generate. Nested `ProjectsExtra/` folders are not reachable via `project_url`.
 
 ### Project: `hono-react`
 
@@ -83,7 +103,7 @@ Default fullstack MVP project (URL below). Its `$SCHEMA_FILTER` requires all of:
 - `user.id.data_type=uuid`
 - `session.userId` has a foreign key
 
-Send uuid ids and camelCase `session.userId`. Do **not** retry `hono-react` with numeric ids (filter fails). Example:
+Send uuid ids and camelCase `session.userId`. Do **not** retry `hono-react` with numeric ids (filter fails). `hashed_password` is recommended but optional: a password-less uuid user/session schema is valid and must not leave `<@@>` tags. Example:
 
 ```
 <@@SCHEMA@@>
@@ -101,9 +121,11 @@ Path: `POST /api/agent-scaffold`.
 
 Never print the token. Never use `curl -v`. Put `schemaInfo` last in the JSON.
 
+Use `--max-time 180` or higher. Large trees (hono-react is ~82 files) upload Git blobs in parallel; the host function allows up to 300s.
+
 ```sh
 # create
-curl -sS --max-time 120 \
+curl -sS --max-time 180 \
   -X POST "https://app-scaffolder.vercel.app/api/agent-scaffold" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
@@ -112,7 +134,7 @@ curl -sS --max-time 120 \
 
 ```sh
 # update PR 2
-curl -sS --max-time 120 \
+curl -sS --max-time 180 \
   -X POST "https://app-scaffolder.vercel.app/api/agent-scaffold" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
@@ -196,8 +218,11 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 | 401 | Key missing or mismatch. Stop. Do not print the key. |
 | 400 `INVALID_SCHEMA` | Fix schemaInfo. Empty payload is invalid. |
 | 400 `SCHEMA_FILTER_FAILED` | Schema does not match the project filter. See `hono-react` above. |
+| 400 `LEFTOVER_PLACEHOLDER` | Generated files still contain `<@@>` / `<@@IF@@>` tags. Fix the schema or stop; do not retry the same payload. This is **not** `FORMAT_ERROR`. |
 | 400 `PROJECT_NOT_FOUND` | The URL path (or legacy name) is not a folder in that files repo. Use a name from `details.availableProjects`. |
 | 400 `FILES_REPO_FETCH_FAILED` | Could not download that public files repo. Check the `project_url` owner/repo/ref. |
+| 500 `GITHUB_PUBLISH_TIMEOUT` | Blob upload timed out before a branch/PR was created. Retry once; if it repeats, stop. |
+| 500 `BLOB_UPLOAD_FAILED` | A Git blob create failed after retries. Retry once; if it repeats, stop. |
 | 400 `INVALID_REFERENCE` | `project_url` must be a GitHub tree/blob URL with `Projects/<name>`. Legacy `project` may be a folder name. |
 | 400 `PROTECTED_BRANCH` | Pick a non-default `scaffolder/…` branch. |
 | 400 `BRANCH_CREATE_FAILED` | Unique new name collided (no force-push). Omit `branch` to get another unique name, or send the existing `branch` / `prNumber` to update. |
