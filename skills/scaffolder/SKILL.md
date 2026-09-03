@@ -30,6 +30,7 @@ If the API key is missing, stop. Tell them to add the same value used on the Sca
 2. Build `schemaInfo` (compact string preferred). Empty `{}`, `[]`, or `""` is invalid.
 3. `POST` `/api/agent-scaffold` with Bearer auth.
 4. Return `prUrl` and one checkout command. Leave the PR **draft**. Do not merge.
+5. To iterate on that same draft, call again with `branch` or `prNumber`. Do not open a second PR.
 
 ## Build schemaInfo
 
@@ -61,9 +62,21 @@ Always apply without asking: hashed passwords (`hashed_password`, never plain `p
 
 JSON `data_type` values: `string`, `number`, `boolean`, `Date`, `object`, `uuid`. Compact codes are `s/n/b/D/o/u` (`:uuid` is an alias for `:u`). Table names stay snake_case (`^[a-z][a-z0-9_]*$`). Column names are identifiers (`^[A-Za-z][A-Za-z0-9_]*$`): snake_case or camelCase. Use camelCase when the project filter or Lucia-style auth columns need it (`userId`, `createdAt`).
 
+### Identify the project with `project_url`
+
+`project_url` is a **GitHub URL** to the project folder inside the caller's **scaffolder-files** repository — not a closed catalog name. Each developer hosts their own files repo (configs, `Projects/<name>/structure.yaml`, templates). Encode the project path in the URL. There is no product-default files repo.
+
+- Files source + project: `https://github.com/<owner>/<scaffolder-files>/tree/<ref>/Projects/<name>`
+- Destination app repo is a different field: `target_repo`
+
+Example: `https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM%20Schema%20-%20Knex`  
+points at the `ORM Schema - Knex` folder in that files repo. Spaces may be literal or `%20`. A `blob/.../structure.yaml` URL is also accepted. Any public `owner/repo` in `project_url` is fetched from GitHub.
+
+Legacy: optional `project` may still be a folder name such as `hono-react` or `ORM Schema - Knex` and reads bundled host files. Do not use `project` in new calls.
+
 ### Project: `hono-react`
 
-Default fullstack MVP project. Its `$SCHEMA_FILTER` requires all of:
+Default fullstack MVP project (URL below). Its `$SCHEMA_FILTER` requires all of:
 
 - table `user` (singular, not `users`)
 - table `session`
@@ -83,36 +96,73 @@ Equivalent JSON uses `"data_type": "uuid"` and `"column_name": "userId"`. If a d
 
 ## Call the API
 
-Origin: `SCAFFOLDER_API_ORIGIN` if set, else `https://scaffolder.dev`.  
+Origin: `SCAFFOLDER_API_ORIGIN` if set, else `https://app-scaffolder.vercel.app`.  
 Path: `POST /api/agent-scaffold`.
 
+Never print the token. Never use `curl -v`. Put `schemaInfo` last in the JSON.
+
 ```sh
-# Token stays in the environment. Do not echo it.
-curl -sS -X POST "${SCAFFOLDER_API_ORIGIN:-https://scaffolder.dev}/api/agent-scaffold" \
-  -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
+# create
+curl -sS --max-time 120 \
+  -X POST "https://app-scaffolder.vercel.app/api/agent-scaffold" \
   -H "Content-Type: application/json" \
-  -d @payload.json
+  -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
+  -d '{"project_url":"https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM%20Schema%20-%20Knex","target_repo":"https://github.com/judigot/bookingwars","draft":true,"schemaInfo":"<@@SCHEMA@@>\n@users:id:n#pk,email:s!u,name:s,created_at:D,updated_at:D\n<@@/SCHEMA@@>"}'
 ```
 
-Body:
+```sh
+# update PR 2
+curl -sS --max-time 120 \
+  -X POST "https://app-scaffolder.vercel.app/api/agent-scaffold" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
+  -d '{"project_url":"https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM%20Schema%20-%20Knex","target_repo":"https://github.com/judigot/bookingwars","draft":true,"prNumber":2,"schemaInfo":"<@@SCHEMA@@>\n@users:id:n#pk,email:s!u,name:s,created_at:D,updated_at:D\n<@@/SCHEMA@@>"}'
+```
+
+Default fullstack MVP (`hono-react`) uses the same shape:
 
 ```json
 {
-  "schemaInfo": "<@@SCHEMA@@>\n@example:id:n#pk,created_at:D,updated_at:D\n<@@/SCHEMA@@>",
-  "project": "https://github.com/judigot/scaffolder-files/tree/main/Projects/hono-react",
-  "target_repo": "https://github.com/judigot/bookingwars"
+  "project_url": "https://github.com/judigot/scaffolder-files/tree/main/Projects/hono-react",
+  "target_repo": "https://github.com/judigot/bookingwars",
+  "schemaInfo": "<@@SCHEMA@@>\n@user:id:u#pk,email:s!u,hashed_password:s,createdAt:D,updatedAt:D|>session\n@session:id:s#pk,userId:u>user,expiresAt:D|<user\n<@@/SCHEMA@@>"
 }
 ```
 
-`project` may also be `hono-react` or `Projects/hono-react`. `target_repo` may be `owner/repo`.
+`target_repo` may be `owner/repo`. Do not confuse it with `project_url` (files repo + project path).
 
-Optional: `branch`, `prTitle`, `prBody`, `draft`. Defaults: unique `scaffolder/<project>-<id>`, draft `true`. Names without the `scaffolder/` prefix get that prefix. `draft: false` only if the user asked for a ready-for-review PR.
+Optional: `branch`, `prNumber`, `prUrl`, `prTitle`, `prBody`, `draft`.
 
-Never send `branch` of `main`, `master`, or the repo default. The API refuses those.
+- Omit `branch` and `prNumber` for a **new** unique `scaffolder/<project>-<id>` branch and a **new draft** PR.
+- Send `branch` to commit again on that existing `scaffolder/…` branch (fast-forward only). If an open PR already exists for that head, the API returns **that** PR. If the branch exists with no PR, it opens a **draft** PR (it does not mark a ready PR as draft).
+- Send `prNumber` (positive int) to resolve the head branch on `target_repo`, then the same update path. `prUrl` (`https://github.com/owner/repo/pull/N`) is an alternative to `prNumber`. If both `prNumber` and `prUrl` are sent, they must be the same PR. If both `branch` and `prNumber` are sent, they must refer to the same head or the API returns 400.
+- Names without the `scaffolder/` prefix get that prefix. Spaces in auto or explicit names are slugged to hyphens.
+- `draft: false` only if the user asked for a ready-for-review PR. Updates never flip an existing PR from draft to ready.
+
+Never send `branch` of `main`, `master`, or the repo default. The API refuses those (`PROTECTED_BRANCH`). Never force-push. Never write the default branch.
+
+### Iterate on the same PR
+
+After the first `201`, keep `prUrl` / `prNumber` / `branch` and call again with the new `schemaInfo`:
+
+```json
+{
+  "project_url": "https://github.com/judigot/scaffolder-files/tree/main/Projects/hono-react",
+  "target_repo": "https://github.com/judigot/bookingwars",
+  "prNumber": 2,
+  "schemaInfo": "<@@SCHEMA@@>\n@user:id:u#pk,email:s!u,hashed_password:s,createdAt:D,updatedAt:D|>session\n@session:id:s#pk,userId:u>user,expiresAt:D|<user\n<@@/SCHEMA@@>"
+}
+```
+
+That adds a new commit on the existing `scaffolder/…` branch (parent = current HEAD) and returns the **same** `prNumber` / `prUrl`. Prefer `prNumber` (canonical). `branch` is also enough. Do not create a second PR for a schema tweak.
+
+If the generated tree matches HEAD, the API returns the current `commitSha` and does not create an empty commit.
+
+A **closed or merged** PR cannot be updated (`400 PR_NOT_OPEN`). Open a new unique branch instead. If history diverged so a force-push would be required, the API fails (`400 BRANCH_UPDATE_FAILED`) and does not `--force`.
 
 ## Success
 
-`201`:
+First create: `201`. Update or identical-tree no-op: `200`. Same body either way (`updated: true` on reuse):
 
 ```json
 {
@@ -125,7 +175,8 @@ Never send `branch` of `main`, `master`, or the repo default. The API refuses th
   "baseBranch": "main",
   "projectName": "hono-react",
   "targetRepo": "owner/repo",
-  "tables": ["user", "session"]
+  "tables": ["user", "session"],
+  "updated": false
 }
 ```
 
@@ -145,15 +196,22 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 | 401 | Key missing or mismatch. Stop. Do not print the key. |
 | 400 `INVALID_SCHEMA` | Fix schemaInfo. Empty payload is invalid. |
 | 400 `SCHEMA_FILTER_FAILED` | Schema does not match the project filter. See `hono-react` above. |
-| 400 `PROJECT_NOT_FOUND` | Use a name from `details.availableProjects`. |
+| 400 `PROJECT_NOT_FOUND` | The URL path (or legacy name) is not a folder in that files repo. Use a name from `details.availableProjects`. |
+| 400 `FILES_REPO_FETCH_FAILED` | Could not download that public files repo. Check the `project_url` owner/repo/ref. |
+| 400 `INVALID_REFERENCE` | `project_url` must be a GitHub tree/blob URL with `Projects/<name>`. Legacy `project` may be a folder name. |
 | 400 `PROTECTED_BRANCH` | Pick a non-default `scaffolder/…` branch. |
-| 400 `BRANCH_CREATE_FAILED` | Branch already exists (no force-push). Choose a new name. |
+| 400 `BRANCH_CREATE_FAILED` | Unique new name collided (no force-push). Omit `branch` to get another unique name, or send the existing `branch` / `prNumber` to update. |
+| 400 `BRANCH_UPDATE_FAILED` | Fast-forward update failed (would need force-push). Stop. Do not retry with `--force`. |
+| 400 `PR_NOT_OPEN` | That PR is closed or merged. Open a new unique `scaffolder/…` branch. |
+| 400 `PR_NOT_FOUND` | `prNumber` does not exist on `target_repo`. |
+| 400 `PR_REPO_MISMATCH` | `prUrl` is not on `target_repo`. |
+| 400 `BRANCH_PR_MISMATCH` | `branch` and `prNumber` do not refer to the same head. |
 | 403 + `installationUrl` | Target owner must install the Scaffolder GitHub App on that repo. |
 
 ## Do not
 
 - Write, force-push, or merge `main` / `master` / the default branch
-- Force-push an existing scaffolder branch
+- Force-push an existing scaffolder branch (update with `branch` or `prNumber` instead)
 - Print `SCAFFOLDER_AGENT_API_KEY`, Auth0 tokens, or the GitHub App private key
 - Use Auth0 as the agent login
 - Create a second GitHub App
