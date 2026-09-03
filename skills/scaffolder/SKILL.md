@@ -121,7 +121,7 @@ Path: `POST /api/agent-scaffold`.
 
 Never print the token. Never use `curl -v`. Put `schemaInfo` last in the JSON.
 
-Use `--max-time 180` or higher. Large trees (hono-react is ~82 files) upload Git blobs in parallel; the host function allows up to 300s.
+Use `--max-time 180` or higher (client wait). Large trees (hono-react is ~82 files) upload Git blobs in parallel. The Vercel host `maxDuration` is 60s on this plan; hono-react may still race that clock.
 
 ```sh
 # create
