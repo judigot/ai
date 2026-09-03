@@ -30,6 +30,7 @@ If the API key is missing, stop. Tell them to add the same value used on the Sca
 2. Build `schemaInfo` (compact string preferred). Empty `{}`, `[]`, or `""` is invalid.
 3. `POST` `/api/agent-scaffold` with Bearer auth.
 4. Return `prUrl` and one checkout command. Leave the PR **draft**. Do not merge.
+5. To iterate on that same draft, call again with `branch` or `prNumber`. Do not open a second PR.
 
 ## Build schemaInfo
 
@@ -106,13 +107,38 @@ Body:
 
 `project` may also be `hono-react` or `Projects/hono-react`. `target_repo` may be `owner/repo`.
 
-Optional: `branch`, `prTitle`, `prBody`, `draft`. Defaults: unique `scaffolder/<project>-<id>`, draft `true`. Names without the `scaffolder/` prefix get that prefix. `draft: false` only if the user asked for a ready-for-review PR.
+Optional: `branch`, `prNumber`, `prUrl`, `prTitle`, `prBody`, `draft`.
 
-Never send `branch` of `main`, `master`, or the repo default. The API refuses those.
+- Omit `branch` and `prNumber` for a **new** unique `scaffolder/<project>-<id>` branch and a **new draft** PR.
+- Send `branch` to commit again on that existing `scaffolder/…` branch (fast-forward only). If an open PR already exists for that head, the API returns **that** PR. If the branch exists with no PR, it opens a **draft** PR (it does not mark a ready PR as draft).
+- Send `prNumber` (positive int) to resolve the head branch on `target_repo`, then the same update path. `prUrl` (`https://github.com/owner/repo/pull/N`) is an alternative to `prNumber`. If both `prNumber` and `prUrl` are sent, they must be the same PR. If both `branch` and `prNumber` are sent, they must refer to the same head or the API returns 400.
+- Names without the `scaffolder/` prefix get that prefix. Spaces in auto or explicit names are slugged to hyphens.
+- `draft: false` only if the user asked for a ready-for-review PR. Updates never flip an existing PR from draft to ready.
+
+Never send `branch` of `main`, `master`, or the repo default. The API refuses those (`PROTECTED_BRANCH`). Never force-push. Never write the default branch.
+
+### Iterate on the same PR
+
+After the first `201`, keep `prUrl` / `prNumber` / `branch` and call again with the new `schemaInfo`:
+
+```json
+{
+  "schemaInfo": "<@@SCHEMA@@>\n@user:id:u#pk,email:s!u,hashed_password:s,createdAt:D,updatedAt:D|>session\n@session:id:s#pk,userId:u>user,expiresAt:D|<user\n<@@/SCHEMA@@>",
+  "project": "hono-react",
+  "target_repo": "https://github.com/judigot/bookingwars",
+  "prNumber": 2
+}
+```
+
+That adds a new commit on the existing `scaffolder/…` branch (parent = current HEAD) and returns the **same** `prNumber` / `prUrl`. Prefer `prNumber` (canonical). `branch` is also enough. Do not create a second PR for a schema tweak.
+
+If the generated tree matches HEAD, the API returns the current `commitSha` and does not create an empty commit.
+
+A **closed or merged** PR cannot be updated (`400 PR_NOT_OPEN`). Open a new unique branch instead. If history diverged so a force-push would be required, the API fails (`400 BRANCH_UPDATE_FAILED`) and does not `--force`.
 
 ## Success
 
-`201`:
+First create: `201`. Update or identical-tree no-op: `200`. Same body either way (`updated: true` on reuse):
 
 ```json
 {
@@ -125,7 +151,8 @@ Never send `branch` of `main`, `master`, or the repo default. The API refuses th
   "baseBranch": "main",
   "projectName": "hono-react",
   "targetRepo": "owner/repo",
-  "tables": ["user", "session"]
+  "tables": ["user", "session"],
+  "updated": false
 }
 ```
 
@@ -147,13 +174,18 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 | 400 `SCHEMA_FILTER_FAILED` | Schema does not match the project filter. See `hono-react` above. |
 | 400 `PROJECT_NOT_FOUND` | Use a name from `details.availableProjects`. |
 | 400 `PROTECTED_BRANCH` | Pick a non-default `scaffolder/…` branch. |
-| 400 `BRANCH_CREATE_FAILED` | Branch already exists (no force-push). Choose a new name. |
+| 400 `BRANCH_CREATE_FAILED` | Unique new name collided (no force-push). Omit `branch` to get another unique name, or send the existing `branch` / `prNumber` to update. |
+| 400 `BRANCH_UPDATE_FAILED` | Fast-forward update failed (would need force-push). Stop. Do not retry with `--force`. |
+| 400 `PR_NOT_OPEN` | That PR is closed or merged. Open a new unique `scaffolder/…` branch. |
+| 400 `PR_NOT_FOUND` | `prNumber` does not exist on `target_repo`. |
+| 400 `PR_REPO_MISMATCH` | `prUrl` is not on `target_repo`. |
+| 400 `BRANCH_PR_MISMATCH` | `branch` and `prNumber` do not refer to the same head. |
 | 403 + `installationUrl` | Target owner must install the Scaffolder GitHub App on that repo. |
 
 ## Do not
 
 - Write, force-push, or merge `main` / `master` / the default branch
-- Force-push an existing scaffolder branch
+- Force-push an existing scaffolder branch (update with `branch` or `prNumber` instead)
 - Print `SCAFFOLDER_AGENT_API_KEY`, Auth0 tokens, or the GitHub App private key
 - Use Auth0 as the agent login
 - Create a second GitHub App
