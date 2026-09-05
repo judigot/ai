@@ -135,16 +135,16 @@ Default fullstack MVP (`hono-react`) uses the same shape:
 
 - **Existing app** (`bookingwars` or any repo the user already named): omit `create_repo`. Open or update a draft PR on that repo. Do not recreate it.
 - **New dest repo**: set `create_repo: true`. Org owners are created by the existing Scaffolder GitHub App (private + `auto_init`). Personal owners (`judigot` and other users) cannot be created by the App. If the API returns `USER_REPO_CREATE_UNSUPPORTED`, create the empty private repo first, install the App on it, then call again with `create_repo` omitted. Never ask for a PAT. Never create a second GitHub App. Collision is `REPO_EXISTS` — do not overwrite.
-- **Live starter** (`template-monorepo` Nest golden): optional `template_repo` must be an allowlisted GitHub URL **pinned to a commit SHA** (`/tree/<sha>`). Unpinned `main` is rejected. The host fetches a tarball; do not `git clone` the template. Omit `template_repo` to keep today's bundled `/Core/template-monorepo`.
-- Recipe authors may set `$BASE` / `source:` and `replace: [apps/api/**]`. Request `template_repo` overrides `$BASE`. A live Hono `apps/api` plus Nest without `replace:` fails (`TEMPLATE_API_CONFLICT`).
+- **Live starter**: optional `template_repo` is an ordinary public GitHub repo URL (`https://github.com/owner/repo`). Do **not** look up a commit SHA. The host resolves the repo's actual default branch from GitHub metadata (do not assume `main`), fetches one commit snapshot, and returns `resolvedSha`. Optional `/tree/<branch|tag|sha>` remains valid for advanced use; `main` is not an error. Other owners' public repos are accepted. If the URL includes a subdirectory, the host uses that folder or returns `TEMPLATE_SUBDIRECTORY_NOT_FOUND` — it never silently downloads the repo root. Omit `template_repo` (and recipe `$BASE`) to keep today's bundled `/Core/template-monorepo`.
+- Recipe authors may set `$BASE: https://github.com/judigot/template-monorepo` or `source:` plus `replace: [apps/api/**]`. Request `template_repo` overrides `$BASE`. A live Hono `apps/api` plus Nest without `replace:` fails (`TEMPLATE_API_CONFLICT`).
 
 ```json
 {
   "project_url": "https://github.com/judigot/scaffolder-files/tree/main/Projects/template-monorepo",
-  "target_repo": "acme/new-app",
-  "create_repo": true,
-  "template_repo": "https://github.com/judigot/template-monorepo/tree/0123456789abcdef0123456789abcdef01234567",
-  "schemaInfo": "<@@SCHEMA@@>\n@users:id:n#pk,email:s!u,name:s,created_at:D,updated_at:D\n<@@/SCHEMA@@>"
+  "template_repo": "https://github.com/judigot/template-monorepo",
+  "target_repo": "judigot/booking-app",
+  "create_repo": false,
+  "schemaInfo": "<@@SCHEMA@@>\n@products:id:n#pk,name:s,price:n\n<@@/SCHEMA@@>"
 }
 ```
 
@@ -193,7 +193,8 @@ First create: `201`. Update or identical-tree no-op: `200`. Same body either way
   "projectName": "hono-react",
   "targetRepo": "owner/repo",
   "tables": ["user", "session"],
-  "updated": false
+  "updated": false,
+  "resolvedSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
 ```
 
@@ -224,8 +225,9 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 | 400 `PR_REPO_MISMATCH` | `prUrl` is not on `target_repo`. |
 | 400 `BRANCH_PR_MISMATCH` | `branch` and `prNumber` do not refer to the same head. |
 | 403 + `installationUrl` | Target owner must install the Scaffolder GitHub App on that repo. |
-| 400 `TEMPLATE_REPO_UNPINNED` | `template_repo` must use `/tree/<sha>`, not `main`. |
-| 400 `INVALID_TEMPLATE_REPO` | Not allowlisted or not a GitHub tree/commit URL. Start: `judigot/template-monorepo`. |
+| 400 `INVALID_TEMPLATE_REPO` | `template_repo` / `$BASE` is not a github.com repository URL. Use `https://github.com/owner/repo`. |
+| 400 `TEMPLATE_SOURCE_UNAVAILABLE` | The public starter repo or ref could not be resolved. Check owner/repo/visibility. |
+| 400 `TEMPLATE_SUBDIRECTORY_NOT_FOUND` | The URL named a subdirectory that is not in that snapshot. Do not retry with the repo root unless the user asked for the root. |
 | 400 `TEMPLATE_API_CONFLICT` | Live Hono `apps/api` plus Nest without `replace: [apps/api/**]`. Use the Nest recipe or strip first. |
 | 400 `USER_REPO_CREATE_UNSUPPORTED` | App cannot create personal repos and this agent-key caller has no stored user token. Create the user repo first, install the App, retry without `create_repo`. |
 | 409 `REPO_EXISTS` | `create_repo` hit an existing dest. Do not overwrite. Call again with `create_repo` omitted. |
@@ -238,4 +240,5 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 - Use Auth0 as the agent login
 - Create a second GitHub App
 - Clone Scaffolder to "load the tool"
+- Look up commit SHAs for `template_repo` or `project_url` (the host resolves snapshots)
 - Apply generated files by copying into a local clone unless the user explicitly asked to skip the API
