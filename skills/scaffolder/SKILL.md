@@ -131,7 +131,24 @@ Default fullstack MVP (`hono-react`) uses the same shape:
 
 `target_repo` may be `owner/repo`. Do not confuse it with `project_url` (files repo + project path).
 
-Optional: `branch`, `prNumber`, `prUrl`, `prTitle`, `prBody`, `draft`.
+### Greenfield vs bookingwars
+
+- **Existing app** (`bookingwars` or any repo the user already named): omit `create_repo`. Open or update a draft PR on that repo. Do not recreate it.
+- **New dest repo**: set `create_repo: true`. Org owners are created by the existing Scaffolder GitHub App (private + `auto_init`). Personal owners (`judigot` and other users) cannot be created by the App. If the API returns `USER_REPO_CREATE_UNSUPPORTED`, create the empty private repo first, install the App on it, then call again with `create_repo` omitted. Never ask for a PAT. Never create a second GitHub App. Collision is `REPO_EXISTS` — do not overwrite.
+- **Live starter** (`template-monorepo` Nest golden): optional `template_repo` must be an allowlisted GitHub URL **pinned to a commit SHA** (`/tree/<sha>`). Unpinned `main` is rejected. The host fetches a tarball; do not `git clone` the template. Omit `template_repo` to keep today's bundled `/Core/template-monorepo`.
+- Recipe authors may set `$BASE` / `source:` and `replace: [apps/api/**]`. Request `template_repo` overrides `$BASE`. A live Hono `apps/api` plus Nest without `replace:` fails (`TEMPLATE_API_CONFLICT`).
+
+```json
+{
+  "project_url": "https://github.com/judigot/scaffolder-files/tree/main/Projects/template-monorepo",
+  "target_repo": "acme/new-app",
+  "create_repo": true,
+  "template_repo": "https://github.com/judigot/template-monorepo/tree/0123456789abcdef0123456789abcdef01234567",
+  "schemaInfo": "<@@SCHEMA@@>\n@users:id:n#pk,email:s!u,name:s,created_at:D,updated_at:D\n<@@/SCHEMA@@>"
+}
+```
+
+Optional: `branch`, `prNumber`, `prUrl`, `prTitle`, `prBody`, `draft`, `template_repo`, `create_repo`.
 
 - Omit `branch` and `prNumber` for a **new** unique `scaffolder/<project>-<id>` branch and a **new draft** PR.
 - Send `branch` to commit again on that existing `scaffolder/…` branch (fast-forward only). If an open PR already exists for that head, the API returns **that** PR. If the branch exists with no PR, it opens a **draft** PR (it does not mark a ready PR as draft).
@@ -207,6 +224,11 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 | 400 `PR_REPO_MISMATCH` | `prUrl` is not on `target_repo`. |
 | 400 `BRANCH_PR_MISMATCH` | `branch` and `prNumber` do not refer to the same head. |
 | 403 + `installationUrl` | Target owner must install the Scaffolder GitHub App on that repo. |
+| 400 `TEMPLATE_REPO_UNPINNED` | `template_repo` must use `/tree/<sha>`, not `main`. |
+| 400 `INVALID_TEMPLATE_REPO` | Not allowlisted or not a GitHub tree/commit URL. Start: `judigot/template-monorepo`. |
+| 400 `TEMPLATE_API_CONFLICT` | Live Hono `apps/api` plus Nest without `replace: [apps/api/**]`. Use the Nest recipe or strip first. |
+| 400 `USER_REPO_CREATE_UNSUPPORTED` | App cannot create personal repos and this agent-key caller has no stored user token. Create the user repo first, install the App, retry without `create_repo`. |
+| 409 `REPO_EXISTS` | `create_repo` hit an existing dest. Do not overwrite. Call again with `create_repo` omitted. |
 
 ## Do not
 
