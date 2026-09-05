@@ -19,10 +19,10 @@ Do **not** use this for ordinary feature work in an already-generated app. Imple
 ## Preconditions
 
 1. `SCAFFOLDER_AGENT_API_KEY` is set in this runtime (Cursor Secret or equivalent). Never print it. Never log the header.
-2. The **Scaffolder GitHub App** is installed on the target repo (selected repositories, not every repo on GitHub).
+2. Destination write access is in place: either the **Scaffolder GitHub App** is installed on the target repo, or this runtime has a GitHub PAT to send as `X-GitHub-Token` (Cursor Secret such as `GITHUB_PAT`). The PAT is request-scoped, used for destination create/commit/PR only, and is never stored or sent to public source downloads.
 3. The user named a `target_repo` (GitHub URL or `owner/repo`). If they did not, ask once.
 
-If the API key is missing, stop. Tell them to add the same value used on the Scaffolder host as a Cursor Secret, then start a **new** Cloud Agent. Do not fall back to Auth0. Do not ask them to paste the key into chat.
+If the API key is missing, stop. Tell them to add the same value used on the Scaffolder host as a Cursor Secret, then start a **new** Cloud Agent. Do not fall back to Auth0. Do not ask them to paste the key or a PAT into chat.
 
 ## Flow
 
@@ -102,13 +102,15 @@ Path: `POST /api/agent-scaffold`.
 Never print the token. Never use `curl -v`. Put `schemaInfo` last in the JSON.
 
 ```sh
-# create
+# create (GitHub App publication)
 curl -sS --max-time 120 \
   -X POST "https://app-scaffolder.vercel.app/api/agent-scaffold" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ${SCAFFOLDER_AGENT_API_KEY}" \
   -d '{"project_url":"https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM%20Schema%20-%20Knex","target_repo":"https://github.com/judigot/bookingwars","draft":true,"schemaInfo":"<@@SCHEMA@@>\n@users:id:n#pk,email:s!u,name:s,created_at:D,updated_at:D\n<@@/SCHEMA@@>"}'
 ```
+
+For a new personal destination, or to publish with a PAT instead of the App, add `-H "X-GitHub-Token: ${GITHUB_PAT}"`. Keep the PAT out of JSON, URLs, and chat.
 
 ```sh
 # update PR 2
@@ -134,7 +136,7 @@ Default fullstack MVP (`hono-react`) uses the same shape:
 ### Greenfield vs bookingwars
 
 - **Existing app** (`bookingwars` or any repo the user already named): omit `create_repo`. Open or update a draft PR on that repo. Do not recreate it.
-- **New dest repo**: set `create_repo: true`. Org owners are created by the existing Scaffolder GitHub App (private + `auto_init`). Personal owners (`judigot` and other users) cannot be created by the App. If the API returns `USER_REPO_CREATE_UNSUPPORTED`, create the empty private repo first, install the App on it, then call again with `create_repo` omitted. Never ask for a PAT. Never create a second GitHub App. Collision is `REPO_EXISTS` — do not overwrite.
+- **New dest repo**: set `create_repo: true`. The host generates first, then creates. Org owners can be created by the Scaffolder GitHub App (private + `auto_init`) without a PAT. Personal owners need `X-GitHub-Token` (a PAT belonging to that user) or an Auth0 caller with a stored GitHub token. If the API returns `USER_REPO_CREATE_UNSUPPORTED`, either add a PAT secret and retry with the header, or create the empty private repo first, install the App on it, then call again with `create_repo` omitted. Never paste a PAT into chat or JSON. Never create a second GitHub App. Collision is `REPO_EXISTS` — do not overwrite. When the PAT header is present, it is used for create and for PR publication; the host does not fall back to the App.
 - **Live starter**: optional `template_repo` is an ordinary public GitHub repo URL (`https://github.com/owner/repo`). Do **not** look up a commit SHA. The host resolves the repo's actual default branch from GitHub metadata (do not assume `main`), fetches one commit snapshot, and returns `resolvedSha`. Optional `/tree/<branch|tag|sha>` remains valid for advanced use; `main` is not an error. Other owners' public repos are accepted. If the URL includes a subdirectory, the host uses that folder or returns `TEMPLATE_SUBDIRECTORY_NOT_FOUND` — it never silently downloads the repo root. Omit `template_repo` (and recipe `$BASE`) to keep today's bundled `/Core/template-monorepo`.
 - Recipe authors may set `$BASE: https://github.com/judigot/template-monorepo` or `source:` plus `replace: [apps/api/**]`. Request `template_repo` overrides `$BASE`. A live Hono `apps/api` plus Nest without `replace:` fails (`TEMPLATE_API_CONFLICT`).
 
@@ -229,14 +231,19 @@ Do not offer ZIP download. ZIP is a human UI fallback on the Scaffolder site, no
 | 400 `TEMPLATE_SOURCE_UNAVAILABLE` | The public starter repo or ref could not be resolved. Check owner/repo/visibility. |
 | 400 `TEMPLATE_SUBDIRECTORY_NOT_FOUND` | The URL named a subdirectory that is not in that snapshot. Do not retry with the repo root unless the user asked for the root. |
 | 400 `TEMPLATE_API_CONFLICT` | Live Hono `apps/api` plus Nest without `replace: [apps/api/**]`. Use the Nest recipe or strip first. |
-| 400 `USER_REPO_CREATE_UNSUPPORTED` | App cannot create personal repos and this agent-key caller has no stored user token. Create the user repo first, install the App, retry without `create_repo`. |
+| 400 `USER_REPO_CREATE_UNSUPPORTED` | Personal create without `X-GitHub-Token` (and no stored Auth0 GitHub token). Send a PAT header, or create the user repo first, install the App, retry without `create_repo`. |
+| 400 `INVALID_GITHUB_TOKEN` | `X-GitHub-Token` was empty or contained whitespace. Fix the secret; do not fall back to the App on the same request. |
+| 403 `PAT_OWNER_MISMATCH` | The PAT is not the destination personal account. Use that owner's PAT. |
+| 403 `PAT_CREATE_REPO_FAILED` | PAT could not create the dest. Check validity, owner access, and Administration write. |
+| 403 `PAT_PUBLISH_FAILED` | PAT could not open or update the PR. Check Contents and Pull requests write (Workflows write if generating workflows). If `details.repoCreated` is true, retry with `create_repo` omitted. |
 | 409 `REPO_EXISTS` | `create_repo` hit an existing dest. Do not overwrite. Call again with `create_repo` omitted. |
 
 ## Do not
 
 - Write, force-push, or merge `main` / `master` / the default branch
 - Force-push an existing scaffolder branch (update with `branch` or `prNumber` instead)
-- Print `SCAFFOLDER_AGENT_API_KEY`, Auth0 tokens, or the GitHub App private key
+- Print `SCAFFOLDER_AGENT_API_KEY`, `X-GitHub-Token`, Auth0 tokens, or the GitHub App private key
+- Put a PAT in JSON, URLs, recipe files, or chat
 - Use Auth0 as the agent login
 - Create a second GitHub App
 - Clone Scaffolder to "load the tool"
