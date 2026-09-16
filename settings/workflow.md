@@ -37,6 +37,7 @@ When the workspace is `judigot/template-monorepo`, also follow that repo's `docs
 | Fast client MVP / generate app from schema / Scaffolder | `skills/scaffolder/SKILL.md`. Draft PR on the target repo. Do not write `main`. |
 | "Is there a skill for X?" | Official makers first (https://skills.sh/official), then the catalog |
 | Lint-only or formatter fights | `lint-master` |
+| Visible EC2 agent desktop / live UI testing / cloud workstation recordings | `skills/cloud-dev-desktop/SKILL.md` |
 | Unsure which Matt Pocock flow | Fetch ask-matt |
 
 ## 3. Test-driven delivery
