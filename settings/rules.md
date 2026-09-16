@@ -523,6 +523,7 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 - Prefer specialized search tools first (`Grep` tool for code search, `rg` for terminal search).
 - Use `awk` when you need parsing, extraction, or column-based processing.
 - Do not use `grep` as a blanket substitute for structured parsing.
+- For multiline shell strings whose value must begin on the first character of the first content line, escape the newline after the opening quote (`"\`). Keep the closing quote on its own line and write the value with `printf '%s'` when its final newline is already part of the string.
 - Follow this structure in script files:
 
   ```sh
