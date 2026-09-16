@@ -44,6 +44,7 @@ ai/
 │   ├── setup-entrypoint/     # Load overlay, clarify, route
 │   ├── find-skills/          # skills.sh lookup (URLs only)
 │   ├── use-ai-skills/        # Dynamic live-repository skill router
+│   ├── cloud-dev-desktop/    # Visible EC2 agent workstation and UI evidence
 │   ├── tdd-ci/               # Red-green-refactor; CI = done
 │   ├── self-audit/           # Pre-stop checklist
 │   ├── scaffolder/           # MVP schema → Scaffolder draft PR
@@ -105,6 +106,7 @@ raw.
 | `setup-entrypoint` | Load this overlay, clarify, route to wayfinder/TDD before coding |
 | `find-skills` | Look up skills on [skills.sh](https://skills.sh) and fetch the page. Do not install. |
 | `use-ai-skills` | Discover and execute the smallest sufficient set of live repository skills |
+| `cloud-dev-desktop` | Set up a visible EC2 development desktop with OpenCode, UI tests, recordings, and verified artifact preservation |
 | `tdd-ci` | Red-green-refactor; CI is the success signal |
 | `self-audit` | Pre-stop checklist: commits, push, CI, PR |
 | `scaffolder` | Build `schemaInfo`, call the Scaffolder agent API, open a draft PR |
