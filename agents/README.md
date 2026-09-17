@@ -51,6 +51,9 @@ When asked about agents, provide clear, concise information from the documentati
 | `app-bundler`           | Bundle and package applications                    |
 | `test-generator`        | Generate test cases for code                       |
 | `vite-nginx-playground` | Vite dev server + Nginx slug setup for judigot.com |
+| `ui-to-react` | Convert static HTML using existing React components and tokens |
+| `ui-mock-iframe` | Preview served HTML inside an existing mock gallery |
+| `design-creation-agent` | Build design-system components, pages, and examples |
 
 ## Overlay skills
 
@@ -60,6 +63,8 @@ When asked about agents, provide clear, concise information from the documentati
 | `find-skills`       | Look up skills.sh URLs; do not install         |
 | `tdd-ci`            | Red-green-refactor; CI is done                       |
 | `self-audit`        | Pre-stop: push, tests, PR checklist                  |
+| `frontend-design`   | Existing design-system UI, localization, and HTML conversion |
+| `junit-test-implementation` | Java test gap inventory, implementation, and verification |
 | `scaffolder`        | MVP schema → Scaffolder agent API → draft PR         |
 
 ## Agent File Format

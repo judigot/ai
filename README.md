@@ -101,6 +101,9 @@ this checkout. Apps use the remote-first loading policy, with a clone fallback w
 | `task-master` | Execute single task in a worktree autonomously |
 | `multitasker` | Sprint orchestrator - creates worktrees and spawns parallel subagents |
 | `agentic-workflow` | Multi-agent coordination architecture |
+| `ui-to-react` | Convert static HTML into React using existing components and tokens |
+| `ui-mock-iframe` | Preview served HTML in an existing mock gallery |
+| `design-creation-agent` | Create design-system components, pages, and examples |
 
 **Compatibility:** All agents work with both **Claude Code** and **OpenCode**.
 
@@ -117,6 +120,14 @@ this checkout. Apps use the remote-first loading policy, with a clone fallback w
 | `scaffolder` | Build `schemaInfo`, call the Scaffolder agent API, open a draft PR |
 | `lint-master` | Multi-tool linting workflow (ESLint > Oxlint > Biome) |
 | `test-master` | Testing infrastructure and implementation |
+| `frontend-design` | Build localized React UI using the app's existing design system |
+| `junit-test-implementation` | Find and close Java/JUnit test coverage gaps |
+
+Layer-specific guidance: [frontend conventions](settings/frontend.md) and
+[Java backend conventions](settings/backend-java.md). These are loaded by task
+through the workflow router. [STP extraction notes](docs/stp-extraction.md)
+record the sources, duplicate rules, adaptations, and intentionally excluded
+project-specific instructions.
 
 ### External work (URLs only)
 

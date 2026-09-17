@@ -38,6 +38,9 @@ not worktree or sprint metadata.
 | Ambiguous product or behavior | Clarify / fetch grill. Do not code. |
 | Effort bigger than one session, route unclear | Fetch wayfinder. Plan and decide, do not build. |
 | Locked spec or ticket | TDD, then implement |
+| React UI, design-system components, or HTML-to-React conversion | Read `settings/frontend.md` and `skills/frontend-design/SKILL.md`; apply the React/Next.js routes below as appropriate. |
+| Static HTML previews inside an existing mock gallery | `agents/ui-mock-iframe.md` |
+| Existing Java/Spring backend | Read `settings/backend-java.md`; for JUnit additions or maintenance, use `skills/junit-test-implementation/SKILL.md`. |
 | Hard bug with no reliable repro | Fetch diagnosing-bugs, else debugger agent |
 | React | Fetch vercel-react-best-practices and vercel-composition-patterns |
 | Next.js | Fetch https://www.skills.sh/vercel/next.js |
