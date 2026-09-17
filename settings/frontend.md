@@ -68,8 +68,11 @@ Apply this contract to every production tag or recipient input:
    input focus.
 4. Suggestions are a labelled listbox with stable IDs, full-width hit targets,
    active state, keyboard navigation, and above/below viewport-aware placement.
-5. Empty-input Backspace first anchors the last chip, then removes it and moves
-   the anchor backwards. Escape closes suggestions without changing values.
+5. Empty-input Backspace first anchors the last chip with the same selection
+   overlay and thick border used for an active chip; the next Backspace removes
+   it and moves the anchor backwards. Left/Right arrows move the active anchor
+   across chips (clamped at the ends). Escape closes suggestions without
+   changing values.
 6. Ctrl+A/Cmd+A applies a darker theme-derived overlay to every chip while the
    last chip remains the active anchor. Backspace removes the entire bulk
    selection. Typing, focus, add, remove, or blur clears bulk selection.
