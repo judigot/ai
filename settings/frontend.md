@@ -55,6 +55,30 @@ patterns to discover, not dependencies to install or files to create automatical
 - Verify dropdown dismissal does not swallow navigation or keyboard activation;
   preserve the project's event handling instead of prescribing one event globally.
 
+## Tag input invariants
+
+Apply this contract to every production tag or recipient input:
+
+1. Values are trimmed, unique, controlled through one change boundary, and are
+   never deleted by an accidental first Backspace.
+2. Focus or typing clears chip selection. The labelled input owns combobox state
+   and opens suggestions only when matching options exist.
+3. Blur closes the popup and clears overlays, chip selection, and active borders.
+   Pointer selection prevents pointer-down/blur races, commits once, and restores
+   input focus.
+4. Suggestions are a labelled listbox with stable IDs, full-width hit targets,
+   active state, keyboard navigation, and above/below viewport-aware placement.
+5. Empty-input Backspace first anchors the last chip, then removes it and moves
+   the anchor backwards. Escape closes suggestions without changing values.
+6. Ctrl+A/Cmd+A applies a darker theme-derived overlay to every chip while the
+   last chip remains the active anchor. Backspace removes the entire bulk
+   selection. Typing, focus, add, remove, or blur clears bulk selection.
+7. Chips retain visible semantic borders in every theme; the active anchor uses a
+   thicker primary border. Contrast, focus indication, and forced-colors support
+   must not depend on color alone.
+8. Every remove control has an accessible name. Test focus, blur, pointer choice,
+   two-step deletion, bulk selection, and bulk deletion independently.
+
 ## Verification
 
 Discover the actual package scripts and package manager. Run relevant type,
