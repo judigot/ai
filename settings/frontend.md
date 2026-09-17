@@ -16,6 +16,23 @@ patterns to discover, not dependencies to install or files to create automatical
 - Parents own width and positioning; children fill the available space. Inspect
   existing route layouts before adding another page wrapper. Use section
   containers for narrower forms/cards inside wide pages.
+
+### Multi-value inputs
+
+- Prefer the platform or an established headless primitive (for example,
+  shadcn/Radix composition) for listbox, combobox, and popover behavior. Keep
+  custom code limited to product-specific value handling and styling.
+- A tag/recipient input should close its suggestions popup on blur, while
+  preserving the selected values. Prevent blur races when choosing an option by
+  cancelling the option's pointer-down default before committing the value.
+- With an empty text input, the first Backspace selects the last chip and a
+  second Backspace removes it. Do not delete a value on the first press.
+- Support Ctrl/Cmd+A as a distinct bulk-selection state: show all chips as
+  selected and retain one active anchor for the visible border/focus treatment.
+  Typing, refocusing, adding, or removing a chip clears bulk selection.
+- Give every removal control an accessible name (for example, `Remove React`),
+  expose selection state with `aria-selected` where a custom composite requires
+  it, and test blur, pointer selection, keyboard deletion, and bulk selection.
 - If width route groups exist, match each group's existing sizing token. Do not
   import STP's pixel dimensions or protected-route structure into other apps.
 - Add a client boundary only where client APIs or hooks require it. Keep hook
