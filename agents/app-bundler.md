@@ -1,7 +1,7 @@
 ---
 name: agent-node-vercel-builder
 description: Build and deploy Node.js backend apps with first-class Vercel support (Serverless Functions), using modern tooling, deterministic builds, and production-grade conventions.
-model: claude-3-5-sonnet
+model: inherit
 tools:
   - bash
   - filesystem

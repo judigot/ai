@@ -57,6 +57,7 @@ ai/
 ├── settings/
 │   ├── rules.md              # Coding rules
 │   ├── workflow.md           # Session protocol
+│   ├── agent-orchestration.md # Provider-neutral worker routing and verified model mappings
 │   ├── stack.md              # Current packages → official skills.sh packs
 │   ├── references.md         # URLs to official + other skills (no downloads)
 │   ├── ecosystem.md          # Template-only charter; not included from product repos
@@ -78,6 +79,11 @@ Your personal coding rules are stored in `settings/rules.md`, separate from `~/.
 - **Portability**: Same settings across all machines
 
 Session start loads this overlay from `AGENTS.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping. The template's `docs/ecosystem.md` applies when the workspace is `judigot/template-monorepo`.
+
+`settings/agent-orchestration.md` is the canonical policy for the main
+orchestrator, worker routes, verified model IDs, fallback behavior, and durable
+handoffs. Tool-specific configuration stays in each CLI's supported location;
+the overlay never copies credentials between clients.
 
 If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 

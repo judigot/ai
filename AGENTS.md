@@ -43,3 +43,4 @@ Read all these files from the same source or checkout as this `AGENTS.md`:
 - settings/workflow.md
 - settings/stack.md
 - settings/references.md
+- settings/agent-orchestration.md

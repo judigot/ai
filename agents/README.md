@@ -29,7 +29,7 @@ This triggers because the user wants to know what agents exist.
 </commentary>
 </example>
 
-model: haiku
+model: inherit
 color: purple
 tools: ["Read", "Glob"]
 ---
@@ -94,7 +94,7 @@ tools: ["Read", "Write", "Bash", "Grep"]
 | ------------- | ------------------------------------------------------------------ |
 | `name`        | Lowercase identifier with hyphens (e.g., `code-reviewer`)          |
 | `description` | Starts with "Use this agent when..." with examples                 |
-| `model`       | Usually `inherit` to use parent model, or `haiku` for simple tasks |
+| `model`       | `inherit` so the canonical orchestration policy selects the route and model |
 | `color`       | Visual identifier: `blue`, `green`, `orange`, `red`, `purple`      |
 
 ### Optional Fields

@@ -2,6 +2,10 @@
 
 This repository is the overlay for every agentic chat: coding rules, routing, and delivery discipline.
 
+Provider routing, model mappings, worker contracts, and durable handoffs are
+defined in `settings/agent-orchestration.md`. That policy takes precedence over
+generic agent or model defaults in this overlay.
+
 Other people's skills live on the web. **Reference them. Do not download them.** See `settings/references.md`.
 
 Implement in the user's project. Only edit `judigot/ai` when the user is changing this workflow.
