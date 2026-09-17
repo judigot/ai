@@ -484,6 +484,9 @@ Apply only when committing and pushing are authorized; use the delivery scope in
 
 # React
 
+- For component, styling, layout, form, or localization work, also read
+  [frontend conventions](frontend.md). The consuming project's existing stack
+  and design system determine which patterns apply.
 - Use function components only.
 - Include all dependencies in hooks.
 - Fix click handlers on non-interactive elements.
