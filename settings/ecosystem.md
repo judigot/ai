@@ -6,9 +6,10 @@ files. Product repos stay standalone.
 
 The overlay is https://github.com/judigot/ai. Apps fetch
 https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md and then
-follow the files it names. They do not clone this overlay, do not read `~/ai`
-or other local clones (those copies can be stale), and do not list each
-settings file themselves.
+follow the files it names. Only if remote loading fails, use `~/ai`, cloning it
+if absent and verifying an existing checkout without overwriting it. Bootstrap
+through agent-level instructions or `prompts/prompt-init-chat.md`; do not add
+loaders or overlay files to product repositories.
 
 Canonical charter: `judigot/template-monorepo` `docs/ecosystem.md`.
 
@@ -25,7 +26,7 @@ reusable personal engineering foundation based on real experience.
 | Repository | Role |
 | --- | --- |
 | `judigot/template-monorepo` | Shared application foundation. Generic only. |
-| https://github.com/judigot/project-core | App `AGENTS.md` only. Overlay loader plus a repo-specific section. |
+| https://github.com/judigot/project-core | Existing project instruction seed; no overlay loader is required by this policy. |
 | https://github.com/judigot/bookingwars | Active product from the template. Independent product evolution plus a source of patterns that may be promoted. |
 | https://github.com/judigot/ecommerce-app | Active product. Same dual role. Divergence is allowed when requirements differ. |
 | https://github.com/judigot/ai | This overlay. Rules, workflow, skills — not app code. |

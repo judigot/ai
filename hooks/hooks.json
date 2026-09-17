@@ -5,15 +5,7 @@
       "hooks": [
         {
           "type": "command",
-          "command": "[ -f \"$HOME/.devrc\" ] && . \"$HOME/.devrc\""
-        },
-        {
-          "type": "command",
-          "command": "cat ${CLAUDE_PLUGIN_ROOT}/settings/rules.md"
-        },
-        {
-          "type": "command",
-          "command": "cat ${CLAUDE_PLUGIN_ROOT}/settings/workflow.md"
+          "command": "printf 'Follow this overlay entrypoint and all files it requires. Local checkout: %s\\n' \"$CLAUDE_PLUGIN_ROOT\"; cat \"$CLAUDE_PLUGIN_ROOT/AGENTS.md\""
         }
       ]
     }
@@ -44,7 +36,7 @@
       "hooks": [
         {
           "type": "prompt",
-          "prompt": "Before finishing: run self-audit. Mini commits must be pushed. Tests/CI must be green. PR body must include a non-technical manual testing checklist. No console.log. Unpushed work is a failure."
+          "prompt": "Before finishing, follow skills/self-audit/SKILL.md from the selected overlay source. Apply only relevant and authorized checks. Report unavailable checks or delivery steps accurately; do not claim unverified success."
         }
       ]
     }

@@ -10,7 +10,7 @@ Route the current task through the live skills in `https://github.com/judigot/ai
 ## Discover
 
 1. Read the current task before choosing skills.
-2. Fetch the live `skills/` directory from the public repository's `main` branch. Do not clone the repository and do not rely on a cached or local copy.
+2. Use the source selected by the overlay's `AGENTS.md` loading policy. Prefer the remote `skills/` directory on `main`; if required discovery or skill files cannot be read, use the `~/ai` fallback (clone there if absent; verify and preserve an existing checkout) and reload the overlay and selected skills from that checkout. When maintaining this overlay, use the workspace files. Report the local version, modifications, and unverified freshness when falling back. Do not create project-local overlay files.
 3. Enumerate directories containing `SKILL.md`. Exclude `use-ai-skills` from candidates to prevent recursion.
 4. Read the YAML frontmatter of each candidate `SKILL.md`, especially `name` and `description`. Prefer ranged or line-limited reads when supported so discovery does not load every body.
 5. Match the task against the metadata. Select one skill when it covers the task; select multiple only for distinct necessary parts. Use no more than three selected skills by default.
@@ -21,13 +21,13 @@ Use these public endpoints when the provider has no native GitHub reader:
 - Directory: `https://api.github.com/repos/judigot/ai/contents/skills?ref=main`
 - Skill: `https://raw.githubusercontent.com/judigot/ai/main/skills/<directory>/SKILL.md`
 
-If discovery is unavailable, state the access problem clearly. Do not silently substitute stale instructions.
+If discovery is still unavailable after the fallback, state the access problem clearly and request an accessible copy or restored access.
 
 ## Load
 
 1. Briefly name the selected skills and why they apply.
 2. Read every selected `SKILL.md` completely before acting.
-3. Resolve relative links from the selected skill's directory. Resolve repository-root paths, such as `settings/...`, from `https://github.com/judigot/ai/tree/main/`.
+3. Resolve relative links from the selected skill's directory and repository-root paths, such as `settings/...`, from the selected remote tree or local checkout. Do not mix sources.
 4. Read only referenced files required for the current task. Do not load unrelated resources.
 5. Preserve the selected skills' intended order. Run setup or planning skills first, task-specific skills next, and audit or verification skills last.
 

@@ -1,10 +1,10 @@
 # General
 
 - I want the code to be self-documenting.
-- Agents should always run terminal commands by sourcing the ~/.devrc file first. It is needed to be able to use aliases:
+- Source `~/.devrc` when present and needed for aliases; otherwise use standard commands:
 
 ```bash
-. ~/.devrc; eval "hi" # For running aliases
+if [ -f "$HOME/.devrc" ]; then . "$HOME/.devrc"; fi
 ```
 
 - I prefer readable code that I can go back to after a long time and still be able to understand it.
@@ -264,17 +264,19 @@ Do not ask about these. Do ask when the goal, UX, data model, or success criteri
 
 - Follow `settings/workflow.md` for every implementation chat. Follow the template's `docs/ecosystem.md` only when the workspace is `judigot/template-monorepo`.
 - Clarify before coding when the request is ambiguous. Fetch grill or wayfinder URLs from `settings/references.md`. Do not download those skills.
-- Test-driven: red-green-refactor. CI green is the definition of done.
-- Mini commits: one meaningful slice per commit, then `git push`. Do not wait until the feature is finished.
-- PR bodies must include a non-technical manual testing checklist (`settings/pr-body.md`).
+- Apply the task-specific testing, authorized commit/push, and PR requirements in `settings/workflow.md`.
 - Run `skills/self-audit` before stopping.
 
 # MCP Tools
 
-- Always use Context7 MCP for library/API documentation, code generation, setup, or configuration steps without requiring explicit request
+- Prefer Context7 MCP for library/API documentation, code generation, setup, or configuration when available
 - MCP server binaries can be shared across tools, but each client (OpenCode, Claude Code, Codex) requires its own config pointing to those servers
-- Required MCP servers: Context7, GitHub
-- Required CLI tools for agents: gh
+- Preferred MCP servers: Context7, GitHub; preferred GitHub CLI: `gh`.
+- If a tool or external skill is unavailable, use a suitable available alternative
+  or continue with already loaded guidance when sufficient. If essential
+  information or capability is missing, report the specific blocker. Never claim
+  an unavailable skill was read or a check was run. This applies to all routes;
+  it does not waive loading the overlay's required instruction files.
 
 # File Operations
 
@@ -389,9 +391,9 @@ When already in MSYS2 bash, run commands directly.
 
 ## Git SSH
 
-- ALWAYS use SSH URLs, never HTTPS: `git@github.com:user/repo.git`
+- Use SSH URLs by default: `git@github.com:user/repo.git`. For the `judigot/ai` loading fallback, use the transport supported by the environment, including HTTPS when SSH is unavailable.
 - When cloning: `git clone git@github.com:user/repo.git`
-- If git asks for credentials, the remote is HTTPS. Fix with: `git remote set-url origin git@github.com:user/repo.git`
+- If authentication fails, check the configured transport and available credentials. Do not change the app's remote merely to load the overlay; use existing authentication without exposing secrets.
 
 ## Git Commits (Conventional Commits)
 
@@ -412,6 +414,8 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 
 ## Mini commits and early push
 
+Apply only when committing and pushing are authorized; use the delivery scope in `settings/workflow.md`.
+
 - Commit each logical slice as soon as it is coherent (failing test, then passing implementation, then refactor). Never one large commit at the end.
 - Push after every commit so the PR and remote have the work before the session runs out of tokens.
 - Stage specific files for that slice. Do not mix unrelated files.
@@ -422,7 +426,7 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 - Prefer using existing snippets over writing new scripts
 - When adding new utilities, add them to `~/.devrc` with descriptive function names and multiple aliases. But always ask permission first.
 - Usage: `bash -c ". ~/.devrc && functionName"`
-- Always source `~/.devrc` at the start of every agent CLI session (OpenCode, Claude Code, Codex, etc.) and before running shell commands so aliases are available.
+- Source `~/.devrc` when present and using its helpers; use standard commands when it is absent.
 
 ## User Aliases
 

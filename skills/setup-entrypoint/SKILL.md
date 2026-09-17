@@ -1,3 +1,8 @@
+---
+name: setup-entrypoint
+description: Load the workflow overlay before implementation, confirm the working project, and route unclear goals to clarification or planning.
+---
+
 # Setup entrypoint
 
 Run this before implementation. The overlay is https://github.com/judigot/ai. Coding happens in the user's project.
@@ -6,7 +11,7 @@ Run this before implementation. The overlay is https://github.com/judigot/ai. Co
 
 1. Start at `AGENTS.md` in https://github.com/judigot/ai.
    - If the user is changing this overlay and the workspace is https://github.com/judigot/ai, read the workspace files.
-   - Otherwise fetch `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md` and the files it names from that same tree. Always use that live tree. Do not clone this overlay. Do not read `~/ai` or any other local clone; those copies can be stale.
+   - Otherwise try the remote `AGENTS.md` and every required file first. Only if remote loading fails, use `~/ai`, automatically cloning `judigot/ai` there if absent. Verify an existing checkout and preserve its contents. Reload all required instructions from that checkout and report its commit, local modifications, and unverified freshness. If neither source works, report the blocker. Follow environment permissions; do not add a project loader or overlay files. The standalone bootstrap is `prompts/prompt-init-chat.md`.
 2. Decide workspace:
    - User is changing this plugin → stay in https://github.com/judigot/ai.
    - Workspace is `judigot/template-monorepo` → also read that repo's `docs/ecosystem.md`.
@@ -18,4 +23,4 @@ Run this before implementation. The overlay is https://github.com/judigot/ai. Co
 
 If the goal is still open, ask questions and wait. If the work is large and the route is unclear, fetch Matt Pocock wayfinder from `settings/references.md`. Do not clone his repo.
 
-Then wait for the implementation task.
+Proceed with the supplied task once setup and any necessary clarification are complete. Wait only if no task was supplied.

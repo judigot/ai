@@ -5,7 +5,15 @@ description: Use this skill before finishing a task, opening a PR, or claiming t
 
 # Self-audit
 
-Run this before you stop. Fix every failure. Do not ask the user to notice.
+Apply only checks relevant to the task and authorized actions. Read-only analysis
+needs no commits, tests, CI, or PR. For documentation-only edits, review the text,
+links, and diff; do not invent a behavior test. Check PR requirements only when
+creating or updating a PR.
+
+Fix applicable failures within scope. Mark irrelevant checks as not applicable.
+If a required check or publication step is unavailable or unauthorized, report it
+as blocked or not performed, state what was verified, and do not claim full
+validation or publication. This audit does not authorize commits or external writes.
 
 ## Git
 
@@ -33,4 +41,4 @@ Run this before you stop. Fix every failure. Do not ask the user to notice.
 - [ ] No `any`; null/undefined handled; interfaces prefixed with `I`
 - [ ] No secrets, generated junk, or unrelated reformatting
 
-If any box is unchecked, keep working. Then run this list again.
+Finish when applicable checks pass or remaining blockers are clearly reported. Do not keep working solely to satisfy an irrelevant or unavailable check.

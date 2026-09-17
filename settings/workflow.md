@@ -10,8 +10,8 @@ Implement in the user's project. Only edit `judigot/ai` when the user is changin
 
 Before writing code:
 
-1. Start at this overlay's `AGENTS.md` (fetch GitHub raw on `main`; do not clone this repo to load it, and do not read `~/ai` or other local clones). Then follow the files it names (`settings/rules.md`, `settings/stack.md`, and this file). If the user is changing this overlay in the `judigot/ai` workspace, use the workspace files instead.
-2. Confirm the workspace is the **app repo**, not this overlay.
+1. Follow this overlay's `AGENTS.md` loading policy: try remote instructions every session, then use `~/ai` only if a required remote file is inaccessible. Clone there if absent; verify and preserve an existing checkout. Read all required files from the selected source and report local version/freshness when falling back. When maintaining `judigot/ai`, use the workspace files. Bootstrap through agent-level instructions or `prompts/prompt-init-chat.md`; do not install a loader or overlay files in the app.
+2. Confirm the workspace is the **app repo**, unless the user is maintaining this overlay. A fallback clone is an instruction source, not the app workspace.
 3. Use the official skill for that layer in `settings/stack.md`. Do not invent a parallel stack.
 4. Search this project before inventing a new solution.
 5. If the goal, UX, or success criteria are ambiguous, **ask clarifying questions**. For a full grilling session, fetch the grill URL in `settings/references.md`. Do not implement yet.
@@ -19,6 +19,13 @@ Before writing code:
 7. Never `git clone` / `npx skills add` third-party skill repos to satisfy a route.
 
 When the workspace is `judigot/template-monorepo`, also follow that repo's `docs/ecosystem.md`.
+
+Product repos stay standalone: do not include `settings/ecosystem.md` from a
+product's `AGENTS.md`. That file is for template and overlay maintenance.
+
+Git is the only source of truth for worktree state; do not create sprint `.state`
+files. An app-level `CONTEXT.md` from a grilling session records domain language,
+not worktree or sprint metadata.
 
 ## 2. Route
 
@@ -41,6 +48,12 @@ When the workspace is `judigot/template-monorepo`, also follow that repo's `docs
 | Unsure which Matt Pocock flow | Fetch ask-matt |
 
 ## 3. Test-driven delivery
+
+Apply delivery checks to the task: read-only work needs no tests, commits, CI, or
+PR. For documentation-only edits, review text, links, and the diff. Commit, push,
+and create PRs only when authorized and permitted by the environment. If a
+required check cannot run, report the blocker and verified results separately;
+do not claim full validation. These qualifications also apply to delivery skills.
 
 - Red → green → refactor, one vertical slice at a time.
 - Overlay rules: `skills/tdd-ci/SKILL.md`. For Matt Pocock's loop, fetch the tdd URL in `settings/references.md` — do not install it.
@@ -68,4 +81,4 @@ Use `settings/pr-body.md`. Every PR must include a **manual testing checklist** 
 
 ## 7. Self-audit
 
-Before stopping, follow `skills/self-audit/SKILL.md`. Fix audit failures. Do not declare done with unpushed commits, empty PR checklists, or red CI.
+Before stopping, follow `skills/self-audit/SKILL.md`. Fix applicable failures and report checks or delivery steps that remain blocked. Do not claim tests passed or work was published when it was not.

@@ -5,21 +5,21 @@ workspace.
 
 ## How agents load this overlay
 
-Do not clone https://github.com/judigot/ai to load it. Do not read `~/ai` or
-any other local clone; those copies can be stale.
+Agent instructions: [AGENTS.md](AGENTS.md). Agents do not need to read this README
+for required behavior.
 
-1. Put one `AGENTS.md` in the app (from
-   [project-core](https://github.com/judigot/project-core)).
-2. That file fetches
-   `https://raw.githubusercontent.com/judigot/ai/main/AGENTS.md` and the files
-   it names from that same tree.
-3. Work in the app. Only open this overlay when you are changing it.
+1. Supply the [initialization prompt](prompts/prompt-init-chat.md) as agent-level
+   instructions or the first chat message. No project files need to be added or
+   changed. The bootstrap must be available before attempting remote access.
+2. Try the remote overlay and all required files first, on every session.
+3. Only if remote loading fails, use `~/ai`. Clone `judigot/ai` there if absent;
+   otherwise verify the existing checkout and preserve its contents. Report the
+   local version and any modifications; its freshness may be unverified.
+4. If neither source is usable, report the blocker. Cloning also requires network
+   access. The app remains the workspace; `~/ai` supplies instructions only.
 
-Cursor, Claude Code, Codex, Copilot, and others already read `AGENTS.md`
-([AGENTS.md](https://agents.md/)).
-
-The app repo is the workspace. Do not clone or treat this overlay as the
-project unless you are changing the overlay.
+When maintaining the overlay itself, use its current checkout. See
+[the loading policy](AGENTS.md#loading-policy) for the authoritative rules.
 
 Product apps stay standalone. Do not include `settings/ecosystem.md` from a
 product repo. That file is for `judigot/template-monorepo` and for maintaining
@@ -85,8 +85,7 @@ If a Matt Pocock grilling session (fetched from `settings/references.md`) produc
 
 If this workspace **is** https://github.com/judigot/ai because you are
 changing the overlay, Claude Code can load it with `--plugin-dir` pointed at
-this checkout. That is not how apps load the overlay. Apps still fetch GitHub
-raw.
+this checkout. Apps use the remote-first loading policy, with a clone fallback when needed.
 
 ## Available Agents
 
@@ -155,17 +154,13 @@ For tasks that touch the same files or need strict sequencing:
 
 ## Combining with Project-Specific Config
 
-Local projects can have their own settings that extend the global ones:
+Keep existing project-specific instructions. Load this overlay through agent-level
+instructions or the initialization prompt; do not add an overlay loader or copy
+settings into the project. Try remote loading every session and use `~/ai` only
+when remote loading is unavailable.
 
-```
-my-project/                   # seeded from judigot/project-core
-├── AGENTS.md                 # workflow: overlay loader + repo-specific section
-└── .claude/
-    └── settings.local.json   # optional local Claude settings
-```
-
-Apps load this overlay from GitHub raw on each session. There is nothing to
-pull locally. To change the overlay, edit this repository and push to `main`.
+To change the overlay, edit this repository and follow the applicable Git
+permissions and delivery workflow.
 
 ## Adding New Components
 
