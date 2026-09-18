@@ -68,19 +68,27 @@ Apply this contract to every production tag or recipient input:
    input focus.
 4. Suggestions are a labelled listbox with stable IDs, full-width hit targets,
    active state, keyboard navigation, and above/below viewport-aware placement.
-5. Empty-input Backspace first anchors the last chip with the same selection
-   overlay and thick border used for an active chip; the next Backspace removes
-   it and moves the anchor backwards. Left/Right arrows move the active anchor
-   across chips (clamped at the ends). Escape closes suggestions without
-   changing values.
+5. **Focus versus selection** — the thick border represents actual focus on a
+   focusable chip, not merely a selected value. Empty-input Backspace first
+   focuses the last chip with the selection overlay and thick border; the next
+   Backspace removes it and moves focus to the preceding chip. Left/Right arrows
+   move focus across chips, clamped at the ends. Escape closes suggestions
+   without changing values.
 6. Ctrl+A/Cmd+A applies a darker theme-derived overlay to every chip while the
-   last chip remains the active anchor. Backspace removes the entire bulk
-   selection. Typing, focus, add, remove, or blur clears bulk selection.
+   last chip remains focused with the thick border. Backspace removes the entire
+   bulk selection. Clicking or focusing the text input clears chip focus and
+   bulk selection; typing moves focus to the input and clears the chip state.
 7. Chips retain visible semantic borders in every theme; the active anchor uses a
    thicker primary border. Contrast, focus indication, and forced-colors support
    must not depend on color alone.
-8. Every remove control has an accessible name. Test focus, blur, pointer choice,
-   two-step deletion, bulk selection, and bulk deletion independently.
+8. Every remove control has an accessible name. Test focus transfer, blur,
+   pointer choice, two-step deletion, bulk selection, and bulk deletion
+   independently.
+
+9. If typing is attempted while a chip has focus, move focus to the text input
+   and use a brief pulse on the previously focused chip only as supplemental
+   feedback. Respect `prefers-reduced-motion` and never use animation as the
+   only focus or selection indicator.
 
 ## Verification
 
