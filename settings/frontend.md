@@ -75,8 +75,9 @@ Apply this contract to every production tag or recipient input:
    Backspace removes it and moves focus to the preceding chip. Left/Right arrows
    move focus across chips, clamped at the ends. Escape closes suggestions
    without changing values.
-6. Ctrl+A/Cmd+A applies a darker theme-derived overlay to every chip while the
-   last chip remains natively focused. Backspace removes the entire
+6. Ctrl+A/Cmd+A marks every chip in the semantic bulk-selection state while the
+   last chip remains natively focused; do not paint a custom overlay for bulk
+   selection. Backspace removes the entire
    bulk selection and restores focus to the text input when selection began
    there. Clicking or focusing the text input clears chip focus and
    bulk selection; typing moves focus to the input and clears the chip state.
@@ -99,7 +100,8 @@ Apply this contract to every production tag or recipient input:
 9. If a duplicate value is submitted, do not mutate the value list; pulse the
    existing chip briefly as supplemental feedback. If typing is attempted while a chip has focus, move focus to the text input
    and use a brief pulse on the previously focused chip only as supplemental
-   feedback. Respect `prefers-reduced-motion` and never use animation as the
+   feedback. The pulse uses the same focus outline and briefly expands its
+   outline width. Respect `prefers-reduced-motion` and never use animation as the
    only focus or selection indicator.
 
 ## Verification
