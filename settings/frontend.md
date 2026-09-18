@@ -85,6 +85,8 @@ Apply this contract to every production tag or recipient input:
 7. Chips retain visible semantic borders in every theme; the active anchor uses a
    native focus indication. Contrast, focus indication, and forced-colors support
    must not depend on color alone.
+   Password visibility controls are flush with the input edge; spacing belongs
+   inside the icon button, not as an outer trailing gap.
    The tag-input container reuses the shared focus outline through
    `:focus-within`; it must not introduce a separate blue treatment.
    Selecting a listbox option returns native focus to the text input and clears
