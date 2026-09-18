@@ -99,6 +99,8 @@ Apply this contract to every production tag or recipient input:
    whitespace, in one atomic update (never
    one stale-state update per token); domain components should
    provide validation when a value type (for example, email) requires it.
+   Paste duplicates do not mutate values; each matching existing chip receives
+   the shared two-beat focus-outline pulse.
 
 9. If a duplicate value is submitted, do not mutate the value list; pulse the
    existing chip briefly as supplemental feedback. If typing is attempted while a chip has focus, move focus to the text input
