@@ -101,7 +101,8 @@ Apply this contract to every production tag or recipient input:
    existing chip briefly as supplemental feedback. If typing is attempted while a chip has focus, move focus to the text input
    and use a brief pulse on the previously focused chip only as supplemental
    feedback. The pulse uses the same focus outline and briefly expands its
-   outline width. Respect `prefers-reduced-motion` and never use animation as the
+   outline width twice in rapid succession, using animation rather than
+   transitions. Respect `prefers-reduced-motion` and never use animation as the
    only focus or selection indicator.
 
 ## Verification
