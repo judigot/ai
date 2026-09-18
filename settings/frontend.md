@@ -92,6 +92,8 @@ Apply this contract to every production tag or recipient input:
    The icon toggle is contained inside the field, smaller than the control
    height, and centered using spacing/size tokens rather than matching the full
    input dimensions.
+   It has no custom hover surface; only the native focus indicator communicates
+   keyboard focus.
    The tag-input container reuses the shared focus outline through
    `:focus-within`; it must not introduce a separate blue treatment.
    Selecting a listbox option returns native focus to the text input and clears
