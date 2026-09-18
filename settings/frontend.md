@@ -81,12 +81,13 @@ Apply this contract to every production tag or recipient input:
 7. Chips retain visible semantic borders in every theme; the active anchor uses a
    thicker primary border. Contrast, focus indication, and forced-colors support
    must not depend on color alone.
-8. Clicking any chip focuses that chip and clears bulk selection; the remove
+8. Clicking any chip focuses that chip and closes suggestions while clearing bulk selection; the remove
    button remains an independent action. Every remove control has an accessible name. Test focus transfer, blur,
    pointer choice, two-step deletion, bulk selection, and bulk deletion
    independently.
 
-9. If typing is attempted while a chip has focus, move focus to the text input
+9. If a duplicate value is submitted, do not mutate the value list; pulse the
+   existing chip briefly as supplemental feedback. If typing is attempted while a chip has focus, move focus to the text input
    and use a brief pulse on the previously focused chip only as supplemental
    feedback. Respect `prefers-reduced-motion` and never use animation as the
    only focus or selection indicator.
