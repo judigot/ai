@@ -89,6 +89,10 @@ Apply this contract to every production tag or recipient input:
    button remains an independent action. Every remove control has an accessible name. Test focus transfer, blur,
    pointer choice, two-step deletion, bulk selection, and bulk deletion
    independently.
+   Ctrl/Cmd+C copies bulk-selected values as comma-separated text. Ctrl/Cmd+X
+   copies the same CSV and removes the complete selection. Pasted comma- or
+   newline-delimited text is tokenized generically; domain components should
+   provide validation when a value type (for example, email) requires it.
 
 9. If a duplicate value is submitted, do not mutate the value list; pulse the
    existing chip briefly as supplemental feedback. If typing is attempted while a chip has focus, move focus to the text input
