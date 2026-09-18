@@ -91,6 +91,8 @@ Apply this contract to every production tag or recipient input:
    button remains an independent action. Every remove control has an accessible name. Test focus transfer, blur,
    pointer choice, two-step deletion, bulk selection, and bulk deletion
    independently.
+   Once a chip is focused, Ctrl/Cmd+A, copy, cut, and paste remain scoped to the
+   tag composite and must never fall through to page-level text selection.
    Ctrl/Cmd+C copies bulk-selected values as comma-separated text. Ctrl/Cmd+X
    copies the same CSV and removes the complete selection. Pasted comma- or
    newline-delimited text is tokenized generically, trimming surrounding
