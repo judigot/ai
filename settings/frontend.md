@@ -89,6 +89,9 @@ Apply this contract to every production tag or recipient input:
    inside the icon button, not as an outer trailing gap.
    Its hover surface reuses the field border token so the control stays visually
    connected to the input chrome across themes.
+   The icon toggle is contained inside the field, smaller than the control
+   height, and centered using spacing/size tokens rather than matching the full
+   input dimensions.
    The tag-input container reuses the shared focus outline through
    `:focus-within`; it must not introduce a separate blue treatment.
    Selecting a listbox option returns native focus to the text input and clears
