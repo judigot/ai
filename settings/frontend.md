@@ -91,7 +91,8 @@ Apply this contract to every production tag or recipient input:
    independently.
    Ctrl/Cmd+C copies bulk-selected values as comma-separated text. Ctrl/Cmd+X
    copies the same CSV and removes the complete selection. Pasted comma- or
-   newline-delimited text is tokenized generically in one atomic update (never
+   newline-delimited text is tokenized generically, trimming surrounding
+   whitespace, in one atomic update (never
    one stale-state update per token); domain components should
    provide validation when a value type (for example, email) requires it.
 
