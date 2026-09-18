@@ -68,19 +68,23 @@ Apply this contract to every production tag or recipient input:
    input focus.
 4. Suggestions are a labelled listbox with stable IDs, full-width hit targets,
    active state, keyboard navigation, and above/below viewport-aware placement.
-5. **Focus versus selection** — the thick border represents actual focus on a
-   focusable chip, not merely a selected value. Empty-input Backspace first
-   focuses the last chip with the selection overlay and thick border; the next
+5. **Focus versus selection** — chip focus is represented by the browser's
+   native focus-visible indicator, not a component-painted thick border.
+   Empty-input Backspace first focuses the last chip with the selection overlay;
+   the next
    Backspace removes it and moves focus to the preceding chip. Left/Right arrows
    move focus across chips, clamped at the ends. Escape closes suggestions
    without changing values.
 6. Ctrl+A/Cmd+A applies a darker theme-derived overlay to every chip while the
-   last chip remains focused with the thick border. Backspace removes the entire
-   bulk selection. Clicking or focusing the text input clears chip focus and
+   last chip remains natively focused. Backspace removes the entire
+   bulk selection and restores focus to the text input when selection began
+   there. Clicking or focusing the text input clears chip focus and
    bulk selection; typing moves focus to the input and clears the chip state.
 7. Chips retain visible semantic borders in every theme; the active anchor uses a
-   thicker primary border. Contrast, focus indication, and forced-colors support
+   native focus indication. Contrast, focus indication, and forced-colors support
    must not depend on color alone.
+   Selecting a listbox option returns native focus to the text input and clears
+   chip focus/selection state for predictable continued typing.
 8. Clicking any chip focuses that chip and closes suggestions while clearing bulk selection; the remove
    button remains an independent action. Every remove control has an accessible name. Test focus transfer, blur,
    pointer choice, two-step deletion, bulk selection, and bulk deletion
