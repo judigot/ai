@@ -76,8 +76,9 @@ Apply this contract to every production tag or recipient input:
    move focus across chips, clamped at the ends. Escape closes suggestions
    without changing values.
 6. Ctrl+A/Cmd+A marks every chip in the semantic bulk-selection state while the
-   last chip remains natively focused; do not paint a custom overlay for bulk
-   selection. Backspace removes the entire
+   last chip remains natively focused. Native focus belongs to one chip; the
+   other selected chips may use a thin token-colored outline, but never a filled
+   overlay. Backspace removes the entire
    bulk selection and restores focus to the text input when selection began
    there. Clicking or focusing the text input clears chip focus and
    bulk selection; typing moves focus to the input and clears the chip state.
