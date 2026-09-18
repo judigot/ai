@@ -88,6 +88,11 @@ non-goals, acceptance criteria, required checks, and the expected concise
 report. Keep trivial work with the orchestrator. Parallelize only independent
 work in isolated worktrees with non-overlapping ownership.
 
+Before delegating, tell the user which route/model is being used and show a
+concise worker brief: objective, owned scope, constraints, and expected output.
+Do not repeat inherited conversation context or duplicate long prompts in the
+user-facing announcement.
+
 The orchestrator inspects partial changes before replacement, preserves valid
 work, and reviews the final diff and verification evidence.
 
