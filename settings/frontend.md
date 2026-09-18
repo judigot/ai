@@ -81,7 +81,8 @@ Apply this contract to every production tag or recipient input:
 7. Chips retain visible semantic borders in every theme; the active anchor uses a
    thicker primary border. Contrast, focus indication, and forced-colors support
    must not depend on color alone.
-8. Every remove control has an accessible name. Test focus transfer, blur,
+8. Clicking any chip focuses that chip and clears bulk selection; the remove
+   button remains an independent action. Every remove control has an accessible name. Test focus transfer, blur,
    pointer choice, two-step deletion, bulk selection, and bulk deletion
    independently.
 
