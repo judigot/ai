@@ -87,6 +87,8 @@ Apply this contract to every production tag or recipient input:
    must not depend on color alone.
    Password visibility controls are flush with the input edge; spacing belongs
    inside the icon button, not as an outer trailing gap.
+   Its hover surface reuses the field border token so the control stays visually
+   connected to the input chrome across themes.
    The tag-input container reuses the shared focus outline through
    `:focus-within`; it must not introduce a separate blue treatment.
    Selecting a listbox option returns native focus to the text input and clears
