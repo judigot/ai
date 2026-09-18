@@ -85,8 +85,8 @@ Apply this contract to every production tag or recipient input:
 7. Chips retain visible semantic borders in every theme; the active anchor uses a
    native focus indication. Contrast, focus indication, and forced-colors support
    must not depend on color alone.
-   The tag-input container is structural and must not paint a separate blue
-   focus ring; the focused input or chip owns the browser-native indicator.
+   The tag-input container reuses the shared focus outline through
+   `:focus-within`; it must not introduce a separate blue treatment.
    Selecting a listbox option returns native focus to the text input and clears
    chip focus/selection state for predictable continued typing.
 8. Clicking any chip focuses that chip and closes suggestions while clearing bulk selection; the remove
