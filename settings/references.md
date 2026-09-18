@@ -23,6 +23,13 @@ These match the packages in the stack (React 19, Next.js, Vite, Turborepo, Verce
 
 Vite docs (not official-on-skills.sh): https://vite.dev/guide/
 
+## UI demo / PR evidence (open source)
+
+- [demo-machine](https://github.com/45ck/demo-machine) — YAML demo workflows and cursor capture.
+- [testreel](https://github.com/sneg55/testreel) — JSON workflows and Playwright-based capture with cursor support.
+- [playwright-recast](https://github.com/Andy2003/playwright-recast) — post-processes Playwright trace or WebM artifacts.
+- [demohunter](https://github.com/emilwareus/demohunter) — narrated product tours; heavier than direct Playwright video.
+
 ## Broader catalog
 
 | What | URL |
