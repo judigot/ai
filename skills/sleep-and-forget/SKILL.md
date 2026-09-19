@@ -40,6 +40,25 @@ Use the founder-ideator tier once to produce a short pitch. Then immediately
 hand the pitch to the spec-compiler tier. Do not ask Astra to expand the pitch
 into an FRD.
 
+## Credit-saving PR-shell preflight
+
+When a planning chat with GitHub write access is available (for example,
+ChatGPT with the GitHub connector), prefer creating the draft PR shells there
+before starting the Codex implementation session.
+
+The preflight chat should:
+
+1. create only the branch/planning artifact required to open the shell;
+2. put the complete implementation contract in the PR description;
+3. create parent/foundation shells first so child dependencies can use real PR
+   numbers;
+4. leave every shell draft and implementation-empty;
+5. hand the PR URLs/numbers to the unattended coordinator.
+
+Do not duplicate the same planning work in Codex after valid shells exist.
+If no external planning chat can write GitHub, Terra/spec-compiler may create
+the shells from the Codex environment instead.
+
 ## PR-shell stage
 
 Follow `settings/pr-shell.md`.
