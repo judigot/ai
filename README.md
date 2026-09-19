@@ -131,6 +131,10 @@ project-specific instructions.
 
 ### External work (URLs only)
 
+TypeSafe / Jev is available as an optional skill reference for typed AI judgments.
+See [on-demand loading and environment setup](docs/typesafe-jev.md). The upstream
+skill stays external; no SDK or API access is enabled by loading this overlay.
+
 Listed in `settings/references.md`. Fetch the page when the route needs it. Never clone those repos into `judigot/ai`.
 
 | Pack | URL |

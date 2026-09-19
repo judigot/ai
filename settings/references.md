@@ -23,6 +23,15 @@ These match the packages in the stack (React 19, Next.js, Vite, Turborepo, Verce
 
 Vite docs (not official-on-skills.sh): https://vite.dev/guide/
 
+## TypeSafe / Jev (optional)
+
+| When | URL |
+| --- | --- |
+| Official skill repository and installation reference | https://github.com/typesafe-ai/skills |
+| TypeSafe skill: typed judgments, routing, ranking, extraction, verification | https://github.com/typesafe-ai/skills/blob/main/skills/typesafe-ai/SKILL.md |
+| Read skill as Markdown | https://raw.githubusercontent.com/typesafe-ai/skills/main/skills/typesafe-ai/SKILL.md |
+| Current API, SDK, and cookbook index | https://docs.typesafe.ai/llms.txt |
+
 ## UI demo / PR evidence (open source)
 
 - [demo-machine](https://github.com/45ck/demo-machine) — YAML demo workflows and cursor capture.
