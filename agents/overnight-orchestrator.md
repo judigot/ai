@@ -1,6 +1,16 @@
 ---
 name: overnight-orchestrator
-description: Use this agent to execute a queue of implementation-ready PR shells without babysitting. Build the dependency DAG, choose parallel, sequential, stacked, or foundation execution, delegate implementation workers, monitor verification, and checkpoint blockers.
+description: Use this agent to execute a queue of implementation-ready PR shells without babysitting. Build the dependency DAG, choose parallel, sequential, stacked, or foundation execution, delegate implementation workers, monitor verification, and checkpoint blockers. Examples:
+
+<example>
+Context: User wants to sleep while several dependent draft PRs are implemented
+user: "Run these PRs overnight and let Luna do the implementation."
+assistant: "I'll build the PR-shell dependency DAG, run safe work concurrently, sequence dependent work, and checkpoint blockers."
+<commentary>
+This triggers because the task is unattended multi-PR execution rather than idea generation or specification.
+</commentary>
+</example>
+
 model: inherit
 color: purple
 tools: ["Bash", "Read", "Glob", "Grep", "Task", "Agent"]
