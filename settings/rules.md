@@ -216,6 +216,30 @@ export type IWorkspaceProvisionRequest = z.infer<
 >;
 ```
 
+# Model Economy
+
+Use the cheapest model tier that can reliably own the current decision.
+
+- Astra is the founder/ideator tier. Spend it on original ideas, novel
+  architecture, conflicting invariants, and high-leverage product decisions.
+- Founder output is normally a 2-8 sentence pitch. Do not ask Astra to expand a
+  pitch into an FRD, inspect routine implementation details, or remain in the
+  loop during normal coding.
+- Terra is the spec-compiler/technical-lead tier. Use it to inspect repository
+  context, turn pitches into FRDs/PR shells/TDD contracts, build dependency
+  graphs, define ownership, coordinate unattended work, and diagnose repeated
+  specification-level failures.
+- Luna is the implementation tier. Use it for repository search, code changes,
+  tests, lint/type fixes, ordinary debugging, CI log analysis, and mechanical
+  documentation.
+- A valid PR shell skips founder/spec generation and goes directly to
+  coordination/implementation.
+- A locked implementation task skips founder ideation.
+- Send higher tiers concise diffs, test summaries, and decision packets instead
+  of worker transcripts.
+- Do not escalate routine failures to Astra. Follow the ladder in
+  `settings/agent-orchestration.md`.
+
 # Token Efficiency
 
 ## Response Rules
