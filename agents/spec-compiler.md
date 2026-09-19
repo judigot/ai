@@ -1,6 +1,16 @@
 ---
 name: spec-compiler
-description: Use this agent to compile a short founder/product pitch into an implementation-ready FRD, PR shell or PR-shell set, dependency graph, ownership boundaries, and TDD acceptance criteria for lower-cost implementation workers.
+description: Use this agent to compile a short founder/product pitch into an implementation-ready FRD, PR shell or PR-shell set, dependency graph, ownership boundaries, and TDD acceptance criteria for lower-cost implementation workers. Examples:
+
+<example>
+Context: A founder pitch exists and needs to become executable work
+user: "Turn this idea into PRs Luna can implement."
+assistant: "I'll compile the pitch into PR shells with dependencies, ownership, acceptance criteria, and TDD checks."
+<commentary>
+This triggers because the product direction is known but still needs repository-aware engineering contracts.
+</commentary>
+</example>
+
 model: inherit
 color: blue
 tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
