@@ -31,8 +31,9 @@ validation or publication. This audit does not authorize commits or external wri
 ## Product and PR
 
 - [ ] Scope matches the request; extras are listed as out of scope, not silently shipped
-- [ ] PR body follows `settings/pr-body.md`
+- [ ] PR body follows `settings/pr-body.md`, or `settings/pr-shell.md` when this is a pre-implementation/delegated shell
 - [ ] Manual testing checklist is written for a non-technical reader (no unexplained commands)
+- [ ] For PR shells: dependency metadata, ownership boundaries, acceptance criteria, required checks, completion report, and ready-state rules are consistent with the actual work
 - [ ] You could follow those steps yourself and they match the change
 
 ## Coding rules
