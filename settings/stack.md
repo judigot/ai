@@ -17,3 +17,7 @@ Defaults inferred from current app packages. Follow the app if it already differ
 | Lint | Oxlint → Biome → ESLint `strict-type-checked` | None on skills.sh/official. Use `lint-master`. |
 
 URLs are listed again in `settings/references.md`.
+
+Optional AI judgments: TypeSafe System One / Jev. Fetch the official skill from
+`settings/references.md` only for relevant tasks; follow `docs/typesafe-jev.md`.
+Add an SDK only to a consuming app that actually needs the integration.

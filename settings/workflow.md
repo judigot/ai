@@ -47,6 +47,7 @@ not worktree or sprint metadata.
 | Vercel deploy | Fetch deploy-to-vercel |
 | Turborepo | Fetch https://www.skills.sh/vercel/turborepo |
 | Vite | https://vite.dev/guide/ (no official skills.sh pack) |
+| TypeSafe / Jev requested, or semantic routing, ranking, extraction, or verification needs typed judgments | Fetch the official TypeSafe skill from `settings/references.md`; follow `docs/typesafe-jev.md`. Optional capability, not a default worker model. |
 | Hono / Zod / Playwright / lint | Overlay rules + `lint-master` / `tdd-ci`. No official maker pack. |
 | Fast client MVP / generate app from schema / Scaffolder | `skills/scaffolder/SKILL.md`. Draft PR on the target repo. Do not write `main`. |
 | "Is there a skill for X?" | Official makers first (https://skills.sh/official), then the catalog |
