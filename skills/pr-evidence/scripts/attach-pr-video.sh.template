@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Copy this file into <workspace>/pr-evidence/attach-pr-video.sh, customize the
+# variables below, then run it from that wrapper directory. Do not commit it to
+# the product repository or add demo packages to the product package.json.
+set -euo pipefail
+
+APP_DIR="${APP_DIR:-../app}"
+PR_NUMBER="${PR_NUMBER:?Set PR_NUMBER to the pull request number}"
+TEST_GREP="${TEST_GREP:?Set TEST_GREP to the Playwright test title/pattern}"
+OUT_DIR="${OUT_DIR:-$PWD/out}"
+PLAYWRIGHT_CONFIG="${PLAYWRIGHT_CONFIG:-playwright.config.ts}"
+
+# Customize this only when the product's existing E2E flow needs preparation.
+# Keep it in this wrapper; do not add evidence tooling to the product app.
+bootstrap_e2e() {
+  :
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || {
+    printf 'Required command is missing: %s\n' "$1" >&2
+    exit 1
+  }
+}
+
+require_command ffmpeg
+require_command gh
+gh pr comment --help | grep -q -- '--attach' || {
+  printf 'This gh version does not support `gh pr comment --attach`. Upgrade gh.\n' >&2
+  exit 1
+}
+
+mkdir -p "$OUT_DIR"
+cd "$APP_DIR"
+test -x ./node_modules/.bin/playwright || {
+  printf 'Missing product-local Playwright at %s/node_modules/.bin/playwright\n' "$PWD" >&2
+  exit 1
+}
+
+bootstrap_e2e
+PW_RECORD_VIDEO=1 PW_SLOW_MO="${PW_SLOW_MO:-150}" \
+  ./node_modules/.bin/playwright test --config "$PLAYWRIGHT_CONFIG" -g "$TEST_GREP" --workers=1
+
+webm="$(find test-results -type f -name '*.webm' -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)"
+test -n "$webm" && test -f "$webm" || {
+  printf 'No WebM found below %s/test-results. Check the evidence video config.\n' "$PWD" >&2
+  exit 1
+}
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+mp4="$OUT_DIR/pr-${PR_NUMBER}-evidence-${timestamp}.mp4"
+ffmpeg -y -i "$webm" -c:v libx264 -pix_fmt yuv420p -movflags +faststart -an "$mp4"
+
+comment_url="$(gh pr comment "$PR_NUMBER" --body "**Evidence (video)** — click Play below." --attach "$mp4")"
+printf 'Attached evidence: %s\n' "$comment_url"
