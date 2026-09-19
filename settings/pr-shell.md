@@ -572,3 +572,124 @@ without inventing product decisions:
 - When must I escalate?
 
 If any answer is missing, the shell is not implementation-ready.
+
+
+## Copyable template
+
+Use this template when creating a new PR shell:
+
+```markdown
+## PR shell
+
+```yaml
+version: 1
+state: planned
+execution: independent
+base: main
+depends_on: []
+worker: implementation
+preferred_model: gpt-5.6-luna
+reasoning_effort: low
+```
+
+## Goal
+
+[One paragraph maximum: the observable end condition.]
+
+## Why
+
+[Problem, why it matters, and optionally what future work it enables. Maximum
+three sentences.]
+
+## Dependency metadata
+
+- Depends on: none
+- Execution: independent
+- Provides foundation for: none
+- Required parent state: none
+
+## Scope
+
+- [ ] [Concrete deliverable]
+- [ ] [Concrete deliverable]
+
+## Ownership boundaries
+
+### Owned
+
+- [Writable path or semantic area]
+
+### Read-only / reference
+
+- [Reference path or area]
+
+### Do not touch
+
+- [Explicit boundary]
+
+## Acceptance criteria
+
+- [ ] AC-01: [Observable, independently verifiable behavior]
+- [ ] AC-02: [Observable, independently verifiable behavior]
+
+## Required tests
+
+| Acceptance | Required behavior/test |
+| --- | --- |
+| AC-01 | [Test or required behavior] |
+| AC-02 | [Test or required behavior] |
+
+## How to verify (manual)
+
+- [ ] [Action a non-technical person can perform]
+- [ ] You should see: **[expected result]**.
+- [ ] If it is broken you will see: **[failure signal]**.
+
+## Required checks
+
+- [ ] Focused acceptance tests
+- [ ] Affected regression tests
+- [ ] Required type/lint/static checks
+- [ ] `git diff --check`
+- [ ] Required CI checks are green
+
+## Out of scope
+
+- [Adjacent work that must not be absorbed]
+
+## Escalation rules
+
+Resolve autonomously:
+- syntax/type errors
+- lint/format failures
+- ordinary failing tests
+- implementation choices covered by existing patterns
+- framework/API documentation lookup
+- mechanical refactors required by acceptance criteria
+
+Escalate when:
+- acceptance criteria contradict each other
+- required behavior changes shared architecture
+- writable ownership overlaps another active worker
+- satisfying this PR changes a dependency's contract
+- multiple valid choices materially affect future PRs
+- a required test cannot be meaningful without changing the specification
+
+## Ready-state rules
+
+- [ ] Every acceptance criterion is satisfied.
+- [ ] Every required acceptance test passes.
+- [ ] Affected regression tests pass.
+- [ ] Required lint/type/static checks pass.
+- [ ] Required runtime/integration checks pass.
+- [ ] Required CI checks are green.
+- [ ] No known in-scope blocker remains.
+- [ ] No acceptance test was weakened to accommodate the implementation.
+- [ ] The final diff stays inside this PR's scope.
+- [ ] Worker completion report is present.
+- [ ] Self-audit is complete.
+
+## Worker completion report
+
+Pending implementation.
+```
