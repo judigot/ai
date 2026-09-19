@@ -39,7 +39,6 @@ not worktree or sprint metadata.
 | Original product ideas / founder direction | `agents/founder-ideator.md`; keep the pitch short, then hand off. |
 | Pitch/idea → FRD, PR shells, dependency graph, TDD contract | `agents/spec-compiler.md`; use Terra tier. |
 | Sleep / overnight / unattended implementation | `skills/sleep-and-forget/SKILL.md` + `agents/overnight-orchestrator.md`; use PR shells and dependency-aware scheduling. |
-
 | Effort bigger than one session, route unclear | Fetch wayfinder. Plan and decide, do not build. |
 | Locked spec or ticket | Skip ideation/spec compilation; TDD, then implement with the implementation worker route. |
 | React UI, design-system components, or HTML-to-React conversion | Read `settings/frontend.md` and `skills/frontend-design/SKILL.md`; apply the React/Next.js routes below as appropriate. |
