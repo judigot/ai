@@ -36,6 +36,9 @@ ai/
 ├── .claude-plugin/
 │   └── plugin.json           # Plugin manifest (required)
 ├── agents/                   # Agent definitions (.md files)
+│   ├── founder-ideator.md    # Astra-tier short original ideas
+│   ├── spec-compiler.md      # Terra-tier specs, PR shells, TDD contracts
+│   ├── overnight-orchestrator.md # Unattended dependency-aware coordinator
 │   ├── code-reviewer.md      # Git-based PR review
 │   ├── task-master.md        # Worktree task execution
 │   ├── multitasker.md        # Parallel worktree management
@@ -45,6 +48,7 @@ ai/
 │   ├── find-skills/          # skills.sh lookup (URLs only)
 │   ├── use-ai-skills/        # Dynamic live-repository skill router
 │   ├── cloud-dev-desktop/    # Visible EC2 agent workstation and UI evidence
+│   ├── sleep-and-forget/     # Unattended PR-shell execution
 │   ├── tdd-ci/               # Red-green-refactor; CI = done
 │   ├── self-audit/           # Pre-stop checklist
 │   ├── scaffolder/           # MVP schema → Scaffolder draft PR
@@ -80,10 +84,11 @@ Your personal coding rules are stored in `settings/rules.md`, separate from `~/.
 
 Session start loads this overlay from `AGENTS.md`. Agents clarify before coding, implement test-driven, push mini commits, and self-audit before stopping. The template's `docs/ecosystem.md` applies when the workspace is `judigot/template-monorepo`.
 
-`settings/agent-orchestration.md` is the canonical policy for the main
-orchestrator, worker routes, verified model IDs, fallback behavior, and durable
-handoffs. Tool-specific configuration stays in each CLI's supported location;
-the overlay never copies credentials between clients.
+`settings/agent-orchestration.md` is the canonical model-economy policy:
+Astra handles short founder/ideation decisions, Terra compiles specs and
+coordinates unattended work, Luna performs token-heavy implementation, and CI
+is the completion authority. Tool-specific configuration stays in each CLI's
+supported location; the overlay never copies credentials between clients.
 
 If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 
@@ -97,6 +102,9 @@ this checkout. Apps use the remote-first loading policy, with a clone fallback w
 
 | Agent | Purpose |
 |-------|---------|
+| `founder-ideator` | Produce short Astra-tier original product/architecture pitches |
+| `spec-compiler` | Compile pitches into Terra-tier FRDs, PR shells, DAGs, and TDD contracts |
+| `overnight-orchestrator` | Coordinate unattended PR-shell execution without keeping Astra resident |
 | `code-reviewer` | Git-based PR review with enterprise-grade analysis |
 | `task-master` | Execute single task in a worktree autonomously |
 | `multitasker` | Sprint orchestrator - creates worktrees and spawns parallel subagents |
@@ -112,6 +120,7 @@ this checkout. Apps use the remote-first loading policy, with a clone fallback w
 | Skill | Purpose |
 |-------|---------|
 | `setup-entrypoint` | Load this overlay, clarify, route to wayfinder/TDD before coding |
+| `sleep-and-forget` | Run dependency-aware PR shells unattended with Terra coordination and Luna implementation |
 | `find-skills` | Look up skills on [skills.sh](https://skills.sh) and fetch the page. Do not install. |
 | `use-ai-skills` | Discover and execute the smallest sufficient set of live repository skills |
 | `cloud-dev-desktop` | Set up a visible EC2 development desktop with OpenCode, UI tests, recordings, and verified artifact preservation |

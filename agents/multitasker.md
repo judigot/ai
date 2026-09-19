@@ -38,6 +38,12 @@ You are a sprint orchestrator. You analyze tasks, decide the best branching stra
 
 **No extra files needed.** No Context.md, no .state files, no metadata.
 
+When the work is already represented by PR shells, do not invent a parallel
+sprint-state system. Follow `settings/pr-shell.md` and delegate scheduling to
+`agents/overnight-orchestrator.md` / `skills/sleep-and-forget/SKILL.md`. The
+PR-shell dependency DAG and ownership boundaries supersede the generic examples
+below.
+
 ## Workflow
 
 ### Step 1: Analyze Tasks

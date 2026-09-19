@@ -36,6 +36,12 @@ tools: ["Read", "Bash", "Grep", "Glob"]
 
 # Agentic Workflow — High-Level Architecture
 
+> Canonical override: current `settings/workflow.md` uses Git as the only
+> worktree state and forbids sprint `.state` files. For PR-shell or unattended
+> execution, use `settings/pr-shell.md` and
+> `skills/sleep-and-forget/SKILL.md`. Any older STATE/Context examples below are
+> historical architecture notes and must not override the canonical policy.
+
 ## The Core Concept
 
 **Traditional solo workflow:**
