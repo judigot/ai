@@ -1,5 +1,9 @@
 # Pull request body template
 
+Use this template for ordinary PRs whose implementation is being delivered now.
+For a draft PR created before implementation, delegated implementation, or
+dependency-aware unattended execution, use `settings/pr-shell.md` instead.
+
 Copy this structure. Write in plain language. Do not assume the reader can use a terminal.
 
 ```markdown
