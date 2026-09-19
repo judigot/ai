@@ -1,5 +1,9 @@
 # Visible UI testing and evidence
 
+For GitHub PR attachments, Linear cross-links, and a local wrapper-repository
+workflow, see [PR and ticket UI evidence](../../pr-evidence/SKILL.md). This
+runbook stays focused on EC2 and headed desktop capture.
+
 Read this when connecting browser tools, running a demonstration, or capturing
 evidence. A headed browser has a visible window; a headless browser does not.
 Both can record browser video, but live observation requires the visible browser

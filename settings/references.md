@@ -32,6 +32,13 @@ Vite docs (not official-on-skills.sh): https://vite.dev/guide/
 | Read skill as Markdown | https://raw.githubusercontent.com/typesafe-ai/skills/main/skills/typesafe-ai/SKILL.md |
 | Current API, SDK, and cookbook index | https://docs.typesafe.ai/llms.txt |
 
+## UI demo / PR evidence (open source)
+
+- [demo-machine](https://github.com/45ck/demo-machine) — YAML demo workflows and cursor capture.
+- [testreel](https://github.com/sneg55/testreel) — JSON workflows and Playwright-based capture with cursor support.
+- [playwright-recast](https://github.com/Andy2003/playwright-recast) — post-processes Playwright trace or WebM artifacts.
+- [demohunter](https://github.com/emilwareus/demohunter) — narrated product tours; heavier than direct Playwright video.
+
 ## Broader catalog
 
 | What | URL |
