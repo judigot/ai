@@ -578,7 +578,7 @@ If any answer is missing, the shell is not implementation-ready.
 
 Use this template when creating a new PR shell:
 
-```markdown
+````markdown
 ## PR shell
 
 ```yaml
@@ -692,4 +692,4 @@ Escalate when:
 ## Worker completion report
 
 Pending implementation.
-```
+````
