@@ -155,8 +155,8 @@ If something blocks you:
 
 1. **Build fails:** Fix the build error, commit the fix
 2. **Tests fail:** Fix the failing test or the code causing it
-3. **Missing dependency:** Note it in output, proceed with what you can
-4. **Ambiguous product requirement:** Ask, then wait. Do not invent UX or scope.
+3. **Missing dependency:** If a PR-shell dependency/parent gate is unmet, stop this task and report it to the coordinator; do not implement on the wrong base. For an ordinary task, note the missing dependency and proceed only with independent safe work.
+4. **Ambiguous product requirement:** In an interactive task, ask once and wait. In unattended/sleep-and-forget execution, checkpoint valid work, report the PR as blocked to the coordinator, and return; do not wake the user or invent UX/scope.
 5. **Ambiguous implementation detail inside a locked spec:** Pick the option that matches existing patterns, note it in the commit message.
 
 ## Working with Files
