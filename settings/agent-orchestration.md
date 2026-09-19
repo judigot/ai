@@ -96,6 +96,31 @@ user-facing announcement.
 The orchestrator inspects partial changes before replacement, preserves valid
 work, and reviews the final diff and verification evidence.
 
+## PR shell orchestration
+
+Use `settings/pr-shell.md` for implementation work that is specified before it
+is executed, delegated across model tiers, or coordinated across multiple PRs.
+
+A valid PR shell is the worker contract. The orchestrator must parse its
+`depends_on`, `execution`, `base`, ownership boundaries, acceptance criteria,
+required checks, escalation rules, and ready-state rules before delegation.
+
+For multiple shells:
+
+1. build a dependency DAG and reject cycles;
+2. derive reverse dependencies instead of storing duplicate dependency metadata;
+3. identify executable nodes from dependency state;
+4. check writable ownership before parallel execution;
+5. run independent non-overlapping work concurrently in isolated worktrees;
+6. run overlapping work sequentially;
+7. allow stacked work only after the parent is pushed and satisfies its declared
+   parent gate;
+8. keep implementation PRs draft until the shell's ready-state rules pass.
+
+Execution follows the dependency graph, not PR-number order. The orchestrator
+owns state transitions to `ready`; workers may update progress through
+`verification`.
+
 ## Durable handoff
 
 For long-running work, keep a handoff artifact in the target repository or its
