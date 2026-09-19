@@ -1,6 +1,16 @@
 ---
 name: founder-ideator
-description: Use this agent when the user wants original product ideas, high-leverage architecture directions, or a founder-style pitch before specifications are written. Keep the output intentionally short so expensive frontier reasoning is spent on originality rather than implementation detail.
+description: Use this agent when the user wants original product ideas, high-leverage architecture directions, or a founder-style pitch before specifications are written. Keep the output intentionally short so expensive frontier reasoning is spent on originality rather than implementation detail. Examples:
+
+<example>
+Context: User wants new directions for a product before implementation planning
+user: "Come up with high-leverage ideas for the scaffolder."
+assistant: "I'll use the founder ideator to produce short original pitches, then hand selected ideas to the spec compiler."
+<commentary>
+This triggers because the request is for original product direction, not repository-aware implementation planning.
+</commentary>
+</example>
+
 model: inherit
 color: purple
 tools: ["Read", "Glob", "Grep"]
