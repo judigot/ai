@@ -39,16 +39,14 @@ exception path.**
    - foundation → complete before fan-out;
    - stacked → build from the declared/pushed parent;
    - sequential/overlapping → run in dependency order.
-6. Delegate bounded implementation to Luna workers using
-   `agents/task-master.md`. Prefer one-shot execution with one isolated
-   runner/process per PR.
-7. Inside each PR, use the executor-local retry chain from
-   `settings/agent-orchestration.md`: worker A → verify → fresh worker B →
-   verify → same Luna-low parent fallback.
-8. Let workers perform routine repository search, coding, tests, lint fixes, CI
-   diagnosis, and mechanical debugging.
+6. Delegate each executable PR to one Luna-low parent in an isolated
+   runner/process.
+7. Let that PR parent inspect relevant code once, establish interfaces, build an
+   intra-PR task DAG, and spawn only useful non-overlapping Luna-low leaf workers.
+8. Schedule critical-path tasks first. Refill worker slots as soon as actual
+   dependencies become ready; do not wait for a fixed wave to finish.
 9. Inspect concise completion reports and relevant diffs, not worker reasoning
-   transcripts. Treat the filesystem/diff as truth after every subagent attempt.
+   transcripts. Treat the filesystem/diff as truth after every worker return.
 10. Advance shells through planned → implementing → verification.
 11. Mark ready only when `settings/pr-shell.md` ready-state rules pass.
 12. Never merge to the default branch unless the user explicitly authorized it.
@@ -58,36 +56,59 @@ exception path.**
 
 ## Concurrency
 
-Parallelize primarily at the PR boundary: one isolated runner/process per PR.
+Use two levels of bounded parallelism.
+
+### Across PRs
+
+Each active PR gets its own isolated runner/process and checkout/worktree.
 Independent PRs with non-overlapping writable ownership may run concurrently.
 
-Default to at most three concurrent implementation workers unless the
-environment or user explicitly selects another safe limit.
+Maintain a controller-wide budget for active model work and expensive test
+processes. A conservative starting bound is:
 
-Within one PR, the Luna parent may spawn implementation subagents sequentially
-for retry: worker A, then fresh worker B only if verification is incomplete.
-This is not a substitute for PR-level isolation. Avoid multiple concurrent
-write-capable subagents against the same checkout.
+```text
+active PR runners × (1 parent + configured worker cap) <= global model budget
+```
 
-Do not run two writing PR workers with overlapping ownership.
+This is an upper bound, not a target. Parents should use fewer workers when the
+PR is small or tightly coupled. Refill freed PR capacity immediately when a
+runner completes.
 
+### Inside one PR
+
+The Luna-low parent may use:
+
+- parent only for a small/tightly coupled change;
+- up to 2 workers for two independent components;
+- up to 3 for several independent components;
+- up to 4 for broad work with clear non-overlapping ownership.
+
+Workers are leaf agents and may not spawn grandchildren.
+
+The parent owns the ready queue and exclusive editable ownership. If two tasks
+need the same file, combine them or schedule them sequentially.
+
+Do not run concurrent write-capable workers with overlapping ownership.
 Read-only investigation may overlap implementation when it cannot mutate or
-invalidate the active worker's assumptions.
+invalidate active assumptions.
 
 ## Failure routing
 
-Before model-level escalation, a healthy Luna parent uses the executor-local
-retry chain:
+Recover at task granularity before model-level escalation.
 
-```text
-worker A
-  ↓ incomplete
-fresh worker B
-  ↓ incomplete
-same Luna-low parent
-```
+After a worker returns, preserve its useful edits and inspect the actual diff and
+checks.
 
-After that chain is exhausted, use this escalation ladder:
+- deterministic failure → repair the existing task;
+- unavailable/stalled/abandoned/repeatedly confused worker → stop it, return its
+  ownership, then give one fresh Luna-low worker the failure evidence and
+  remaining task;
+- fresh replacement also fails → same Luna-low parent takes over the bounded
+  task or reports a concrete blocker.
+
+Do not retry the entire PR because one shard failed.
+
+After task-level recovery is exhausted, use this escalation ladder:
 
 ```text
 Luna
