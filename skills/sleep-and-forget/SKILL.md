@@ -118,37 +118,102 @@ Prefer one-shot PR execution when the PR shell is complete. The durable state is
 the PR description, branch, commits, and CI; a persistent model conversation is
 not required.
 
-Each executable PR gets its own isolated runner/process and checkout. Independent
-PRs may run concurrently when their writable ownership does not overlap.
+Use two levels of parallelism:
 
-Each worker gets:
+1. independent PRs run concurrently in isolated runners/processes;
+2. each active PR gets one Luna-low parent that may schedule useful independent
+   Luna-low leaf workers inside that PR.
 
-- one PR/worktree or isolated checkout;
-- goal;
-- owned paths/areas;
-- do-not-touch boundaries;
-- acceptance criteria;
-- required tests/checks;
-- parent gate;
-- concise completion-report format.
+The optimization target is **time until a verified PR is ready**, not number of
+agents running.
 
-Inside each PR, use the Luna retry chain defined in
-`settings/agent-orchestration.md`:
+### PR parent
 
-1. Luna-low parent delegates to fresh Luna-low worker A.
-2. Parent verifies the filesystem/diff against the locked contract.
-3. If incomplete, parent delegates the same task to fresh worker B.
-4. Parent verifies again.
-5. If still incomplete, the same Luna-low parent completes the bounded task.
-6. The trusted workflow verifies scope and CI remains the completion authority.
+The parent reads the PR contract, inspects relevant code once, establishes shared
+interfaces/data shapes, then builds an intra-PR task DAG.
 
-Do not trust a subagent's textual claim over the actual diff. Do not broaden
-ownership during retry or parent fallback.
+Split implementation by independently verifiable behavior with exclusive
+editable ownership. One file per worker is appropriate only when that file is a
+meaningful independent task. Group tightly coupled files.
+
+Every leaf-worker handoff contains:
+
+- exact objective;
+- exclusive editable files/directories;
+- relevant code/conventions already discovered by the parent;
+- interfaces/data shapes it consumes or implements;
+- completion criteria;
+- targeted checks safe beside concurrent work;
+- explicit instruction not to spawn subagents.
+
+Workers may read any relevant file. If two tasks need the same file, combine
+them or run them sequentially.
+
+### Critical-path scheduling
+
+Do not run fixed waves.
+
+Start tasks that unlock other work first. As soon as a worker finishes, the
+parent reviews its actual changes and immediately assigns a newly ready
+high-priority task when a slot would shorten PR readiness time.
+
+Use this initial sizing heuristic:
+
+| PR shape | Workers |
+| --- | ---: |
+| Small/tightly coupled | parent only |
+| Two independent components | up to 2 |
+| Several independent components | up to 3 |
+| Broad with clear non-overlapping ownership | up to 4 |
+
+This is a starting policy, not a claimed optimum.
+
+The top-level controller also keeps a global active-model/test budget so many
+PRs cannot each multiply into unbounded subagents. Refill controller capacity as
+PR runners complete. Measure throughput before raising limits.
+
+### Shared-worktree ownership
+
+Each PR has its own branch and checkout/worktree. Within that PR, leaf workers
+may share the checkout only with strict exclusive file ownership.
+
+Leaf workers do not:
+
+- commit, push, merge, stage, or switch branches;
+- install dependencies or edit lockfiles;
+- run migrations/code generation or repo-wide formatters;
+- mutate shared configuration/state;
+- edit outside assigned ownership.
+
+The PR parent/trusted runner owns Git publishing, shared types/contracts,
+integration files, package/lock changes, migrations, generators, and other
+shared-state operations unless one is explicitly assigned to a single worker
+with no collision risk.
+
+Workers run targeted checks that are safe beside concurrent edits. The parent
+runs integration checks on a stable snapshot.
+
+### Recovery
+
+Retry the unfinished task, not the entire PR.
+
+After every worker return, inspect the actual filesystem/diff and check output.
+Preserve useful edits.
+
+- Deterministic test failures normally get repaired in place.
+- Replace only unavailable, stalled, abandoned, or repeatedly confused workers.
+- Stop/finish the original worker and return its ownership before reassignment.
+- Give one fresh Luna-low replacement the failure evidence and remaining bounded
+  task.
+- If that replacement also fails, the same Luna-low parent takes over the
+  bounded task or reports a concrete blocker.
+
+A textual completion claim never overrides repository state.
+
+After integration, the trusted workflow verifies scope, commits/pushes, and the
+repository's CI/PR gate remains the completion authority.
 
 Workers follow `skills/tdd-ci/SKILL.md`.
-
-Default maximum: three concurrent implementation workers unless the user or the
-execution environment explicitly selects another safe concurrency limit.
 
 ## Token economy
 
