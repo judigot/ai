@@ -42,6 +42,9 @@ When asked about agents, provide clear, concise information from the documentati
 
 | Agent                   | Purpose                                            |
 | ----------------------- | -------------------------------------------------- |
+| `founder-ideator`       | Astra-tier short original product/architecture pitches |
+| `spec-compiler`         | Terra-tier FRDs, PR shells, dependency DAGs, and TDD contracts |
+| `overnight-orchestrator` | Unattended dependency-aware PR-shell execution coordinator |
 | `code-reviewer`         | Git-based PR review with enterprise-grade analysis |
 | `task-master`           | Worktree task execution with scope enforcement     |
 | `multitasker`           | Parallel worktree management                       |
@@ -60,6 +63,7 @@ When asked about agents, provide clear, concise information from the documentati
 | Skill               | Purpose                                              |
 | ------------------- | ---------------------------------------------------- |
 | `setup-entrypoint`  | Session start: load overlay, clarify, route          |
+| `sleep-and-forget` | Unattended PR-shell scheduling and low-cost implementation |
 | `find-skills`       | Look up skills.sh URLs; do not install         |
 | `tdd-ci`            | Red-green-refactor; CI is done                       |
 | `self-audit`        | Pre-stop: push, tests, PR checklist                  |

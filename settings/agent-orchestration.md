@@ -1,38 +1,69 @@
 # Agent orchestration policy
 
-This policy keeps one main orchestrator while routing bounded planning and
-implementation work through eligible providers. It is provider-neutral: the
-orchestrator owns requirements, architecture, integration, verification, and
-the final report regardless of the worker route.
+This policy separates expensive original reasoning from specification and
+implementation so model cost scales with the value of the work.
 
-## Main orchestrator
+The canonical ladder is:
 
-- Interface: Codex CLI.
-- Default model when no main-chat model is selected: `gpt-6-astra`.
+```text
+Astra  = founder / ideator / rare architecture escalation
+Terra  = spec compiler / technical lead / unattended coordinator
+Luna   = implementation / tests / routine debugging
+CI     = completion authority
+```
+
+The strongest model should contribute the fewest tokens. Lower-cost tiers expand
+the idea into progressively more detailed, executable work.
+
+## Role hierarchy
+
+### Founder / ideator
+
+- Interface: Codex CLI or another approved client that exposes the mapped model.
+- Default model: `gpt-6-astra`.
+- Default reasoning effort: `low`; increase only when the founder decision
+  genuinely needs more reasoning.
+- Behavior: follow `agents/founder-ideator.md`.
+- Output is normally a 2-8 sentence pitch, not an FRD or implementation plan.
+- Do not keep Astra resident during routine repository work.
+- Re-enter this tier only for original product direction, novel architecture, or
+  an unresolved material tradeoff escalated by Terra.
+
+### Spec compiler / technical lead
+
+- Default model: `gpt-5.6-terra`.
 - Default reasoning effort: `medium`.
-- The user may select another available model or reasoning effort for the main
-  chat at any time. That explicit selection becomes the orchestrator for the
-  session and does not change worker-route priorities.
-- OpenCode may be the main interface only when the user explicitly selects it.
-  If its configured model cannot provide the orchestrator role, ask the user to
-  select a supported alternative.
+- Behavior: follow `agents/spec-compiler.md`.
+- Own repository-aware planning, FRDs, PR shells, dependency graphs, ownership
+  boundaries, TDD acceptance criteria, implementation briefs, and repeated
+  specification-level failure diagnosis.
+- This is the default coordination tier for unattended/sleep-and-forget work.
 
-The selected main-chat model keeps the main conversation and reviews every
-worker plan, diff, and verification result. Changing a worker never changes
-the main conversation.
+### Implementation worker
+
+- Default model: `gpt-5.6-luna`.
+- Default reasoning effort: `low`.
+- Behavior: follow `agents/task-master.md`.
+- Own the token-heavy work: repository search, code edits, tests, lint/type
+  fixes, routine debugging, CI log analysis, and mechanical documentation.
+
+The user may explicitly select another available model or reasoning effort for a
+session. Explicit user choice wins for that session, but workers should still
+follow the role boundaries unless the user asks to collapse tiers.
 
 ## Verified mappings
 
 | Role | Route | Executable model ID | Reasoning | Status |
 | --- | --- | --- | --- | --- |
-| Orchestrator | Codex CLI | `gpt-6-astra` | medium | active |
-| Planner fallback | Codex CLI | `gpt-6-astra` | medium | active |
-| Implementation worker 1 | Codex CLI | `gpt-5.6-luna` | low | active |
-| Implementation worker 2 | Codex CLI | `gpt-5.6-terra` | low | active |
+| Founder / ideator | Codex CLI | `gpt-6-astra` | low by default | active |
+| Spec compiler / technical lead | Codex CLI | `gpt-5.6-terra` | medium | active |
+| Overnight coordinator | Codex CLI | `gpt-5.6-terra` | medium | active |
+| Implementation worker | Codex CLI | `gpt-5.6-luna` | low | active |
+| Implementation fallback | Codex CLI | `gpt-5.6-terra` | low | active |
 
-These IDs were verified in the local Codex model cache. Codex CLI supports
-`--model`, `-c model=...`, `model_reasoning_effort`, `exec` for non-interactive
-work, and managed worktrees.
+These model IDs were verified in the local Codex model cache. Codex CLI supports
+`--model`, `-c model=...`, `model_reasoning_effort`, `exec`, and managed
+worktrees.
 
 ## Routes awaiting verification
 
@@ -50,31 +81,93 @@ reached through another tool.
 
 ## Routing
 
-### Planning
+### Idea generation
 
-1. Use Cursor CLI with its verified included-subscription planner when that
-   route is available and has a read-only execution mode.
-2. Otherwise use Codex CLI with `gpt-6-astra` at medium reasoning.
-3. Otherwise use only an approved free OpenCode planning model.
+Use the founder/ideator tier only when the task requires original product
+direction, high-leverage architecture ideas, or a strategic decision.
 
-Planning workers do not modify source files. If a tool cannot enforce
-read-only work, use a disposable worktree and inspect it for changes.
+Do not invoke Astra merely because a task is difficult. If the desired behavior
+is already known, start at specification or implementation.
+
+Founder output should be short and then leave the active context.
+
+### Specification
+
+Use Terra for repository-aware planning and compilation of ideas into executable
+contracts.
+
+Terra may:
+
+- inspect the repository;
+- write FRDs;
+- create/update PR shells;
+- construct dependency DAGs;
+- define ownership boundaries;
+- map acceptance criteria to tests;
+- prepare Luna worker briefs;
+- diagnose repeated failures that suggest a bad/underspecified contract.
+
+Terra should not perform routine implementation while an eligible Luna route is
+available.
+
+### Unattended coordination
+
+Use Terra with `agents/overnight-orchestrator.md` and
+`skills/sleep-and-forget/SKILL.md`.
+
+The coordinator builds the PR-shell DAG, chooses parallel/stacked/sequential
+execution, delegates to Luna, monitors concise verification state, and
+checkpoints blockers. Astra is not the default overnight orchestrator.
 
 ### Implementation
 
-1. Use the first eligible Cursor model in its verified route.
-2. If Cursor is unavailable or its included pool is exhausted, use Codex CLI:
-   `gpt-5.6-luna` at low reasoning, then `gpt-5.6-terra` at low reasoning.
-3. If Codex is unavailable, use only the approved free OpenCode route.
+1. Use `gpt-5.6-luna` at low reasoning for bounded implementation workers.
+2. If Luna is unavailable or its eligible pool is exhausted, use the approved
+   implementation fallback, currently `gpt-5.6-terra` at low reasoning.
+3. Use another provider only when its route is verified and approved below.
 
 Retry a model-specific transient failure at most twice before trying the next
-model in the same route. A shared-pool exhaustion skips every model in that
-pool. Authentication failures require reauthentication and a different eligible
-route; never move credentials between tools. Test failures, ambiguity, and poor
-worker output are quality failures, not quota failures.
+eligible model in the same role. A shared-pool exhaustion skips every model in
+that pool. Authentication failures require reauthentication and a different
+eligible route; never move credentials between tools.
 
-Recheck a higher-priority route only at a later task boundary after access is
-known to be restored. Let healthy workers finish.
+Test failures, ambiguity, and poor output are quality failures, not quota
+failures. Route them according to the escalation ladder instead of pretending
+the model is unavailable.
+
+### Escalation ladder
+
+```text
+Luna
+  ↓ ordinary failure
+Luna retry / focused debugger
+  ↓ repeated spec-level failure
+Terra
+  ├─ repair worker brief → Luna
+  ├─ repair PR contract → Luna
+  └─ material founder/architecture decision → Astra
+```
+
+Do not escalate to Astra for syntax errors, test debugging, lint, framework
+documentation, repository search, ordinary refactors, or CI log analysis.
+
+Recheck a higher-priority unavailable route only at a later task boundary after
+access is known to be restored. Let healthy workers finish.
+
+## Model economy
+
+Treat expensive-model tokens as a scarce architectural resource.
+
+- Astra should receive the smallest sufficient context and return the shortest
+  useful decision.
+- Do not send Astra worker transcripts, repository-wide scans, CI logs, routine
+  diffs, or implementation details.
+- Terra should consume concise founder pitches and produce complete contracts.
+- Luna should consume complete contracts and do the token-heavy execution.
+- Prefer Git diffs, test summaries, and PR-shell completion reports over replaying
+  worker conversations to a higher tier.
+- Skip tiers when input is already mature: a valid PR shell goes directly to
+  unattended coordination/implementation; a locked task goes directly to Luna.
 
 ## Worker contract
 
