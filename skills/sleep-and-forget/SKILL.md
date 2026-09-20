@@ -178,6 +178,13 @@ The top-level controller also keeps a global active-model/test budget so many
 PRs cannot each multiply into unbounded subagents. Refill controller capacity as
 PR runners complete. Measure throughput before raising limits.
 
+Before a parallel Codex batch fans out, the trusted controller serializes one
+account-auth refresh/persistence check, then starts implementation in a fresh
+workflow/run boundary so all PR runners receive the refreshed secret snapshot.
+Parallel PR runners read that snapshot but do not persist auth. If refresh fails
+because the stored refresh token is already used/invalid, stop before model
+execution and require a fresh trusted login/reseed.
+
 ### Shared-worktree ownership
 
 Each PR has its own branch and checkout/worktree. Within that PR, leaf workers
@@ -219,12 +226,14 @@ A textual completion claim never overrides repository state.
 After integration, the trusted workflow verifies scope, commits/pushes, and the
 repository's CI/PR gate remains the completion authority.
 
-The hardened executor also exposes a target-PR implementation status:
-- blocked/failed → failing `Agent Workspace / Implementation` on the unchanged
-  PR head, with the recovery checkpoint kept out of the normal readiness path;
-- implemented → successful implementation status only after the verified push.
+The hardened executor preserves a structured result and recovery checkpoint
+before surfacing blocked/failed work. Normal publishing requires structured
+state `implemented`.
 
-This implementation status is separate from the repository's required PR gate.
+An optional `Agent Workspace / Implementation` commit status may mirror this
+state when target-repository permissions allow it, but that status is
+supplemental. The structured result, trusted job gating, and repository PR gate
+remain authoritative.
 
 Workers follow `skills/tdd-ci/SKILL.md`.
 

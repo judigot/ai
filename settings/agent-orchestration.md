@@ -240,6 +240,11 @@ valid changes.
 - If that fresh replacement also fails, the same Luna-low parent takes over the
   bounded task or reports a concrete blocker.
 
+The structured shard result must record editable ownership, chronology,
+replacement reason, and takeover. Trusted validation may reject inconsistent
+reported overlap/transfer/takeover, but this telemetry remains model-reported
+rather than independent observation of the Codex scheduler.
+
 A worker's text response is never proof of completion. The filesystem, Git diff,
 ownership contract, acceptance criteria, and required checks are the source of
 truth.
@@ -252,6 +257,15 @@ CI and the repository's stable PR gate remain the final readiness authority.
 
 If the Luna route itself is unavailable or quota/auth prevents execution, skip
 task-level recovery and use the model-route fallback rules below.
+
+For parallel one-shot Codex execution, account-auth refresh is a controller
+boundary, not a worker responsibility. Before fan-out, run exactly one serialized
+authenticated refresh/persistence check. Start the parallel implementation in a
+fresh workflow/run boundary so every PR runner reads the refreshed auth snapshot.
+Parallel runners must not persist refreshed auth themselves. If refresh reports
+an already-used/invalid refresh token, stop before implementation and require a
+fresh trusted login/reseed; never move auth payloads through artifacts, logs, or
+worker handoffs.
 
 Retry a model-specific transient failure at most twice before trying the next
 eligible model in the same role. A shared-pool exhaustion skips every model in

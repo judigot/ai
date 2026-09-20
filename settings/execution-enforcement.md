@@ -29,11 +29,14 @@ narrower than the full sleep-and-forget dependency policy.
 | Requested independent PRs cannot have overlapping writable ownership | ENFORCED + VERIFIED |
 | Dependent/sequential/stacked/foundation batches are rejected by this initial executor | ENFORCED + VERIFIED |
 | Dependencies and a real baseline test are prepared before network-disabled Codex execution | ENFORCED + VERIFIED |
+| Setup/preflight must leave no unignored worktree changes | ENFORCED + VERIFIED |
+| Codex auth refresh is serialized before parallel PR fan-out | ENFORCED |
+| Parallel PR runners never persist refreshed Codex auth | ENFORCED |
 | Parent must return implemented, blocked or failed | ENFORCED + VERIFIED |
 | Blocked/failed results do not proceed to normal publishing | ENFORCED |
-| Blocked/failed results publish an explicit failing Agent Workspace implementation status on the unchanged PR head | ENFORCED |
+| Agent Workspace implementation commit-status reporting is best-effort and non-authoritative | ENFORCED |
 | Recoverable result/diff checkpoint is preserved before failure is surfaced | ENFORCED |
-| Implemented status is reported successful only after the verified implementation push | ENFORCED |
+| Normal commit/push is gated on structured state=implemented regardless of status-reporting success | ENFORCED |
 | Final changed paths must stay inside preflight ownership | ENFORCED |
 | Required readiness contexts must appear on the exact pushed SHA | ENFORCED + VERIFIED |
 | Required skipped/failed contexts cannot become ready | ENFORCED + VERIFIED |
@@ -43,17 +46,20 @@ narrower than the full sleep-and-forget dependency policy.
 | PR parent creates the intra-PR task DAG | INSTRUCTED |
 | Parent schedules critical-path work first | INSTRUCTED |
 | Useful leaf slots refill immediately | INSTRUCTED |
-| Leaf workers have exclusive edit ownership | INSTRUCTED, with final PR-scope enforcement |
+| Leaf workers have exclusive edit ownership | INSTRUCTED + telemetry validation, with final PR-scope enforcement |
 | Workers do not spawn grandchildren | INSTRUCTED |
 | Replacement starts only after prior owner stops | INSTRUCTED + telemetry validation |
 | Dependent shard starts only after prerequisite ends | INSTRUCTED + telemetry validation |
 | Independent Luna workers actually overlap in live execution | NOT YET VERIFIED |
+| Failed replacement requires a later completed parent-takeover shard in an implemented trace | ENFORCED on model-reported telemetry + VERIFIED by unit tests |
 | Replacement failure actually causes parent takeover in live execution | NOT YET VERIFIED |
 
-Structured shard timestamps are model-reported telemetry. The trusted validator
-can reject internally inconsistent chronology, but it does not independently
-observe Codex subagent scheduling. Do not label nested scheduling VERIFIED until
-a smoke run supplies execution evidence.
+Structured shard telemetry is model-reported. The trusted validator rejects
+internally inconsistent chronology, dependency order, replacement transfer,
+concurrent editable-path overlap, and an implemented result that records a
+failed replacement without a later completed parent takeover. It still does not
+independently observe Codex subagent scheduling. Do not label nested scheduling
+VERIFIED until a live smoke run supplies execution evidence.
 
 ## Contract requirements for hardened one-shot execution
 
@@ -85,6 +91,25 @@ The broader PR-shell contract may describe sequential, stacked, and foundation
 work. Those remain valid planning states, but the hardened executor must reject
 them until the trusted top-level dependency scheduler is implemented.
 
+## Codex authentication fan-out
+
+Codex account authentication must be refreshed and persisted once before a
+parallel PR batch fans out. Do not let parallel PR runners race a rotating
+refresh token.
+
+The trusted controller must:
+
+1. preflight the requested PR batch before spending model tokens;
+2. run one serialized authenticated Codex refresh/persistence check;
+3. start implementation in a new workflow/run boundary so workers receive the
+   refreshed repository-secret snapshot;
+4. let parallel PR runners read that auth snapshot without writing it back.
+
+Never transport `auth.json` through artifacts, ordinary outputs, logs, or PR
+content. If the refresh token has already been used and cannot refresh, stop
+before implementation and require a fresh trusted `codex login` plus reseeding
+of the existing Codex auth secret.
+
 ## Recovery semantics
 
 Retry the unfinished task, not the entire PR.
@@ -101,8 +126,10 @@ Within a PR:
 
 For one-shot execution, a blocked or failed parent does not partially publish
 the PR branch. The trusted runner preserves a recovery checkpoint and reports
-the state. Partial publishing requires a separate explicit checkpoint policy; it
-must never be interpreted as ready.
+the state. The structured result plus workflow/job outcome is authoritative;
+optional commit-status reporting is supplemental and must not control whether
+partial work is publishable. Partial publishing requires a separate explicit
+checkpoint policy; it must never be interpreted as ready.
 
 ## Readiness semantics
 
@@ -120,6 +147,12 @@ An early lint success is not readiness when the required PR gate has not appeare
 Before promoting an INSTRUCTED scheduling rule to VERIFIED, capture a small
 end-to-end run showing the relevant event sequence, including task IDs, owners,
 dependencies, start/end times, replacement reason, and checks.
+
+The first hardened smoke proved batch preflight and concurrent isolated PR-runner
+startup, but the model parents stopped before implementation because the stored
+Codex refresh token had already been rotated. That is not evidence of nested
+worker scheduling. Repeat the smoke only after a fresh trusted Codex login is
+reseeded and the serialized auth-refresh boundary succeeds.
 
 The next smoke milestone should demonstrate:
 
