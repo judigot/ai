@@ -48,6 +48,9 @@ exception path.**
 9. Advance shells through planned → implementing → verification.
 10. Mark ready only when `settings/pr-shell.md` ready-state rules pass.
 11. Never merge to the default branch unless the user explicitly authorized it.
+12. Never bypass or weaken a repository's production deployment gate for speed.
+    PR workers may optimize focused checks, but automatic production must remain
+    blocked until the repository's business-critical main-branch checks pass.
 
 ## Concurrency
 
