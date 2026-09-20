@@ -44,3 +44,4 @@ Read all these files from the same source or checkout as this `AGENTS.md`:
 - settings/stack.md
 - settings/references.md
 - settings/agent-orchestration.md
+- settings/repository-pr-contracts.md
