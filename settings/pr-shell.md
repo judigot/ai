@@ -65,6 +65,8 @@ Every PR shell must contain these sections in this order:
 
 ## Ownership boundaries
 
+## Interfaces and contracts
+
 ## Acceptance criteria
 
 ## Required tests
@@ -314,6 +316,47 @@ when all are true:
 
 Shared architectural files should normally remain orchestrator-owned.
 
+## Interfaces and contracts
+
+Lock the smallest shared contracts needed to let independent implementation
+tasks proceed without improvising incompatible behavior.
+
+Include applicable API shapes, types, events, error behavior, loading/empty
+states, persistence shapes, or other cross-task interfaces.
+
+Example:
+
+````markdown
+## Interfaces and contracts
+
+### Product search
+
+`GET /api/products?q=<query>`
+
+```ts
+interface ISearchResponse {
+  products: Array<{
+    id: string;
+    name: string;
+    price: number;
+  }>;
+}
+```
+
+- Empty query: return the repository-standard validation response.
+- Empty result: `products: []`.
+- UI loading and error behavior follow the existing product-list conventions.
+````
+
+Do not invent interface detail merely to fill this section. If no cross-task
+interface is needed, write `None`.
+
+During parallel implementation, workers consume the locked contract. A worker
+that discovers a necessary contract change reports it to the PR parent
+immediately and does not independently redefine the interface. The parent owns
+contract changes and propagates the updated interface before dependent work
+continues.
+
 ## Acceptance criteria
 
 Give every criterion a stable ID:
@@ -492,8 +535,9 @@ model conversation:
 ### Execution
 
 - Parent route: Luna low
-- Completed by: worker A | worker B | parent fallback | other
-- Retry/fallback reason: none
+- Completed by: parent | worker shard(s) | parent fallback | other
+- Parallel task shards: [task → owner → editable paths]
+- Replacements/fallbacks: none
 
 ### Implementation
 
@@ -579,6 +623,7 @@ without inventing product decisions:
 - What may I change?
 - What must I not change?
 - What work must already exist?
+- Which shared interfaces/data shapes are locked?
 - Can I run in parallel?
 - What tests prove completion?
 - What checks must pass?
@@ -640,6 +685,11 @@ three sentences.]
 ### Do not touch
 
 - [Explicit boundary]
+
+## Interfaces and contracts
+
+[Locked API/type/data/error/loading contracts needed by independent tasks, or
+`None`.]
 
 ## Acceptance criteria
 
@@ -710,8 +760,9 @@ Pending implementation.
 When implementation completes, include:
 
 - Parent route/model and reasoning effort
-- Completed by: worker A, worker B, parent fallback, or other
-- Retry/fallback reason when applicable
+- Parallel task shards and exclusive ownership
+- Which executor completed each shard
+- Replacement/fallback reason when applicable
 - Concise implementation, files, acceptance, verification, ownership, and
   remaining-failure summary
 ````

@@ -121,49 +121,128 @@ checkpoints blockers. Astra is not the default overnight orchestrator.
 
 ### Implementation
 
-1. Use `gpt-5.6-luna` at low reasoning for bounded implementation workers.
+1. Use `gpt-5.6-luna` at low reasoning for bounded implementation work.
 2. Prefer one-shot execution for implementation-ready PR shells: one isolated
    runner/process per PR, with the PR shell as durable state instead of a
    persistent model conversation.
-3. If Luna is unavailable or its eligible pool is exhausted, use the approved
+3. Use two levels of parallelism:
+   - across PRs: independent non-overlapping PRs run concurrently;
+   - inside one PR: one Luna-low parent may schedule bounded Luna-low leaf
+     workers for independent implementation tasks.
+4. Optimize for wall-clock time until a verified PR is ready, not for worker
+   count. Spawn workers only when independent work is ready and useful.
+5. If Luna is unavailable or its eligible pool is exhausted, use the approved
    implementation fallback, currently `gpt-5.6-terra` at low reasoning.
-4. Use another provider only when its route is verified and approved below.
+6. Use another provider only when its route is verified and approved below.
 
-For a healthy Luna route, use this executor-local retry chain before escalating
-to another model:
+#### PR parent responsibilities
 
-```text
-Luna-low parent for one PR
-  ↓
-worker A: fresh Luna-low subagent
-  ↓
-verify filesystem/diff against the locked scope
-  ↓ incomplete
-worker B: fresh Luna-low subagent with the same task
-  ↓
-verify filesystem/diff again
-  ↓ still incomplete
-same Luna-low parent completes the bounded task
-  ↓
-trusted workflow verification / CI
-```
+The Luna-low parent owns the implementation schedule for one PR.
 
-Rules:
+Before spawning workers, it:
 
-- Worker B is a new subagent thread; do not continue worker A.
-- A worker's text response is not proof of completion. The filesystem, Git diff,
-  ownership contract, acceptance criteria, and required checks are the source
-  of truth after every attempt.
-- The parent fallback must preserve the same writable ownership and acceptance
-  criteria. It is not permission to broaden scope.
-- Independent PRs may run this chain concurrently on separate isolated runners.
-  Do not put multiple write-capable PR workers in one shared checkout.
-- Subagents are an implementation detail inside one PR; PR-level parallelism is
-  the primary concurrency boundary.
-- If worker A, worker B, and the Luna parent all fail for a quality/specification
-  reason, use the normal escalation ladder below.
-- If the Luna route itself is unavailable or quota/auth prevents execution,
-  skip the executor-local chain and use the model-route fallback rules below.
+1. reads the PR contract and applicable repository instructions;
+2. inspects the relevant code once;
+3. builds the smallest useful intra-PR task DAG;
+4. locks shared interfaces/data shapes before dependent tasks start;
+5. assigns exclusive writable ownership for every concurrent task;
+6. identifies the critical path and ready queue.
+
+Split by independently verifiable behavior, not mechanically by file count.
+One file per worker is appropriate only when that file is a meaningful
+independent task. Group tightly coupled files.
+
+Every worker handoff includes:
+
+- exact objective;
+- exclusive editable files/directories;
+- relevant existing code and conventions already discovered by the parent;
+- interfaces/data shapes it must consume or implement;
+- completion criteria;
+- targeted checks safe to run concurrently;
+- explicit instruction that it is a leaf worker and may not spawn subagents.
+
+Workers may read any relevant file. Editing outside assigned ownership requires
+reassignment by the parent. If two tasks must edit the same file, combine them
+or run them sequentially.
+
+#### Scheduling policy
+
+Start critical-path work before isolated polish. Do not use fixed waves.
+
+When a worker completes, the parent inspects the actual diff and immediately
+assigns any newly ready high-priority task when a worker slot would shorten PR
+readiness time. The parent may integrate parent-owned files while workers
+continue on exclusive paths.
+
+Use this starting worker heuristic, not as a claimed optimum:
+
+| PR shape | Implementation workers |
+| --- | ---: |
+| Small, tightly coupled change | parent only |
+| Two independent components | up to 2 |
+| Several independent components | up to 3 |
+| Broad change with clear ownership | up to 4 |
+
+Keep a controller-wide budget for active model work and expensive tests. A
+conservative implementation may reserve `1 + max_workers_per_pr` model slots
+for each active PR runner and derive PR concurrency from the global budget.
+Measure throughput before increasing limits.
+
+Workers never spawn grandchildren. Scheduling remains visible to the PR parent
+and top-level controller.
+
+#### Shared-worktree rules
+
+Each PR has its own isolated branch and checkout/worktree. Workers within that
+PR may share the checkout only with strict exclusive file ownership.
+
+Leaf workers must not:
+
+- stage, commit, push, switch branches, or merge;
+- install dependencies or edit lockfiles;
+- run migrations or code generation;
+- run repository-wide formatters;
+- mutate shared configuration or other shared state;
+- edit outside assigned ownership.
+
+Shared types/contracts, route registration, package/lock files, migrations,
+generated manifests, and integration files should normally remain parent-owned.
+The parent/trusted runner owns Git publishing and shared-state operations.
+
+Workers run targeted checks that are safe beside concurrent edits. The parent
+runs integration checks against a stable snapshot.
+
+#### Task-level recovery
+
+Retry the unfinished task, not the whole PR.
+
+After a worker returns, inspect the filesystem/diff and check output. Preserve
+valid changes.
+
+- A deterministic test failure normally calls for repairing the existing work,
+  not replacing the worker.
+- Use a replacement only for unavailable, stalled, abandoned, or repeatedly
+  confused execution.
+- Stop/finish the original worker and confirm ownership returned before
+  reassignment.
+- Give one fresh Luna-low worker the failure evidence, current repository state,
+  and only the remaining bounded task.
+- If that fresh replacement also fails, the same Luna-low parent takes over the
+  bounded task or reports a concrete blocker.
+
+A worker's text response is never proof of completion. The filesystem, Git diff,
+ownership contract, acceptance criteria, and required checks are the source of
+truth.
+
+The parent fallback must preserve the same writable ownership and acceptance
+criteria. It is not permission to broaden scope.
+
+After integration, the parent/trusted workflow runs the required PR checks.
+CI and the repository's stable PR gate remain the final readiness authority.
+
+If the Luna route itself is unavailable or quota/auth prevents execution, skip
+task-level recovery and use the model-route fallback rules below.
 
 Retry a model-specific transient failure at most twice before trying the next
 eligible model in the same role. A shared-pool exhaustion skips every model in
@@ -215,18 +294,25 @@ objective, assumptions, affected files and dependencies, steps, bounded tasks
 with file ownership, dependency order, acceptance criteria, required checks,
 risks, and escalation points.
 
-Every implementation brief includes the objective, owned files, constraints,
-non-goals, acceptance criteria, required checks, and the expected concise
-report. Keep trivial work with the orchestrator. Parallelize only independent
-work in isolated worktrees with non-overlapping ownership.
+For a PR-level one-shot parent, each leaf implementation handoff includes the
+exact objective, exclusive editable paths, relevant context already discovered
+by the parent, required interfaces/data shapes, completion criteria, targeted
+checks, and a no-grandchildren instruction.
+
+Leaf workers may inspect dependencies and surrounding code, but they do not own
+Git publishing or shared-state commands. See `agents/task-master.md` leaf mode.
+
+Keep trivial/tightly coupled work with the PR parent. Parallelize only
+independent tasks with non-overlapping writable ownership.
 
 Before delegating, tell the user which route/model is being used and show a
 concise worker brief: objective, owned scope, constraints, and expected output.
 Do not repeat inherited conversation context or duplicate long prompts in the
 user-facing announcement.
 
-The orchestrator inspects partial changes before replacement, preserves valid
-work, and reviews the final diff and verification evidence.
+The orchestrator/parent inspects partial changes before replacement, preserves
+valid work, continuously integrates completed shards, and reviews the final diff
+and verification evidence.
 
 ## PR shell orchestration
 

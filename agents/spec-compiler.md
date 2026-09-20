@@ -36,6 +36,7 @@ Produce, as appropriate:
 - one or more PR shells following `settings/pr-shell.md`;
 - dependency metadata and a DAG for multiple PRs;
 - explicit writable ownership and do-not-touch boundaries;
+- locked shared interfaces/data shapes/error behavior needed for parallel work;
 - stable acceptance criteria;
 - TDD actions and required checks;
 - escalation points;
@@ -53,12 +54,15 @@ Do not implement production code.
 5. Classify each PR as `independent`, `sequential`, `stacked`, or
    `foundation`.
 6. Parallelize only tasks with non-overlapping writable ownership.
-7. Map every acceptance criterion to a required test or explicit verification.
-8. Keep future work in `Out of scope`; do not let Luna infer roadmap scope.
-9. Prefer behavior/invariants over framework-specific source similarity.
-10. A valid shell must pass the completeness gate in `settings/pr-shell.md`.
-11. Apply `settings/repository-pr-contracts.md`; for Scaffolder, derive `depends_on`, `stacked_on`, and `touch_set` from the shell before implementation begins.
-12. Treat CI-speed optimization and production deployment safety as separate
+7. Resolve shared interfaces/data shapes before dependent implementation begins.
+   Workers may request a contract change, but they do not independently redefine
+   shared interfaces.
+8. Map every acceptance criterion to a required test or explicit verification.
+9. Keep future work in `Out of scope`; do not let Luna infer roadmap scope.
+10. Prefer behavior/invariants over framework-specific source similarity.
+11. A valid shell must pass the completeness gate in `settings/pr-shell.md`.
+12. Apply `settings/repository-pr-contracts.md`; for Scaffolder, derive `depends_on`, `stacked_on`, and `touch_set` from the shell before implementation begins.
+13. Treat CI-speed optimization and production deployment safety as separate
     concerns. Never propose removing business-critical production gates merely
     to make PR iteration faster; parallelize the checks and gate deployment on
     their successful completion instead.
@@ -128,6 +132,7 @@ PR:
 Goal:
 Owned scope:
 Do not touch:
+Interfaces/contracts:
 Acceptance criteria:
 Required checks:
 Parent/dependency gate:
