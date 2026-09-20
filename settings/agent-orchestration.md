@@ -79,6 +79,17 @@ Do not use Auto routing, paid API access, paid credits, or overages without
 explicit approval. Do not assume a subscription has a separate allowance when
 reached through another tool.
 
+## Runtime enforcement boundary
+
+Read settings/agent-runtime-enforcement.md before describing unattended
+parallelism as a guarantee. It distinguishes controller-enforced rules,
+model-instructed behavior, and behavior verified by tests/execution evidence.
+
+The current Agent Workspace enforcement milestone runs only already-executable
+independent PRs. Dependency-aware stacked/sequential/foundation scheduling
+remains a policy/design contract until the runtime scheduler implements it.
+Unsupported arrangements must fail preflight rather than silently degrade.
+
 ## Routing
 
 ### Idea generation
@@ -184,10 +195,12 @@ Use this starting worker heuristic, not as a claimed optimum:
 | Several independent components | up to 3 |
 | Broad change with clear ownership | up to 4 |
 
-Keep a controller-wide budget for active model work and expensive tests. A
-conservative implementation may reserve `1 + max_workers_per_pr` model slots
-for each active PR runner and derive PR concurrency from the global budget.
-Measure throughput before increasing limits.
+Keep a controller-wide budget for active model work and expensive tests. The
+current trusted runtime serializes implementation dispatches globally, then
+reserves `1 + max_workers_per_pr` model slots for each active PR runner and
+derives PR concurrency from the configured global budget. CI readiness runs in
+a separate workflow and does not retain model capacity. Measure
+time-to-verified-PR before increasing limits.
 
 Workers never spawn grandchildren. Scheduling remains visible to the PR parent
 and top-level controller.
