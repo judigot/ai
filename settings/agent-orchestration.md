@@ -122,9 +122,48 @@ checkpoints blockers. Astra is not the default overnight orchestrator.
 ### Implementation
 
 1. Use `gpt-5.6-luna` at low reasoning for bounded implementation workers.
-2. If Luna is unavailable or its eligible pool is exhausted, use the approved
+2. Prefer one-shot execution for implementation-ready PR shells: one isolated
+   runner/process per PR, with the PR shell as durable state instead of a
+   persistent model conversation.
+3. If Luna is unavailable or its eligible pool is exhausted, use the approved
    implementation fallback, currently `gpt-5.6-terra` at low reasoning.
-3. Use another provider only when its route is verified and approved below.
+4. Use another provider only when its route is verified and approved below.
+
+For a healthy Luna route, use this executor-local retry chain before escalating
+to another model:
+
+```text
+Luna-low parent for one PR
+  ↓
+worker A: fresh Luna-low subagent
+  ↓
+verify filesystem/diff against the locked scope
+  ↓ incomplete
+worker B: fresh Luna-low subagent with the same task
+  ↓
+verify filesystem/diff again
+  ↓ still incomplete
+same Luna-low parent completes the bounded task
+  ↓
+trusted workflow verification / CI
+```
+
+Rules:
+
+- Worker B is a new subagent thread; do not continue worker A.
+- A worker's text response is not proof of completion. The filesystem, Git diff,
+  ownership contract, acceptance criteria, and required checks are the source
+  of truth after every attempt.
+- The parent fallback must preserve the same writable ownership and acceptance
+  criteria. It is not permission to broaden scope.
+- Independent PRs may run this chain concurrently on separate isolated runners.
+  Do not put multiple write-capable PR workers in one shared checkout.
+- Subagents are an implementation detail inside one PR; PR-level parallelism is
+  the primary concurrency boundary.
+- If worker A, worker B, and the Luna parent all fail for a quality/specification
+  reason, use the normal escalation ladder below.
+- If the Luna route itself is unavailable or quota/auth prevents execution,
+  skip the executor-local chain and use the model-route fallback rules below.
 
 Retry a model-specific transient failure at most twice before trying the next
 eligible model in the same role. A shared-pool exhaustion skips every model in
