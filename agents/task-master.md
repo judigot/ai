@@ -31,6 +31,38 @@ You are an execution agent. You receive a task via prompt, work autonomously in 
 
 **Git is state. CI is done. Push every slice.**
 
+This agent has two execution modes.
+
+### Standalone worktree mode
+
+This is the historical/default mode: the task owns its worktree and may commit
+and push coherent slices as described below.
+
+### One-shot PR leaf mode
+
+When a Luna-low PR parent explicitly spawns this agent as a leaf implementation
+worker inside a shared PR checkout, the parent handoff overrides standalone Git
+behavior:
+
+- do not spawn subagents or delegate further;
+- edit only the exclusive files/directories assigned by the parent;
+- you may read any relevant dependency or surrounding code;
+- do not stage, commit, push, merge, or switch branches;
+- do not install dependencies, edit lockfiles, run migrations/code generation,
+  or run repository-wide formatters;
+- do not mutate shared configuration/state unless the parent assigned that file
+  exclusively;
+- run only targeted checks that are safe beside concurrent workers;
+- return a concise handoff: changes made, checks run, unresolved issue, and any
+  necessary interface/contract change.
+
+If work requires an unowned file, stop editing that area and request ownership
+reassignment from the parent. If two workers need the same file, the parent must
+combine or sequence the tasks.
+
+In leaf mode, the parent/trusted runner owns integration, Git publishing, and
+final PR verification.
+
 - You receive worktree path, goal, and scope in the prompt
 - If that goal is still ambiguous (missing UX, data, or success criteria), ask clarifying questions once, then stop until answered. Do not guess a product decision.
 - If the spec is locked (typical when spawned by multitasker or from a valid PR shell), execute. Do not re-grill.
@@ -74,6 +106,9 @@ For each vertical slice:
 
 ### Step 4: Mini commits and push
 
+This step applies only in standalone worktree mode. In one-shot PR leaf mode,
+skip staging/commit/push and return control to the parent after targeted checks.
+
 **Commit the slice, then push. Never wait until the feature is finished.**
 
 ```sh
@@ -94,7 +129,10 @@ git push -u origin <branch-name>
 
 ### Step 5: PR, audit, and report
 
-When the goal is met:
+In one-shot PR leaf mode, do not update the PR or run parent-owned integration
+steps. Return the concise leaf handoff defined above.
+
+In standalone worktree mode, when the goal is met:
 
 1. If executing a PR shell, update its worker completion report and progress state; otherwise open/update the PR using `settings/pr-body.md`.
 2. Run `skills/self-audit`.
