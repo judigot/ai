@@ -43,6 +43,43 @@ Do not bypass ownership failures by widening `touch_set` to a shared root such
 as `src/` unless the PR genuinely owns that whole root. Resolve the dependency
 DAG or split ownership instead.
 
+### Scaffolder production safety
+
+Fast PR CI and strict production CI serve different goals. Optimize PR checks for
+iteration speed, but never trade production safety for that speed.
+
+Every automatic Scaffolder production deployment from `main` is fail-closed.
+The canonical production pipeline must run the business-critical validation jobs
+in parallel and deploy only after all of them pass for the same `main` SHA:
+
+- lint and template lint;
+- Bun tests;
+- Vitest;
+- Playwright;
+- full Golden Frameworks regression;
+- `/api/hello` under both Node.js and Bun.
+
+The Vercel deploy job must:
+
+- depend explicitly on all required production checks rather than polling their
+  status or duplicating them inside the deploy job;
+- check out the exact SHA that passed validation;
+- verify that SHA is still the current `main` tip before production build and
+  again immediately before deployment;
+- cancel/refuse stale deployments when a newer `main` commit exists;
+- verify production `/api/hello` after deployment and confirm the deployed SHA.
+
+A failure, cancellation, or missing required production check means **do not
+deploy**. Do not weaken this gate merely to reduce waiting time.
+
+Standalone test workflows may remain reusable/manual for diagnostics, but they
+must not create duplicate automatic `main` executions when the production
+pipeline already calls them.
+
+Legacy or secondary deployment paths must not bypass the canonical production
+gate. In Scaffolder, the legacy EC2 deployment is manual-only; Vercel
+`Production CI/CD` is the single automatic production path.
+
 ## Agent responsibilities
 
 ### Spec compiler / orchestrator
