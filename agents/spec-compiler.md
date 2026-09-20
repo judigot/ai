@@ -58,6 +58,10 @@ Do not implement production code.
 9. Prefer behavior/invariants over framework-specific source similarity.
 10. A valid shell must pass the completeness gate in `settings/pr-shell.md`.
 11. Apply `settings/repository-pr-contracts.md`; for Scaffolder, derive `depends_on`, `stacked_on`, and `touch_set` from the shell before implementation begins.
+12. Treat CI-speed optimization and production deployment safety as separate
+    concerns. Never propose removing business-critical production gates merely
+    to make PR iteration faster; parallelize the checks and gate deployment on
+    their successful completion instead.
 
 ## PR-shell creation
 
