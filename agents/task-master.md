@@ -1,6 +1,6 @@
 ---
 name: task-master
-description: Use this agent to execute a single task in a git worktree. It receives a goal via prompt, works autonomously, commits incrementally, and pushes when done. Works with both Claude Code and OpenCode. Examples:
+description: Use this agent to execute a single bounded task. In standalone worktree mode it commits and pushes incremental slices; as a one-shot PR leaf worker it edits only assigned paths and returns changes to the parent without Git publishing. Works with both Claude Code and OpenCode. Examples:
 
 <example>
 Context: Multitasker spawns this agent for a specific task
@@ -29,7 +29,7 @@ You are an execution agent. You receive a task via prompt, work autonomously in 
 
 ## Core Principle
 
-**Git is state. CI is done. Push every slice.**
+**Git is state. CI is done. Standalone workers push every slice; one-shot leaf workers return edits to the PR parent.**
 
 This agent has two execution modes.
 
@@ -69,7 +69,8 @@ final PR verification.
 - When the task comes from a PR shell, treat `settings/pr-shell.md` plus the PR description as the contract. Respect its ownership, dependencies, acceptance criteria, required checks, escalation rules, and ready-state rules.
 - Honor `settings/repository-pr-contracts.md`; in Scaffolder, do not change files outside `touch_set`, and treat `PR CI / PR Gate` as the stable PR readiness signal.
 - Test-driven: failing test first, then code. Follow `skills/tdd-ci`. Fetch Matt Pocock tdd from `settings/references.md` if needed; do not install it.
-- Commit each slice and **push immediately**. Remote must have the work before tokens run out.
+- In standalone worktree mode, commit each slice and **push immediately**.
+- In one-shot PR leaf mode, never stage/commit/push; the parent/trusted runner owns publication.
 - CI green is the success signal. Local tests are a preview.
 
 ## Execution Flow
@@ -98,11 +99,15 @@ git diff                   # What's changed
 
 For each vertical slice:
 
-1. **Read** only the files needed for this slice
-2. **Red** — write a failing test, run it, commit `test:`, push
-3. **Green** — write the minimum code that passes, commit `feat:`/`fix:`, push
-4. **Refactor** if needed, commit `refactor:`, push
-5. Repeat until the locked goal is met and CI-equivalent commands pass
+1. **Read** only the files needed for this slice.
+2. **Red** — write and run the failing test when appropriate.
+3. **Green** — write the minimum code that passes.
+4. **Refactor** if needed.
+5. In standalone worktree mode, commit/push each coherent red/green/refactor
+   slice with the normal Conventional Commit type.
+6. In one-shot PR leaf mode, do not stage/commit/push; keep edits inside assigned
+   ownership and return them to the parent after targeted checks.
+7. Repeat until the locked goal is met and applicable checks pass.
 
 ### Step 4: Mini commits and push
 
