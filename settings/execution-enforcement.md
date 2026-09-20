@@ -22,12 +22,18 @@ narrower than the full sleep-and-forget dependency policy.
 | Missing and invalid ownership are distinct | ENFORCED + VERIFIED |
 | Dotfiles such as .github and .env preserve their exact paths | ENFORCED + VERIFIED |
 | Absolute paths, traversal and malformed ownership stop execution | ENFORCED + VERIFIED |
+| touch_set globs and duplicate touch_set declarations are rejected | ENFORCED + VERIFIED |
+| Unattended one-shot PRs must remain draft until implementation/readiness completes | ENFORCED + VERIFIED |
+| Independent PRs must target the repository default branch | ENFORCED + VERIFIED |
+| Dependency cycles in the requested batch are rejected before unsupported dependency execution is reported | ENFORCED + VERIFIED |
 | Requested independent PRs cannot have overlapping writable ownership | ENFORCED + VERIFIED |
 | Dependent/sequential/stacked/foundation batches are rejected by this initial executor | ENFORCED + VERIFIED |
 | Dependencies and a real baseline test are prepared before network-disabled Codex execution | ENFORCED + VERIFIED |
 | Parent must return implemented, blocked or failed | ENFORCED + VERIFIED |
 | Blocked/failed results do not proceed to normal publishing | ENFORCED |
+| Blocked/failed results publish an explicit failing Agent Workspace implementation status on the unchanged PR head | ENFORCED |
 | Recoverable result/diff checkpoint is preserved before failure is surfaced | ENFORCED |
+| Implemented status is reported successful only after the verified implementation push | ENFORCED |
 | Final changed paths must stay inside preflight ownership | ENFORCED |
 | Required readiness contexts must appear on the exact pushed SHA | ENFORCED + VERIFIED |
 | Required skipped/failed contexts cannot become ready | ENFORCED + VERIFIED |
@@ -65,6 +71,10 @@ A PR intended for the current one-shot executor must have:
 - machine-checkable writable paths.
 
 Repository-specific touch_set metadata is preferred when available.
+
+For touch_set, every entry must be a literal repository-relative path prefix.
+Globs are invalid and the agent-pr block may contain exactly one touch_set
+declaration. Leading dots are significant.
 
 Without touch_set, every machine-checkable item under Ownership boundaries /
 Owned must be an explicit repository path wrapped as inline code. Semantic areas
