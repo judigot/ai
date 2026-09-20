@@ -31,7 +31,7 @@ exception path.**
 ## Execution
 
 1. Discover the requested draft PR shells.
-2. Validate their required sections and metadata.
+2. Validate their required sections and metadata, including `settings/repository-pr-contracts.md` when the target repo enforces PR metadata.
 3. Build the `depends_on` DAG and reject cycles.
 4. Check writable ownership overlap.
 5. Classify executable work:
