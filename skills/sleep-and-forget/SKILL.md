@@ -77,6 +77,20 @@ For multiple shells:
 5. define stable acceptance criteria and required checks;
 6. leave `state: planned` until execution begins.
 
+## Trusted runtime boundary
+
+Use settings/agent-runtime-enforcement.md to distinguish desired orchestration
+from behavior the current Agent Workspace controller actually enforces.
+
+At the current enforcement milestone, the one-shot GitHub Actions executor
+accepts only complete, already-executable independent PR shells. It rejects
+dependent, stacked, sequential, and foundation execution before model spend.
+The broader dependency scheduler below remains the target orchestration policy
+for coordinators and future runtime iterations.
+
+Parallel one-shot execution also requires machine-readable touch_set ownership
+and resolvable exact required CI/status names.
+
 ## Dependency scheduler
 
 Build a directed acyclic graph from `depends_on`.
@@ -168,9 +182,12 @@ Use this initial sizing heuristic:
 
 This is a starting policy, not a claimed optimum.
 
-The top-level controller also keeps a global active-model/test budget so many
-PRs cannot each multiply into unbounded subagents. Refill controller capacity as
-PR runners complete. Measure throughput before raising limits.
+The top-level controller keeps a global active-model budget so many PRs cannot
+each multiply into unbounded subagents. Implementation dispatches are currently
+serialized globally; within one dispatch, PR runner slots refill as
+implementations complete. Required-CI polling is asynchronous in a separate
+readiness workflow, so completed implementation does not hold model capacity.
+Measure time-to-verified-PR before raising limits.
 
 ### Shared-worktree ownership
 
