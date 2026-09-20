@@ -293,6 +293,12 @@ Use all three subsections:
 List paths or semantic areas the worker may modify. Prefer concrete paths once
 known.
 
+For the hardened one-shot executor, writable ownership must also be
+machine-checkable. Use repository-specific `touch_set` metadata when required.
+Otherwise, every Owned item used for parallel execution must be an explicit
+repository path wrapped in backticks. Semantic phrases alone do not satisfy
+one-shot overlap/scope enforcement.
+
 ### Read-only / reference
 
 List useful context that must not be modified by this worker.
@@ -493,6 +499,12 @@ Model routing follows the canonical orchestration policy. Ordinary
 implementation failures should not escalate to the most expensive model.
 
 ## Ready-state rules
+
+Implementation completion is not PR readiness. For hardened one-shot execution,
+the implementation runner releases its model slot after verified push and a
+separate readiness monitor waits for the exact required check/status contexts on
+that exact pushed SHA. Missing required contexts remain not-ready; a required
+skipped context is not success.
 
 A shell may leave draft state only when all applicable conditions are true:
 

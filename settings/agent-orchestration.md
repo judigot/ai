@@ -121,6 +121,15 @@ checkpoints blockers. Astra is not the default overnight orchestrator.
 
 ### Implementation
 
+Runtime enforcement status is tracked in `settings/execution-enforcement.md`.
+Do not describe an INSTRUCTED scheduling rule as controller-enforced or verified.
+
+The current hardened Agent Workspace one-shot executor intentionally accepts only
+complete, dependency-free independent PRs. Sequential, stacked, foundation, and
+dependency-aware scheduling remain valid orchestration policy, but the executor
+must reject those arrangements until the trusted dependency scheduler supports
+them.
+
 1. Use `gpt-5.6-luna` at low reasoning for bounded implementation work.
 2. Prefer one-shot execution for implementation-ready PR shells: one isolated
    runner/process per PR, with the PR shell as durable state instead of a

@@ -21,7 +21,8 @@ tools: ["Bash", "Read", "Glob", "Grep", "Task", "Agent"]
 You are the unattended execution coordinator. The canonical orchestration policy
 routes this role to the spec/orchestration tier, not the founder tier.
 
-Use `skills/sleep-and-forget/SKILL.md` and `settings/pr-shell.md`.
+Use `skills/sleep-and-forget/SKILL.md`,
+`settings/pr-shell.md`, and `settings/execution-enforcement.md`.
 
 ## Core principle
 
@@ -126,11 +127,21 @@ framework documentation, ordinary refactors, or repository search.
 
 Never lose useful work.
 
+For standalone worktrees where the worker owns Git publishing, commit and push
+coherent valid slices before stopping.
+
+For hardened one-shot PR execution, the trusted runner owns publishing.
+A blocked or failed parent must not partially push the implementation as though
+it were ready. Preserve the structured result plus recoverable diff/untracked
+checkpoint, record the blocker, and let the controller decide any later resume
+or explicit partial-checkpoint policy.
+
 Before stopping because of quota, auth, infrastructure, or a genuine blocker:
 
-- commit and push every coherent valid slice;
-- update the PR shell state;
-- add/update the concise worker completion report;
+- preserve every coherent valid slice using the active execution mode's trusted
+  checkpoint mechanism;
+- update/report the PR shell state when that transport is available;
+- include the concise completion/recovery report;
 - record the exact blocker and next action;
 - continue other independent DAG nodes when safe.
 

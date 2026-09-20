@@ -79,6 +79,12 @@ For multiple shells:
 
 ## Dependency scheduler
 
+This section defines the full orchestration policy. Check
+`settings/execution-enforcement.md` before dispatching implementation. The
+current hardened Agent Workspace executor supports only already-executable,
+dependency-free independent PRs and must reject unsupported dependency
+arrangements before spending model tokens.
+
 Build a directed acyclic graph from `depends_on`.
 
 Reject cycles before implementation.
