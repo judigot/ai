@@ -30,6 +30,34 @@ parallel/sequential scheduling. Ordinary completed PRs continue to use
 
 Before opening or updating a shell, apply `settings/repository-pr-contracts.md`. If the target repository requires machine-readable dependency, stacking, or ownership metadata, derive it from this shell instead of inventing a second plan. For `judigot/scaffolder`, keep `depends_on`, `stacked_on`, and `touch_set` synchronized with the shell and treat `PR CI / PR Gate` as the stable PR readiness signal.
 
+For Agent Workspace unattended parallel one-shot execution, the trusted runtime
+also needs machine-readable path ownership and exact readiness names before model
+spend. Repository adapters should provide:
+
+```text
+<!-- agent-pr
+depends_on: none
+stacked_on: main
+touch_set: src/feature/,tests/feature.test.ts
+required_checks: PR Gate
+-->
+```
+
+`touch_set` entries are exact repository-relative path prefixes, not globs.
+Leading dots are significant: `.github/` and `github/` are different
+ownership. Empty, absolute, traversal, ambiguous `./`, backslash, and glob
+entries are invalid.
+
+`required_checks` contains exact Check Run or commit-status context names.
+A missing or skipped required gate is not readiness.
+
+The current runtime enforcement milestone executes only `state: planned`,
+`execution: independent`, `depends_on: []` shells targeting the default
+branch. Other execution modes remain valid planning contracts but are rejected
+by this runtime until dependency-aware scheduling is implemented.
+
+See `settings/agent-runtime-enforcement.md`.
+
 ## Title
 
 Use Conventional Commit style:
