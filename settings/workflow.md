@@ -89,6 +89,8 @@ If a parent agent already locked the spec (task-master spawned with a goal), exe
 
 ## 6. Pull requests
 
+Before creating or updating a PR, read `settings/repository-pr-contracts.md` and inspect the target repository's current PR template/CI contract. Repository-local machine-readable metadata must stay synchronized with this overlay's dependency and ownership plan.
+
 Use `settings/pr-body.md` for ordinary PRs whose implementation is being
 delivered in the current workflow.
 
@@ -96,7 +98,7 @@ Use `settings/pr-shell.md` when creating a draft PR before implementation,
 handing implementation to another agent/model, scheduling unattended work, or
 coordinating dependency-aware parallel/sequential PR execution. A PR shell is a
 durable implementation contract: keep it draft until its ready-state rules pass,
-and let the orchestrator derive execution order from its dependency metadata.
+and let the orchestrator derive execution order from its dependency metadata. For `judigot/scaffolder`, apply the Scaffolder adapter in `settings/repository-pr-contracts.md`; `PR CI / PR Gate` is the stable PR readiness signal.
 
 Every PR must include a **manual testing checklist** a non-technical person can
 follow: numbered steps, what to click, what they should see, and how to know it
