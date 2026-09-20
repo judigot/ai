@@ -86,7 +86,19 @@ If a parent agent already locked the spec (task-master spawned with a goal), exe
 
 ## 6. Pull requests
 
-Use `settings/pr-body.md`. Every PR must include a **manual testing checklist** a non-technical person can follow: numbered steps, what to click, what they should see, and how to know it failed.
+Use `settings/pr-body.md` for ordinary PRs whose implementation is being
+delivered in the current workflow.
+
+Use `settings/pr-shell.md` when creating a draft PR before implementation,
+handing implementation to another agent/model, scheduling unattended work, or
+coordinating dependency-aware parallel/sequential PR execution. A PR shell is a
+durable implementation contract: keep it draft until its ready-state rules pass,
+and let the orchestrator derive execution order from its dependency metadata.
+
+Every PR must include a **manual testing checklist** a non-technical person can
+follow: numbered steps, what to click, what they should see, and how to know it
+failed. Infrastructure-only work may use a checks-based verification flow when
+there is no meaningful user-facing manual path.
 
 ## 7. Self-audit
 
