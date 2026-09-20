@@ -57,6 +57,7 @@ Do not implement production code.
 8. Keep future work in `Out of scope`; do not let Luna infer roadmap scope.
 9. Prefer behavior/invariants over framework-specific source similarity.
 10. A valid shell must pass the completeness gate in `settings/pr-shell.md`.
+11. Apply `settings/repository-pr-contracts.md`; for Scaffolder, derive `depends_on`, `stacked_on`, and `touch_set` from the shell before implementation begins.
 
 ## PR-shell creation
 
