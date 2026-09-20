@@ -27,7 +27,14 @@ Map the PR shell to this block:
 - `stacked_on`: `main` when no prerequisite is still open; otherwise the one
   immediate open prerequisite PR.
 - `touch_set`: the smallest repository path prefixes covering the shell's
-  writable ownership. Use path prefixes, not globs.
+  writable ownership. Use literal path prefixes, not globs. The hardened
+  one-shot executor rejects duplicate `touch_set` declarations and malformed,
+  absolute, or traversal paths. Leading dots are significant: `.github/` is
+  not `github/`.
+
+For unattended Agent Workspace one-shot execution, the PR must also remain
+draft and an independent PR must target the repository default branch. The
+trusted batch preflight validates these conditions before model spend.
 
 Scaffolder PR CI enforces:
 
