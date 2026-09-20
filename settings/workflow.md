@@ -72,6 +72,10 @@ do not claim full validation. These qualifications also apply to delivery skills
 - Write the failing test first. Commit it. Then write the minimum code that makes it pass.
 - **CI is the success signal.** Local tests are a preview. Do not treat the task as done while CI is red or missing for a change that should be covered.
 - Users will often only look at CI. Make that status trustworthy.
+- Optimize PR CI for iteration speed, but keep production deployment fail-closed.
+  Do not let a production deployment start while required business-critical
+  checks are failing, cancelled, missing, or still running. Prefer parallel
+  validation followed by an explicit dependency-gated deploy.
 
 ## 4. Mini commits, push early
 
