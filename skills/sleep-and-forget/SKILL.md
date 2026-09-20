@@ -219,6 +219,13 @@ A textual completion claim never overrides repository state.
 After integration, the trusted workflow verifies scope, commits/pushes, and the
 repository's CI/PR gate remains the completion authority.
 
+The hardened executor also exposes a target-PR implementation status:
+- blocked/failed → failing `Agent Workspace / Implementation` on the unchanged
+  PR head, with the recovery checkpoint kept out of the normal readiness path;
+- implemented → successful implementation status only after the verified push.
+
+This implementation status is separate from the repository's required PR gate.
+
 Workers follow `skills/tdd-ci/SKILL.md`.
 
 ## Token economy
