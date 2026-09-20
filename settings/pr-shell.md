@@ -326,7 +326,7 @@ states, persistence shapes, or other cross-task interfaces.
 
 Example:
 
-```markdown
+````markdown
 ## Interfaces and contracts
 
 ### Product search
@@ -346,7 +346,7 @@ interface ISearchResponse {
 - Empty query: return the repository-standard validation response.
 - Empty result: `products: []`.
 - UI loading and error behavior follow the existing product-list conventions.
-```
+````
 
 Do not invent interface detail merely to fill this section. If no cross-task
 interface is needed, write `None`.
@@ -623,6 +623,7 @@ without inventing product decisions:
 - What may I change?
 - What must I not change?
 - What work must already exist?
+- Which shared interfaces/data shapes are locked?
 - Can I run in parallel?
 - What tests prove completion?
 - What checks must pass?
