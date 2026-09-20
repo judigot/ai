@@ -114,9 +114,16 @@ behavior.
 
 Delegate implementation-ready shells to Luna using `agents/task-master.md`.
 
+Prefer one-shot PR execution when the PR shell is complete. The durable state is
+the PR description, branch, commits, and CI; a persistent model conversation is
+not required.
+
+Each executable PR gets its own isolated runner/process and checkout. Independent
+PRs may run concurrently when their writable ownership does not overlap.
+
 Each worker gets:
 
-- one PR/worktree;
+- one PR/worktree or isolated checkout;
 - goal;
 - owned paths/areas;
 - do-not-touch boundaries;
@@ -125,9 +132,23 @@ Each worker gets:
 - parent gate;
 - concise completion-report format.
 
+Inside each PR, use the Luna retry chain defined in
+`settings/agent-orchestration.md`:
+
+1. Luna-low parent delegates to fresh Luna-low worker A.
+2. Parent verifies the filesystem/diff against the locked contract.
+3. If incomplete, parent delegates the same task to fresh worker B.
+4. Parent verifies again.
+5. If still incomplete, the same Luna-low parent completes the bounded task.
+6. The trusted workflow verifies scope and CI remains the completion authority.
+
+Do not trust a subagent's textual claim over the actual diff. Do not broaden
+ownership during retry or parent fallback.
+
 Workers follow `skills/tdd-ci/SKILL.md`.
 
-Default maximum: three concurrent implementation workers.
+Default maximum: three concurrent implementation workers unless the user or the
+execution environment explicitly selects another safe concurrency limit.
 
 ## Token economy
 

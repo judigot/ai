@@ -482,10 +482,18 @@ contract instead of satisfying it.
 ## Worker completion report
 
 Workers keep this concise so a higher-tier model does not need their full
-transcript:
+transcript. For one-shot execution, record which executor actually completed
+the task so retries and parent fallbacks remain observable without preserving a
+model conversation:
 
 ```markdown
 ## Worker completion report
+
+### Execution
+
+- Parent route: Luna low
+- Completed by: worker A | worker B | parent fallback | other
+- Retry/fallback reason: none
 
 ### Implementation
 
@@ -533,7 +541,8 @@ When discovering multiple shells, the orchestrator must:
 4. classify currently executable nodes;
 5. check writable ownership overlap;
 6. choose independent, sequential, stacked, or foundation execution;
-7. allocate isolated worktrees for concurrent implementation;
+7. allocate an isolated runner/process and checkout or worktree per concurrent
+   PR implementation;
 8. route bounded implementation using `settings/agent-orchestration.md`;
 9. advance shell state as work progresses;
 10. mark shells ready only after their ready-state rules pass.
@@ -697,4 +706,12 @@ Escalate when:
 ## Worker completion report
 
 Pending implementation.
+
+When implementation completes, include:
+
+- Parent route/model and reasoning effort
+- Completed by: worker A, worker B, parent fallback, or other
+- Retry/fallback reason when applicable
+- Concise implementation, files, acceptance, verification, ownership, and
+  remaining-failure summary
 ````

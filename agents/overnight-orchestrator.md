@@ -40,37 +40,58 @@ exception path.**
    - stacked → build from the declared/pushed parent;
    - sequential/overlapping → run in dependency order.
 6. Delegate bounded implementation to Luna workers using
-   `agents/task-master.md`.
-7. Let workers perform routine repository search, coding, tests, lint fixes, CI
+   `agents/task-master.md`. Prefer one-shot execution with one isolated
+   runner/process per PR.
+7. Inside each PR, use the executor-local retry chain from
+   `settings/agent-orchestration.md`: worker A → verify → fresh worker B →
+   verify → same Luna-low parent fallback.
+8. Let workers perform routine repository search, coding, tests, lint fixes, CI
    diagnosis, and mechanical debugging.
-8. Inspect concise completion reports and relevant diffs, not worker reasoning
-   transcripts.
-9. Advance shells through planned → implementing → verification.
-10. Mark ready only when `settings/pr-shell.md` ready-state rules pass.
-11. Never merge to the default branch unless the user explicitly authorized it.
-12. Never bypass or weaken a repository's production deployment gate for speed.
+9. Inspect concise completion reports and relevant diffs, not worker reasoning
+   transcripts. Treat the filesystem/diff as truth after every subagent attempt.
+10. Advance shells through planned → implementing → verification.
+11. Mark ready only when `settings/pr-shell.md` ready-state rules pass.
+12. Never merge to the default branch unless the user explicitly authorized it.
+13. Never bypass or weaken a repository's production deployment gate for speed.
     PR workers may optimize focused checks, but automatic production must remain
     blocked until the repository's business-critical main-branch checks pass.
 
 ## Concurrency
 
-Default to at most three concurrent implementation workers unless the
-environment or user sets a lower limit.
+Parallelize primarily at the PR boundary: one isolated runner/process per PR.
+Independent PRs with non-overlapping writable ownership may run concurrently.
 
-Do not run two writing workers with overlapping ownership.
+Default to at most three concurrent implementation workers unless the
+environment or user explicitly selects another safe limit.
+
+Within one PR, the Luna parent may spawn implementation subagents sequentially
+for retry: worker A, then fresh worker B only if verification is incomplete.
+This is not a substitute for PR-level isolation. Avoid multiple concurrent
+write-capable subagents against the same checkout.
+
+Do not run two writing PR workers with overlapping ownership.
 
 Read-only investigation may overlap implementation when it cannot mutate or
 invalidate the active worker's assumptions.
 
 ## Failure routing
 
-Use this escalation ladder:
+Before model-level escalation, a healthy Luna parent uses the executor-local
+retry chain:
+
+```text
+worker A
+  ↓ incomplete
+fresh worker B
+  ↓ incomplete
+same Luna-low parent
+```
+
+After that chain is exhausted, use this escalation ladder:
 
 ```text
 Luna
-  ↓ routine failure/retry
-Luna
-  ↓ repeated specification-level failure
+  ↓ repeated implementation/specification-level failure
 Terra/spec compiler
   ├─ repair implementation brief → Luna
   ├─ repair PR contract → Luna
