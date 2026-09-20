@@ -18,6 +18,7 @@ metadata from the PR shell.
 depends_on: none
 stacked_on: main
 touch_set: src/example/,files/Projects/hono-react/
+required_checks: PR Gate
 -->
 ```
 
@@ -27,7 +28,11 @@ Map the PR shell to this block:
 - `stacked_on`: `main` when no prerequisite is still open; otherwise the one
   immediate open prerequisite PR.
 - `touch_set`: the smallest repository path prefixes covering the shell's
-  writable ownership. Use path prefixes, not globs.
+  writable ownership. Use path prefixes, not globs. Preserve leading dots in
+  dotfiles/directories exactly; invalid/empty/traversal/absolute entries fail
+  closed in the trusted one-shot runtime.
+- `required_checks`: exact GitHub Check Run or commit-status context names the
+  readiness monitor must observe. For Scaffolder this includes `PR Gate`.
 
 Scaffolder PR CI enforces:
 
@@ -79,6 +84,21 @@ pipeline already calls them.
 Legacy or secondary deployment paths must not bypass the canonical production
 gate. In Scaffolder, the legacy EC2 deployment is manual-only; Vercel
 `Production CI/CD` is the single automatic production path.
+
+## Agent Workspace one-shot preflight
+
+For unattended parallel implementation, repository metadata is not only
+documentation: the trusted runtime preflights the whole requested batch before
+Codex starts. It rejects missing/invalid touch sets, overlapping independent
+ownership, incomplete PR-shell contracts, dependency cycles, and unsupported
+dependency arrangements.
+
+The first enforcement milestone intentionally supports independent PRs with no
+dependencies only. Do not expect stacked/sequential execution to run merely
+because the repository contract can describe it.
+
+Read `settings/agent-runtime-enforcement.md` for the ENFORCED / INSTRUCTED /
+VERIFIED boundary.
 
 ## Agent responsibilities
 
