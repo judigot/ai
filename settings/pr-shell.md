@@ -19,11 +19,16 @@ parallel/sequential scheduling. Ordinary completed PRs continue to use
 - `depends_on` is the canonical dependency direction. Derive reverse
   dependencies instead of maintaining a second list.
 - Two active workers must not have overlapping writable ownership.
+- Repository-native PR metadata must agree with this shell's dependency and ownership contract; see `settings/repository-pr-contracts.md`.
 - Acceptance criteria describe observable behavior, not source-code similarity.
 - Workers may not weaken acceptance criteria to fit an implementation.
 - CI is the final success signal when CI applies.
 - The orchestrator, not the implementation worker, decides when a shell becomes
   ready for review.
+
+## Repository PR adapter
+
+Before opening or updating a shell, apply `settings/repository-pr-contracts.md`. If the target repository requires machine-readable dependency, stacking, or ownership metadata, derive it from this shell instead of inventing a second plan. For `judigot/scaffolder`, keep `depends_on`, `stacked_on`, and `touch_set` synchronized with the shell and treat `PR CI / PR Gate` as the stable PR readiness signal.
 
 ## Title
 
