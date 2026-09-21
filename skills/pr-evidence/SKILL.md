@@ -421,11 +421,13 @@ readiness signal; the human-facing video remains supporting evidence.
 - Reusing evidence after the target PR head moves.
 - Letting a video replace stronger machine assertions for nonvisual behavior.
 
-## Canonical reference
+## Canonical references
 
-The execution/readiness contract lives in:
+The authoritative contracts live in:
 
-`judigot/agent-workspace/docs/evidence-backed-readiness.md`
+- `judigot/agent-workspace/docs/pr-implementation-video-evidence-invariants.md`
+  for the implement → record → attach lifecycle and publication invariants;
+- `judigot/agent-workspace/docs/evidence-backed-readiness.md`
+  for orchestration, Evidence Gate, and exact-SHA readiness.
 
-That document is authoritative for orchestration and exact-SHA readiness.
-This skill is the agent-facing operating guidance for following that contract.
+This skill is the agent-facing operating guidance for following those contracts.
