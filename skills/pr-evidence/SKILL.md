@@ -1,153 +1,271 @@
 ---
 name: pr-evidence
-description: Capture and publish unattended screenshots or demo video as review evidence when a user asks for PR or ticket UI evidence, a demo video, a screenshot for GitHub or Linear, proof that a UI fix works, or Playwright recording for review.
+description: Capture and publish unattended screenshots or demo video as review evidence when a user asks for PR or ticket UI evidence, a demo video, a screenshot for GitHub or Linear, proof that a UI fix works, or Playwright recording for review. Prefer judigot/agent-workspace as the execution/orchestration environment and judigot/app-screencast as the reusable recording toolkit.
 ---
 
 # PR and ticket UI evidence
 
-Use this skill for review evidence, not product functionality. Capture a real,
-meaningful journey using the product's existing Playwright installation, inspect
-the artifacts, and publish them without polluting the product repository.
+Use this skill for review evidence and recording-capability demos, not product
+functionality.
+
+The default architecture is:
+
+```text
+judigot/agent-workspace
+  = recording execution/orchestration
+  -> isolated cloud runner
+  -> checkout target repo @ exact SHA
+  -> checkout/use pinned judigot/app-screencast
+  -> start target app or public-site fixture
+  -> execute scenario
+  -> retain/publish evidence
+
+judigot/app-screencast
+  = reusable recording toolkit
+  -> Playwright capture helpers
+  -> pointer / labels / zoom
+  -> composition / ffmpeg export
+  -> media validation
+  -> narration / manifests / technical evidence as those capabilities land
+
+target repository
+  = application under test
+  -> product source
+  -> optional thin scenario or host adapter
+  -> product assertions/selectors when needed
+```
+
+Do not put the generic recording runner into every target repository. The target
+is what gets recorded; `agent-workspace` is where recording work is scheduled
+and executed.
+
+## Ownership rules
+
+### agent-workspace owns
+
+- cloud/GitHub Actions execution;
+- isolated workspaces and per-run identities;
+- checking out the target repository at the exact PR SHA;
+- checking out or installing a pinned `app-screencast` revision;
+- target bootstrap and readiness orchestration;
+- recording-job scheduling and concurrency;
+- artifact retention/publication;
+- association of evidence with repository, PR, and exact SHA;
+- eventual Evidence Gate/readiness integration.
+
+### app-screencast owns
+
+- generic Playwright recording helpers;
+- fake pointer, labels, zoom, and presentation behavior;
+- WebM/MP4 capture and ffmpeg composition;
+- media validation;
+- reusable public-site capability fixtures;
+- narration/audio composition when implemented;
+- evidence manifests and sanitized technical-evidence primitives when implemented.
+
+### target repository owns
+
+Only target-specific facts that cannot safely be inferred, such as:
+
+- startup command and base URL;
+- readiness probe;
+- deterministic seed/reset;
+- actors/authentication entry points;
+- scenario steps;
+- selectors and expected product assertions;
+- cleanup.
+
+A target repository may eventually expose these through a small convention such
+as:
+
+```text
+.agent/evidence/
+  booking-confirmation.ts
+  host-adapter.ts
+```
+
+The exact target-adapter format is not yet canonical. Do not invent a large
+framework in the product repository to compensate.
 
 ## Principles
 
-- Do not add packages whose primary purpose is demo video (`human-cursor`,
-  `testreel`, `demohunter`, or `playwright-recast`) to the product app's
-  `package.json`. Playwright remains allowed when it is the app's real E2E tool.
-- Keep PNG, WebM, and MP4 artifacts in a local wrapper directory such as
-  `pr-evidence/out/`. Never commit them to the product repository unless the
-  user explicitly asks.
-- Make the GitHub PR comment the default video surface. Attach an MP4 so the
-  reviewer can play it inline. Comment on the Linear ticket with the PR comment
-  URL; do not assume Linear provides equivalent inline playback.
-- Watch screenshots and inspect the final video. State which acceptance criteria
-  each artifact proves and what the reviewer should see.
-- Make capture fully unattended: a wrapper script must run bootstrap, recording,
-  conversion, upload, and reporting without prompts. It may be started with
-  `nohup` or `&` and a log file.
+- Keep generic screencast orchestration outside the product repository.
+- Do not add demo-video packages such as `human-cursor`, `testreel`,
+  `demohunter`, or `playwright-recast` to the target app's
+  `package.json`.
+- Do not copy `app-screencast` helpers into the target repository.
+- If the product already uses Playwright, reuse its application-level selectors,
+  fixtures, or assertions when useful, but keep recording/composition machinery
+  in the toolkit.
+- Pin the `app-screencast` revision used by unattended evidence runs. Evidence
+  must not silently float to an unreviewed toolkit revision.
+- Keep PNG, WebM, MP4, trace, and temporary output outside the target Git
+  worktree or in ignored run directories. Never commit evidence binaries unless
+  the user explicitly requests it.
+- Inspect the final artifact. A green Playwright assertion is not visual
+  confirmation.
+- State which acceptance criteria each artifact proves.
+- Keep secrets, authentication headers, cookies, tokens, personal information,
+  and unrelated notifications out of published evidence.
 
-## Prerequisites
+## Capability demo versus PR evidence
 
-- Use the product-local `./node_modules/.bin/playwright` or `pnpm exec
-  playwright` from the app directory. Do not globally install Playwright for an
-  app test; its browser and runner versions must match the project.
-- Install `ffmpeg` on the workstation for WebM-to-MP4 conversion.
-- Require a current `gh` that exposes `gh pr comment --attach`; verify with
-  `gh pr comment --help` rather than assuming a version number. Uploads need a
-  GitHub.com or GHE.com account token with repository write, maintain, or admin
-  permission; GitHub App tokens and GHES are unsupported for attachments.
-- Use Docker or a project bootstrap only when the existing E2E flow already
-  needs it. Keep credentials and secret entry out of screenshots and recordings.
+A public-site fixture is valid when the goal is to showcase or test
+`app-screencast` itself.
 
-## Record the journey
+Example:
 
-1. List the ticket acceptance criteria. Select a short, meaningful Playwright
-   test or grep pattern that proves them, using test data and an isolated test
-   environment.
-2. Add an evidence-only environment switch to the existing Playwright config if
-   needed. Keep CI's normal retention policy unchanged. For evidence runs use
-   one worker, `video: 'on'`, a stable 1280×720 viewport, and
-   `preserveOutput: 'always'`. Playwright finalizes video when its browser
-   context closes. For example:
+```text
+agent-workspace
+  -> app-screencast public-site scenario
+  -> Playwright docs + Wikipedia
+  -> side-by-side / multi-window MP4
+```
 
-   ```ts
-   const evidenceRun = process.env.PW_RECORD_VIDEO === '1';
+That proves recording capabilities such as pointer movement, typing, labels,
+zoom, scrolling, multiple contexts, composition, and media export.
 
-   export default defineConfig({
-     preserveOutput: evidenceRun ? 'always' : 'failures-only',
-     use: {
-       video: evidenceRun
-         ? { mode: 'on', size: { width: 1280, height: 720 } }
-         : 'retain-on-failure',
-     },
-   });
-   ```
-3. For readable pacing, make an existing config's launch `slowMo` conditional
-   on `PW_SLOW_MO`; use `pressSequentially` with a short delay for login or PIN
-   fields and short evidence-only waits after meaningful saves or navigation.
-   Prefer locator and condition waits over arbitrary long sleeps.
-4. On current Playwright versions, prefer native video annotations before adding
-   a sidecar: `video.show.actions.cursor: 'pointer'` displays a cursor
-   decoration and action labels. This is the cleanest unattended cursor option.
-   If a project is pinned to an older version or needs a polished narrated tour,
-   use a separate tools/wrapper install instead.
-5. Run only the selected test. Find the newest `.webm` under the run's output
-   directory, then make a compatible, streaming-friendly MP4:
+It does **not** prove anything about a selected target repository. Do not attach
+a public-site capability demo to a Scaffolder PR and describe it as evidence
+that Scaffolder behavior passed.
 
-   ```sh
-   ffmpeg -y -i "$webm" -c:v libx264 -pix_fmt yuv420p -movflags +faststart -an "$mp4"
-   ```
+Actual PR evidence must execute the target app at the exact target SHA.
 
-   Keep clips focused (roughly 30–90 seconds) and compressed enough for the
-   repository's GitHub attachment allowance.
-6. Inspect representative screenshots and play the converted MP4. A passing
-   assertion is not visual confirmation. For failures, keep a Playwright trace
-   for debugging, but do not use it as executive review evidence.
+## Execution flow
 
-## Publish
+For target evidence, prefer this sequence:
 
-Use the wrapper template as a starting point. Its final action should attach the
-video, not commit it:
+1. Resolve the target repository, PR number, and exact current head SHA.
+2. Start an isolated `agent-workspace` evidence runner.
+3. Checkout the target repository at that exact SHA.
+4. Checkout or install a pinned `judigot/app-screencast` revision in a
+   separate tools directory.
+5. Bootstrap only the target dependencies/services required by the scenario.
+6. Load the target-specific scenario/adapter, if one is required.
+7. Execute the scenario through `app-screencast`.
+8. Run product assertions as well as media validation.
+9. Inspect representative screenshots/frames and the final video.
+10. Publish the evidence artifact and associate it with the target PR/SHA.
+11. Before declaring readiness, re-check that the PR head is still the SHA that
+    was recorded.
+
+A moved target head invalidates the old evidence.
+
+## Scenario selection
+
+Choose the shortest journey that proves the acceptance criteria.
+
+Prefer:
+
+- deterministic test data;
+- isolated user/session state;
+- explicit product assertions;
+- condition-based waits;
+- a focused 30–90 second review video when possible.
+
+For multiple actors, use separate browser contexts. If simultaneous visibility
+materially helps the reviewer understand the behavior, use side-by-side
+composition.
+
+For a visual-only change, a PNG may be sufficient. For a multi-step workflow,
+use MP4. Use Playwright traces for debugging rather than as executive review
+evidence.
+
+## Target-app Playwright
+
+Do not globally install a second Playwright copy just to test an application.
+
+When the scenario needs the target app's existing Playwright fixtures or
+selectors, use its pinned project dependencies for the application-level test
+contract. The recording toolkit may have its own pinned Playwright dependency
+in its separate tools checkout.
+
+Keep these roles distinct:
+
+```text
+target Playwright
+  = app fixtures / selectors / assertions, when needed
+
+app-screencast Playwright
+  = recording presentation and capture tooling
+```
+
+Do not mutate the target lockfile merely to enable evidence recording.
+
+## Media output
+
+Use the toolkit's export and validation path rather than duplicating ffmpeg
+commands in every product repository.
+
+At minimum, validate that:
+
+- the expected video exists and is non-empty;
+- duration covers the final meaningful state;
+- resolution/container/codec match the declared profile;
+- the final frames were not truncated;
+- audio exists when the evidence profile requires it.
+
+When narration/audio support is not implemented for the selected toolkit
+revision, say so explicitly rather than presenting a silent capability demo as
+the canonical narrated showcase.
+
+## Publication
+
+Until the trusted Evidence Gate and manifest path is implemented end-to-end,
+GitHub Actions artifacts and PR attachments/comments are acceptable review
+surfaces.
+
+When attaching a video directly to a PR, keep the attachment operation in the
+trusted wrapper/orchestration layer rather than embedding GitHub publication
+logic in the product application.
+
+For example:
 
 ```sh
 gh pr comment "$PR_NUMBER" \
-  --body "**Evidence (video)** — click Play below." \
+  --body "**Evidence (video)** — exact head: $TARGET_SHA" \
   --attach "$mp4"
 ```
 
-Repeat `--attach` for PNG screenshots when they add useful still-state evidence.
-Capture the comment URL from `gh` output or `gh pr view --json comments`, open
-it to confirm the attachment rendered, then place that URL in a Linear comment.
-If upload partially fails, treat the command as failed even if earlier files
-were attached; inspect the PR before retrying to avoid duplicate comments.
+Open the resulting PR comment and confirm the attachment rendered. If the PR
+head has changed, do not call the old recording current evidence.
 
-## Wrapper layout
-
-Keep the app and evidence tooling adjacent but separate:
-
-```text
-~/work/<project>/
-  app/                 # product clone
-  pr-evidence/         # local-only wrapper: scripts, logs, out/, optional tools
-```
-
-Copy and customize
-[`attach-pr-video.sh.template`](scripts/attach-pr-video.sh.template) into the
-wrapper. It can bootstrap the existing E2E dependencies, execute one test by
-grep, locate the artifact, transcode it, and attach it to the PR. It must not be
-copied into products automatically.
-
-## Choose the artifact
-
-| Need | Use |
-| --- | --- |
-| Still UI or one screen | PNG attached to the PR comment |
-| Multi-step admin or customer flow | MP4 attached to the PR comment |
-| Diagnose a test failure | Playwright trace, not a review video |
-
-## Optional sidecar tools
-
-Install these only in `~/tools/<name>/`, a wrapper `package.json`, or another
-dedicated tools location. Link to their documentation; do not clone or vendor
-them into the product.
-
-- [demo-machine](https://github.com/45ck/demo-machine): YAML-driven demos with cursor capture.
-- [testreel](https://github.com/sneg55/testreel): JSON workflows and a Playwright fixture with cursor support.
-- [playwright-recast](https://github.com/Andy2003/playwright-recast): post-processes traces or WebM for a polished result.
-- [demohunter](https://github.com/emilwareus/demohunter): heavier narrated tours.
+When Evidence Gate support exists, the manifest/check result becomes the trusted
+readiness signal; the human-facing video remains supporting evidence.
 
 ## Before declaring evidence done
 
-- [ ] Acceptance criteria are mapped to screenshots or phases of the video.
-- [ ] Screenshots were visually inspected; the expected viewer experience is stated for every video phase.
-- [ ] The E2E test is green, or its failure is disclosed honestly in the PR comment.
-- [ ] The MP4 and any PNGs are attached to the PR, and the rendered PR comment was opened and verified.
-- [ ] The Linear ticket has a link to that GitHub PR comment.
-- [ ] No evidence binary or demo-only package was added to the product repository.
+- [ ] Target repository and PR are correct.
+- [ ] Evidence was generated for the exact target head SHA.
+- [ ] Generic recording orchestration ran outside the target repository.
+- [ ] `app-screencast` revision was pinned.
+- [ ] Product assertions passed, or failures are disclosed.
+- [ ] Media validation passed.
+- [ ] Screenshots/frames and the final video were actually inspected.
+- [ ] Acceptance criteria are mapped to evidence.
+- [ ] Secrets/private data are absent from published artifacts.
+- [ ] The target PR head still matches the recorded SHA.
+- [ ] No demo-only dependency, generic recording workflow, or evidence binary
+      was added to the product repository unnecessarily.
 
 ## Anti-patterns
 
-- Adding video capture packages to the product app.
-- Globally installing Playwright for an app test.
-- Posting only a Drive or Loom URL when the reviewer needs GitHub inline playback.
-- Claiming visual verification without opening the artifacts.
+- Putting the generic screencast GitHub Actions workflow in every target repo.
+- Treating `scaffolder` or another product repository as the recording
+  orchestrator.
+- Copying `app-screencast` helpers into the product.
+- Adding demo-only video packages to the product app.
+- Mutating the product lockfile only for evidence recording.
+- Calling a public-site capability demo proof of target-app behavior.
+- Claiming visual verification without opening the artifact.
+- Reusing evidence after the target PR head moves.
+- Letting a video replace stronger machine assertions for nonvisual behavior.
+
+## Canonical reference
+
+The execution/readiness contract lives in:
+
+`judigot/agent-workspace/docs/evidence-backed-readiness.md`
+
+That document is authoritative for orchestration and exact-SHA readiness.
+This skill is the agent-facing operating guidance for following that contract.
