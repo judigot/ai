@@ -108,6 +108,156 @@ framework in the product repository to compensate.
 - Keep secrets, authentication headers, cookies, tokens, personal information,
   and unrelated notifications out of published evidence.
 
+## Implementation video evidence invariants
+
+These are non-negotiable for normal product PR evidence. The authoritative
+contract is
+`judigot/agent-workspace/docs/pr-implementation-video-evidence-invariants.md`.
+
+### VE-001 — Implement before recording
+
+The requested product behavior must exist on the PR branch before the evidence
+recording begins.
+
+Correct:
+
+```text
+implement
+  -> test
+  -> push
+  -> record
+  -> attach video to the same PR
+```
+
+Never record a mock/surrogate first and present it as proof of later
+implementation.
+
+### VE-002 — Record the exact implementation head
+
+Freeze the current PR head SHA before evidence generation. Record that exact
+SHA. Re-check the PR head before publication and readiness.
+
+If the head moved, the old recording is stale. Re-record the new head.
+
+### VE-003 — Show the acceptance criterion directly
+
+The scenario must demonstrate the behavior the PR implements.
+
+Example:
+
+```text
+PR: add a "Say Hello" button that alerts "Hello World"
+
+evidence:
+  open implemented target app
+  -> show Say Hello button
+  -> click it
+  -> visibly show alert containing Hello World
+  -> attach video to that implementation PR
+```
+
+Prefer the shortest scenario that makes the acceptance criterion obvious.
+
+### VE-004 — Keep machine verification
+
+Video supplements tests/assertions. It does not replace them when the behavior
+can be verified automatically.
+
+For the Hello World example, prefer both:
+
+- an automated assertion for the alert text;
+- a video showing the reviewer the same behavior.
+
+### VE-005 — Keep recording infrastructure outside the product repo
+
+`agent-workspace` owns execution/orchestration/publication.
+`app-screencast` owns reusable capture/composition/media tooling.
+The target repository owns the implementation and only thin target-specific
+scenario/adapter facts when necessary.
+
+Do not add generic recording workflows, ffmpeg composition code, copied
+screencast helpers, or demo-only dependencies to the implementation PR.
+
+### VE-006 — Record the target application
+
+Product implementation evidence must exercise the target application at the
+exact PR head.
+
+Public-site recordings are capability demos only. They may test the recording
+pipeline, but they are never proof that the target implementation works.
+
+### VE-007 — Requested publication surface is part of success
+
+If the user asks for the video on the PR, the task is not complete when an MP4
+exists or when an Actions artifact uploads successfully.
+
+The playable video must appear in the implementation PR conversation.
+
+### VE-008 — Upload and comment may use separate trusted credentials
+
+GitHub attachment upload and PR comment creation can have different permission
+requirements.
+
+A valid trusted publication flow may therefore be:
+
+```text
+trusted uploader
+  -> upload MP4 to GitHub user attachments
+  -> receive github.com/user-attachments/assets/<id>
+
+trusted commenter
+  -> post that GitHub-hosted URL to the implementation PR
+```
+
+Do not expose credentials. Do not use a temporary signed download URL as the
+durable PR evidence URL.
+
+### VE-009 — Verify publication after writing
+
+After posting evidence:
+
+- fetch the PR conversation;
+- confirm the expected comment exists;
+- confirm it references the intended GitHub-hosted video;
+- when browser access is available, confirm it renders/plays in the PR UI.
+
+Do not declare evidence complete from the upload command alone.
+
+### VE-010 — Clean temporary orchestration state
+
+After one-shot evidence/publication work:
+
+- restore temporary agent task hooks such as `.agent/run.sh` to their canonical
+  no-op state;
+- remove temporary signed URLs/scripts/files;
+- do not leave publication machinery queued.
+
+Reusable behavior belongs in the canonical runner.
+
+### VE-011 — Evidence failure blocks evidence-required readiness, not implementation truth
+
+A recording/publication failure does not mean the implementation itself is
+wrong if its machine verification is green. It does mean an evidence-required
+PR is not ready.
+
+Retry evidence against the same SHA, or against the new SHA if the PR moved.
+
+### VE-012 — Zero-diff evidence PRs are demo fixtures only
+
+A PR containing one empty commit, zero changed files, and only a video comment
+is valid for testing the evidence-publication pipeline.
+
+It is **not** the normal implementation workflow.
+
+The canonical product workflow is always:
+
+```text
+implementation PR with real code changes
+  -> implementation verified
+  -> exact implementation head recorded
+  -> video attached to that same PR
+```
+
 ## Capability demo versus PR evidence
 
 A public-site fixture is valid when the goal is to showcase or test
@@ -133,21 +283,31 @@ Actual PR evidence must execute the target app at the exact target SHA.
 
 ## Execution flow
 
+For normal product PR evidence, implementation is already complete enough to be
+verified before this evidence flow starts.
+
 For target evidence, prefer this sequence:
 
-1. Resolve the target repository, PR number, and exact current head SHA.
-2. Start an isolated `agent-workspace` evidence runner.
-3. Checkout the target repository at that exact SHA.
-4. Checkout or install a pinned `judigot/app-screencast` revision in a
+1. Confirm the requested implementation is present and its prerequisite machine
+   verification has passed.
+2. Resolve the target repository, implementation PR number, and exact current
+   head SHA.
+3. Start an isolated `agent-workspace` evidence runner.
+4. Checkout the target repository at that exact SHA.
+5. Checkout or install a pinned `judigot/app-screencast` revision in a
    separate tools directory.
-5. Bootstrap only the target dependencies/services required by the scenario.
-6. Load the target-specific scenario/adapter, if one is required.
-7. Execute the scenario through `app-screencast`.
-8. Run product assertions as well as media validation.
-9. Inspect representative screenshots/frames and the final video.
-10. Publish the evidence artifact and associate it with the target PR/SHA.
-11. Before declaring readiness, re-check that the PR head is still the SHA that
-    was recorded.
+6. Bootstrap only the target dependencies/services required by the scenario.
+7. Load the target-specific scenario/adapter, if one is required.
+8. Execute the shortest scenario that visibly proves the relevant acceptance
+   criteria.
+9. Run product assertions as well as media validation.
+10. Inspect representative screenshots/frames and the final video.
+11. Re-check that the implementation PR head is still the recorded SHA.
+12. Upload the video to durable GitHub-hosted media.
+13. Attach/post the playable video to the **same implementation PR** with
+    acceptance-criterion and source-SHA context.
+14. Fetch the PR conversation and verify that publication succeeded.
+15. Only then report evidence completion/readiness for that exact SHA.
 
 A moved target head invalidates the old evidence.
 
@@ -261,11 +421,13 @@ readiness signal; the human-facing video remains supporting evidence.
 - Reusing evidence after the target PR head moves.
 - Letting a video replace stronger machine assertions for nonvisual behavior.
 
-## Canonical reference
+## Canonical references
 
-The execution/readiness contract lives in:
+The authoritative contracts live in:
 
-`judigot/agent-workspace/docs/evidence-backed-readiness.md`
+- `judigot/agent-workspace/docs/pr-implementation-video-evidence-invariants.md`
+  for the implement → record → attach lifecycle and publication invariants;
+- `judigot/agent-workspace/docs/evidence-backed-readiness.md`
+  for orchestration, Evidence Gate, and exact-SHA readiness.
 
-That document is authoritative for orchestration and exact-SHA readiness.
-This skill is the agent-facing operating guidance for following that contract.
+This skill is the agent-facing operating guidance for following those contracts.
