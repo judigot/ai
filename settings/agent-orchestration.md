@@ -267,6 +267,11 @@ an already-used/invalid refresh token, stop before implementation and require a
 fresh trusted login/reseed; never move auth payloads through artifacts, logs, or
 worker handoffs.
 
+When this full reauthentication is required, the chat/controller agent should
+surface the canonical single copy-paste terminal block from
+`settings/execution-enforcement.md`. Do not split it into several manual steps
+unless the user asks for troubleshooting.
+
 Retry a model-specific transient failure at most twice before trying the next
 eligible model in the same role. A shared-pool exhaustion skips every model in
 that pool. Authentication failures require reauthentication and a different

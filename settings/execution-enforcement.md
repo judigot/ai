@@ -110,6 +110,31 @@ content. If the refresh token has already been used and cannot refresh, stop
 before implementation and require a fresh trusted `codex login` plus reseeding
 of the existing Codex auth secret.
 
+### Chat-agent recovery UX
+
+When the chat/controller agent detects an unrecoverable Codex authentication
+failure such as `refresh_token_reused`, it should give the user one immediately
+copy-pasteable terminal block rather than fragmented commands:
+
+```sh
+codex logout || true
+codex login --device-auth
+codex login status
+
+test -s "$HOME/.codex/auth.json"
+
+base64 < "$HOME/.codex/auth.json" \
+  | tr -d '\n' \
+  | env -u GH_TOKEN -u GITHUB_TOKEN \
+      gh secret set CODEX_AUTH_JSON_B64 \
+      --repo judigot/agent-workspace
+```
+
+Keep this block intact unless the repository or secret name intentionally
+changes. The `env -u GH_TOKEN -u GITHUB_TOKEN` portion prevents injected
+environment tokens, such as GitHub Codespaces tokens, from overriding the
+user's normal GitHub CLI authentication when updating the Actions secret.
+
 ## Recovery semantics
 
 Retry the unfinished task, not the entire PR.
