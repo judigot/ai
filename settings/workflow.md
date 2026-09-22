@@ -33,6 +33,13 @@ not worktree or sprint metadata.
 
 ## 2. Route
 
+Apply explicit instructions, inspected PR contracts, and exact repository rules
+first. Only unresolved semantic workflow choices may consult Jev through Agent
+Workspace's existing adapter. Fixed/trivial tasks require no model call. Follow
+JR-001…JR-005 in `docs/typesafe-jev.md`; a `needs_review` outcome returns to the
+existing orchestrator without weakening verification or changing worker authority.
+
+
 | Situation | Do this |
 | --- | --- |
 | Ambiguous product or behavior | Clarify / fetch grill. Do not code. |

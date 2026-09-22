@@ -72,3 +72,53 @@ Agent-facing invariants:
 - VE-001…VE-012 remain authoritative for implementation evidence.
 - Keep recipe execution in observation mode until the reviewed evaluation shows
   a benefit without weaker safeguards.
+
+## Rules-first coding-task routing
+
+Apply this order before implementation. A coding task does not automatically
+require a Jev call.
+
+- **JR-001 Explicit authority first.** Follow the user's instructions, inspected
+  PR contract, and exact repository rules. A typo, mechanical rename, exact
+  command, or locked implementation plan normally needs no model classification.
+- **JR-002 Semantic choices only.** Consult Jev only when several approved routes
+  remain plausible. Reuse Agent Workspace's versioned registry and existing
+  `routeWorkflow` adapter; do not create a second recipe system or provider.
+- **JR-003 Validate or review.** Only registered IDs with validated distributions
+  may be recommended. Invalid IDs, uncertainty, unavailable service, or timeout
+  return `needs_review` and no effective recipe. The existing orchestrator resolves
+  review within its authority; ask the user only for a material unresolved decision.
+- **JR-004 No execution authority.** A selected recipe cannot grant permission,
+  change ownership/dependencies, skip checks, approve a merge, publish evidence,
+  or establish readiness. Validate recipe prerequisites and the current exact SHA
+  against the original task. Existing execution and evidence contracts still apply.
+- **JR-005 Bounded optional I/O.** Explicit routes bypass both model and catalog
+  I/O. Unresolved routing is offline unless explicitly enabled under existing data
+  and cost policy. Use the current Gateway price gate, bounded timeout, and no
+  automatic paid/provider fallback. Do not start a runner just to classify a
+  trivial task or treat a model outage as a reason to stop already specified work.
+
+The canonical implementation and caller contract are in
+[Agent Workspace workflow intelligence](https://github.com/judigot/agent-workspace/blob/main/docs/workflow-intelligence.md#rules-first-routing).
+Verify that the default-branch implementation is available before calling it. Do not claim a hosted endpoint exists from this guidance:
+the delivered interface is a server-side module/CLI, not an installed ChatGPT tool.
+
+Steps for an implementation agent:
+
+1. Read applicable instructions and identify whether the route is already fixed.
+2. Proceed directly for fixed tasks. For registered recipes, use the trusted
+   `authoritative_recipe_id` contract field or `deterministicRecipeId` code option.
+   Never infer authority from model output, commit text, or a keyword baseline.
+3. For unresolved choices, construct approved compact context preserving objective,
+   acceptance criteria, ownership, dependencies, repository/PR/SHA, verification,
+   blockers, and source references; call the existing adapter only when available
+   and allowed. Do not transmit secrets or whole transcripts for convenience.
+4. Inspect `status` and `effective_recipe_id`. `needs_review` is a normal routing
+   outcome, not implementation failure. Continue through the existing orchestrator.
+5. Validate dependencies and exclusive ownership before any parallel implementation.
+   Use Agent Workspace's supported executor; Jev cannot authorize parallelism.
+6. Implement and verify against the original contract. Required CI and requested
+   exact-SHA PR evidence remain the completion authority.
+
+Jev remains observation/recommendation only until reviewed evaluation justifies
+promotion. Mocks prove routing behavior, not model quality or latency savings.

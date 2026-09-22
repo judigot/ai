@@ -81,6 +81,15 @@ reached through another tool.
 
 ## Routing
 
+Before selecting a worker workflow, apply the rules-first policy in
+`docs/typesafe-jev.md` (JR-001…JR-005). Jev may recommend an existing recipe only
+for unresolved semantic choices. It is optional and has no execution authority;
+explicit instructions and deterministic rules take precedence without provider
+I/O. Invalid/uncertain/unavailable decisions return to this orchestrator as
+`needs_review`, not to an automatic paid fallback. The role mappings, dependency
+checks, ownership boundaries, required CI, and evidence rules below remain binding.
+
+
 ### Idea generation
 
 Use the founder/ideator tier only when the task requires original product
@@ -394,3 +403,4 @@ configuration.
 - Claude Code and OpenCode retain their own supported configuration locations.
   Do not copy credentials or MCP authentication payloads between them.
 - Each client needs its own MCP configuration even when servers are shared.
+
