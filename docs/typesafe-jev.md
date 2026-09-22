@@ -120,5 +120,16 @@ Steps for an implementation agent:
 6. Implement and verify against the original contract. Required CI and requested
    exact-SHA PR evidence remain the completion authority.
 
+## Live-provider diagnostic invariant
+
+A live catalog or evaluation failure must remain safe and actionable. Agent Workspace
+may expose only a stable error category, the failing stage (catalog, pricing,
+or evaluation), and an HTTP status when available. Never forward provider
+messages, request bodies, model state, credentials, or raw exception text to logs,
+artifacts, PR comments, or the user-facing workflow result. Preserve local policy
+codes such as missing credentials, unknown pricing, model-not-found, and paid-use
+rejection so recovery guidance remains specific. A generic fallback code is
+acceptable only when no safer classification is available.
+
 Jev remains observation/recommendation only until reviewed evaluation justifies
 promotion. Mocks prove routing behavior, not model quality or latency savings.
