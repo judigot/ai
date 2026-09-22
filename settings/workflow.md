@@ -58,7 +58,7 @@ existing orchestrator without weakening verification or changing worker authorit
 | Vercel deploy | Fetch deploy-to-vercel |
 | Turborepo | Fetch https://www.skills.sh/vercel/turborepo |
 | Vite | https://vite.dev/guide/ (no official skills.sh pack) |
-| TypeSafe / Jev requested, or semantic routing, ranking, extraction, or verification needs typed judgments | Fetch the official TypeSafe skill from `settings/references.md`; follow `docs/typesafe-jev.md`. Optional capability, not a default worker model. |
+| TypeSafe / Jev requested, or semantic routing, ranking, extraction, verification, or development-workflow classification needs typed judgments | Fetch the official TypeSafe skill from `settings/references.md`; follow `docs/typesafe-jev.md`. For workflow distillation/recipe selection, Agent Workspace is authoritative and Jev remains observation-only. |
 | Hono / Zod / Playwright / lint | Overlay rules + `lint-master` / `tdd-ci`. No official maker pack. |
 | Fast client MVP / generate app from schema / Scaffolder | `skills/scaffolder/SKILL.md`. Draft PR on the target repo. Do not write `main`. |
 | "Is there a skill for X?" | Official makers first (https://skills.sh/official), then the catalog |
@@ -119,4 +119,3 @@ there is no meaningful user-facing manual path.
 ## 7. Self-audit
 
 Before stopping, follow `skills/self-audit/SKILL.md`. Fix applicable failures and report checks or delivery steps that remain blocked. Do not claim tests passed or work was published when it was not.
-
