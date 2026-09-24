@@ -5,6 +5,7 @@
 - [Fields](#fields)
 - [Prepare one input file](#prepare-one-input-file)
 - [Choose one curl request](#choose-one-curl-request)
+- [Downloads and file selection](#downloads-and-file-selection)
 - [Read the response](#read-the-response)
 - [Recover from errors](#recover-from-errors)
 
@@ -18,7 +19,9 @@ key. Add `X-GitHub-Token` only when choosing the PAT destination path.
 | `schemaInfo` | Required, nonempty | Compact schema string or valid table array; see the main skill |
 | `project_url` | Required unless `project` is supplied | Public GitHub URL to `Projects/<name>` or its `structure.yaml` |
 | `project` | Optional alternative | Bundled host project folder name; `project_url` wins if both are present |
-| `target_repo` | Required | Destination repository root URL or `owner/repo` |
+| `output` | `github_pr` | `github_pr`, `zip`, or `sh` |
+| `files` | Entire project | Optional string array, ZIP/shell only; see selection rules below |
+| `target_repo` | Required for `github_pr` only | Destination repository root URL or `owner/repo` |
 | `template_repo` | Optional | Public starter URL; overrides recipe `$BASE` / `$SOURCE` / string `source` |
 | `create_repo` | `false` | Create a private, initialized destination before publishing |
 | `branch` | Generated when no PR selector is supplied | Reuse a named branch; `scaffolder/` is added if absent |
@@ -26,6 +29,10 @@ key. Add `X-GitHub-Token` only when choosing the PAT destination path.
 | `prUrl` | Optional | Alternative PR selector; must match `target_repo` |
 | `prTitle`, `prBody` | Generated if omitted | Customize PR metadata |
 | `draft` | `true` | Create a draft PR; `false` creates ready-for-review. Updates do not change an existing PR's draft state |
+
+For `zip` and `sh`, omit `target_repo`, `create_repo`, `branch`, `prTitle`,
+`prBody`, `draft`, `prNumber`, and `prUrl`; even false-valued fields are rejected.
+Do not send `files` for explicit or default `github_pr` output.
 
 Use one PR selector where possible. If both are supplied, `prNumber` and `prUrl`
 must match; an accompanying `branch` must be that PR's head. Do not send a default
@@ -187,7 +194,105 @@ or starter subdirectory, set `TEMPLATE_URL` accordingly and reuse the appropriat
 starter example. Existing Auth0 callers can replace the bearer value with their
 Auth0 access token; agents should keep using the agent key.
 
+## Downloads and file selection
+
+Use the same recipe, schema and optional template source as PR delivery. For
+greenfield apps use `https://github.com/judigot/template-monorepo` unless another
+base is explicitly requested. Downloads require only the Scaffolder bearer key;
+omit the GitHub token header. They never create repos, commits or PRs.
+
+`files` is a JSON array, for example `["src/**", "package.json"]`. Commas
+separate array elements; `"src/**,package.json"` is not an equivalent input.
+
+| Selection | Result |
+| --- | --- |
+| Omitted or `["*"]` | Entire project, including nested files and dotfiles |
+| `["package.json", "src/main.tsx"]` | Exact files |
+| `["src/*.ts"]` | Single-segment wildcard; does not cross `/` |
+| `["apps/*/**"]` | Matching directory trees, including empty directories; excludes sibling `apps/README.md` |
+
+Matching is case-sensitive. Use project-relative paths and forward slashes.
+Overlaps deduplicate; required parents and selected empty directories remain.
+Trailing `/**` selects directories and descendants, never a regular file as a
+directory root. Every selector must match, even alongside `"*"`.
+Reject empty arrays, blank selectors, absolute/drive paths, NULs, traversal,
+backslashes, `?`, character classes, braces, negation, extglobs and non-trailing
+`**`. Bare `**` is unsupported; use `"*"` for the full project.
+
+Full schema/recipe/build, placeholder, USE_USER_ENV, path and resource validation
+runs before selection. Excluding a bad file does not bypass validation or the
+10,000-file / 25 MiB uncompressed-content limits. Selected output preserves
+bytes, BOMs, binary assets, empty files and executable modes. Related imports,
+dependencies and configuration are not added automatically.
+
+### Prepare a download request
+
+Starting with the recipe-compatible `request.json` above:
+
+```sh
+jq 'del(.target_repo, .create_repo, .branch, .prTitle, .prBody,
+        .draft, .prNumber, .prUrl, .files) | .output = "zip"' \
+  request.json > download-request.json
+```
+
+This requests the full ZIP. For selected files, set `files` to paths that exist
+in the generated project. To request a script, set `output` to `"sh"`:
+
+```sh
+jq '.output = "sh" | .files = ["src/**", "package.json"]' \
+  download-request.json > selected-request.json
+```
+
+The example selectors depend on the chosen recipe; inspect its output paths.
+Use either request below by setting `REQUEST_FILE`. Do not execute every example
+as a sequence of API requests.
+
+### Download without saving errors as scripts
+
+```sh
+REQUEST_FILE=download-request.json
+format=$(jq -r '.output' "$REQUEST_FILE") || exit 1
+case "$format" in
+  zip) artifact=scaffold.zip ;;
+  sh) artifact=scaffold.sh ;;
+  *) printf '%s\n' 'Expected zip or sh output' >&2; exit 1 ;;
+esac
+tmp=$(mktemp) || exit 1
+if status=$(curl -sS --max-time 120 -o "$tmp" -w '%{http_code}' \
+  -H "Authorization: Bearer $SCAFFOLDER_AGENT_API_KEY" \
+  -H 'Content-Type: application/json' \
+  --data-binary @"$REQUEST_FILE" "$API"); then
+  case "$status" in
+    2??) mv "$tmp" "$artifact" || exit 1 ;;
+    *) cat "$tmp" >&2; rm -f "$tmp"; exit 1 ;;
+  esac
+else
+  rm -f "$tmp"
+  exit 1
+fi
+```
+
+For the selective script example, set `REQUEST_FILE=selected-request.json`.
+ZIP responses use `application/zip`; scripts use
+`text/x-shellscript; charset=utf-8`. Check the artifact before claiming success:
+use `unzip -t scaffold.zip` for ZIP, and inspect the script plus run
+`sh -n scaffold.sh` before executing it with `sh scaffold.sh './my-app'`.
+Never pipe the HTTP response directly into a shell.
+
+The script embeds ZIP data and extracts offline. It requires POSIX `sh` on
+Linux/macOS, `base64` (GNU `-d` or BSD `-D`), `unzip`, `mktemp`, `dirname`,
+`mv`, `rm` and `rmdir`. It accepts exactly one destination and refuses symlinks
+and nonempty destinations. It stages extraction before moving the result into
+place. It does not install packages, initialize Git, migrate or deploy.
+
+Source of truth:
+[Scaffolder output contract](https://github.com/judigot/scaffolder/blob/main/docs/agent-scaffold-outputs.md).
+Verify deployed capability separately from merged source.
+
 ## Read the response
+
+The following JSON response applies only to `github_pr`. Downloads return bytes,
+not `ok` or PR fields. See the download section above.
 
 Require `ok: true` and the expected PR URL/number. A new generated branch normally
 returns 201. Reusing a branch/PR, including an identical-tree no-op, returns 200
@@ -226,7 +331,7 @@ Read `code`, `error`, `details`, and `installationUrl` before choosing an action
 | 404 from the endpoint | Check the configured origin/deployment; do not guess other hosts |
 | 401 | Correct the Scaffolder API credential; a PAT does not replace it |
 | 400 `INVALID_GITHUB_TOKEN` | Fix the empty or whitespace-containing PAT header; do not silently omit it |
-| Invalid request body / unknown fields | Check field names and whether the deployment contains PR #76; do not drop a requested feature as a workaround |
+| Invalid request body / unknown fields | Check field names and whether the deployment contains the requested feature (PR #76, #102 or #104); do not drop a requested feature as a workaround |
 | `INVALID_SCHEMA`, `SCHEMA_FILTER_FAILED` | Fix the schema or choose the intended compatible recipe; keep required UUID/camelCase columns |
 | `PROJECT_NOT_FOUND` | Check the recipe folder; use `details.availableProjects` if supplied |
 | `INVALID_REFERENCE`, `INVALID_TEMPLATE_REPO` | Correct the URL, repository root or project path |
@@ -234,6 +339,10 @@ Read `code`, `error`, `details`, and `installationUrl` before choosing an action
 | `TEMPLATE_SUBDIRECTORY_NOT_FOUND` | Fix the selected folder; do not fall back to the repository root |
 | `TEMPLATE_API_CONFLICT` | Put `replace: [apps/api/**]` in the recipe before layering the Nest API |
 | `BUILD_FAILED`, `LEFTOVER_PLACEHOLDER`, `USER_ENV_DETECTED`, `NO_FILES` | Fix generation/configuration; do not create a repo or publish unresolved output manually |
+| Invalid request body with `details` path `files` or `files.N` | Fix output/selector syntax; request-schema errors may not have a selector-specific code |
+| `INVALID_FILE_SELECTOR` | Fix selector syntax; inspect `details.selector` when supplied |
+| `UNMATCHED_FILE_SELECTOR` | Inspect `details.selector` and generated paths; never silently expand to the full project |
+| `INVALID_EXPORT_PATH`, export limit errors | Fix the full generated project; selection cannot bypass validation |
 | 409 `REPO_EXISTS` | Verify the destination, then use `create_repo: false`; do not overwrite/delete/recreate it |
 | `USER_REPO_CREATE_UNSUPPORTED` | For an agent-key personal creation, use an owner PAT or create the repo separately and install the App |
 | `PAT_OWNER_MISMATCH` | Use a PAT belonging to the requested personal owner; do not change ownership silently |
