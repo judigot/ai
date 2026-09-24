@@ -1,13 +1,14 @@
 ---
 name: scaffolder
-description: Generate an app or schema-based modules through the Scaffolder agent API and return a draft GitHub PR. Use for Scaffolder requests, greenfield projects, public GitHub starters, in-house Core templates, destination repository creation, and regeneration of an existing scaffolder PR. Support GitHub App or request-scoped PAT authentication. Do not clone Scaffolder to use the API.
+description: Generate an app or schema-based modules through the Scaffolder agent API and return a draft GitHub PR, ZIP archive, or self-contained shell script with optional file selection. Use for Scaffolder requests, greenfield projects, public GitHub starters, in-house Core templates, destination repository creation, and regeneration of an existing scaffolder PR. Support GitHub App or request-scoped PAT authentication. Do not clone Scaffolder to use the API.
 ---
 
-# Scaffolder: requirements to a draft PR
+# Scaffolder: requirements to a PR or download
 
 Use `POST /api/agent-scaffold` to combine a project recipe with optional starter
-files, generate code, and open or update a PR. Return the PR URL. Keep it draft
-unless the user requests a ready-for-review PR. Do not merge it.
+files and generate validated code. Choose `output: "github_pr" | "zip" | "sh"`
+from the user's requested delivery. Omitted output defaults to `github_pr`.
+Keep generated PRs draft unless the user requests otherwise; do not merge them.
 
 Use this for new projects and deliberate schema-based generation into existing
 repositories. For ordinary feature work in an already-generated app, edit that
@@ -23,12 +24,12 @@ app normally; do not regenerate it just to change a component or fix a bug.
   `skills/scaffolder/` in the same `judigot/ai` revision. Do not assume the
   references are already loaded. Do not clone the host to call its API.
 
-These instructions describe the contract implemented by
-[Scaffolder PR #76](https://github.com/judigot/scaffolder/pull/76), including
-commit `285be7b`. Use a host deployment containing that implementation. A skill
-update does not deploy the host. If the host rejects the new fields or still
-requires a commit hash, report the version mismatch; do not silently drop the
-requested template or change authentication.
+The base API is documented in [Scaffolder PR #76](https://github.com/judigot/scaffolder/pull/76).
+[PR #102](https://github.com/judigot/scaffolder/pull/102) adds output delivery and
+[PR #104](https://github.com/judigot/scaffolder/pull/104) adds selective downloads.
+Use a host deployment containing the requested feature. A merged PR or skill
+update does not prove deployment. If the host rejects supported fields, report
+the version mismatch; do not silently drop output, file selection or template.
 
 ## 1. Identify the three locations
 
@@ -36,7 +37,7 @@ requested template or change authentication.
 | --- | --- | --- |
 | `project_url` | The Scaffolder recipe that says what to generate | `https://github.com/judigot/scaffolder-files/tree/main/Projects/ORM%20Schema%20-%20Knex` |
 | `template_repo` | Optional starter files to use as the base | `https://github.com/judigot/template-monorepo` |
-| `target_repo` | The destination that receives the generated PR | `judigot/my-app` or `https://github.com/judigot/my-app` |
+| `target_repo` | GitHub PR destination only; omit for downloads | `judigot/my-app` or `https://github.com/judigot/my-app` |
 
 Treat them as separate inputs. A normal starter repo is not a Scaffolder recipe.
 The recipe must exist at `Projects/<name>/structure.yaml` in its files repo.
@@ -57,6 +58,23 @@ Both remote sources must be public. The destination may be private.
 
 ## 2. Select the operation
 
+For greenfield apps use `https://github.com/judigot/template-monorepo` as
+`template_repo` unless the user explicitly chooses another base.
+
+| Delivery | Request |
+| --- | --- |
+| GitHub PR (default) | `output: "github_pr"`; requires `target_repo`; rejects `files` |
+| ZIP download | `output: "zip"`; optional `files` |
+| Offline scaffold script | `output: "sh"`; optional `files` |
+
+For downloads omit all GitHub-only fields, including `create_repo: false` and
+`draft`. No destination repo or GitHub credential is required. `files` is a JSON
+array of strings, such as `["src/**", "package.json"]`, not one comma-separated
+string. Omit it or use `["*"]` for the entire project. See the API reference for
+selector grammar, validation errors and safe artifact handling.
+
+The following operations apply only to GitHub PR delivery:
+
 | User's goal | Request fields |
 | --- | --- |
 | Generate into an existing repo | Omit `create_repo` or set it to `false` |
@@ -65,11 +83,14 @@ Both remote sources must be public. The destination may be private.
 | Reuse a named scaffolder branch | Set `branch`; reuse its open PR if present |
 | Start a separate PR | Omit `branch`, `prNumber` and `prUrl` |
 
-Ask for a destination only if the user has not named one. Set `create_repo: true`
+For GitHub PR delivery, ask for a destination only if the user has not named one. Set `create_repo: true`
 only when creating that repository is part of the user's request. Creation makes
 it private and initializes a README; generated code is delivered on a PR.
 
 ## 3. Select credentials
+
+ZIP and shell outputs need only the Scaffolder credential; omit `X-GitHub-Token`.
+The GitHub credential table below applies only to PR delivery.
 
 Authenticate to Scaffolder with `Authorization: Bearer $SCAFFOLDER_AGENT_API_KEY`.
 This is not a GitHub credential. Never send a GitHub PAT as that bearer value.
@@ -170,7 +191,7 @@ Use the curl examples in [API requests and recovery](references/agent-api.md).
 Capture the response body even on HTTP errors. Do not use automatic retries for
 repository creation or PR creation: a timeout can occur after a successful write.
 
-On success, record `prUrl`, `prNumber`, `branch`, `targetRepo`, `repoCreated`,
+For GitHub PR output, record `prUrl`, `prNumber`, `branch`, `targetRepo`, `repoCreated`,
 `resolvedSha` and `projectResolvedSha` when present. Keep the original request's
 project/template selections for later regeneration. The host records source
 snapshots; the caller does not have to calculate them.
@@ -197,13 +218,19 @@ host. Follow the recovery table instead of retrying blindly.
 
 ## 6. Deliver
 
-Return the PR URL and one checkout command for the destination repository:
+For `zip` or `sh`, require a successful download and verify the expected artifact
+before delivering it. Save errors as JSON, never as an executable script. Return
+the artifact location and selected scope. A partial project may not run alone.
+The shell script extracts offline into one new or empty, non-symlink destination;
+it does not install dependencies, initialize Git, migrate or deploy. Follow the
+API reference for prerequisites and extraction commands.
+
+For `github_pr`, return the PR URL and one checkout command for the destination repository:
 
 ```sh
 gh pr checkout N
 ```
 
 Mention a created repository if applicable. Do not claim success from HTTP status
-alone: require `ok: true` and the expected PR fields. Do not offer ZIP downloads,
-clone Scaffolder to load the tool, create a second GitHub App, or copy generated
-files into the app as a fallback unless the user explicitly chooses that route.
+alone: require `ok: true` and the expected PR fields. Do not clone Scaffolder to
+call the API, create a second GitHub App, or silently switch delivery modes.
