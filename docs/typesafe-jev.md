@@ -69,7 +69,7 @@ Agent-facing invariants:
   separate.
 - Do not automatically fall back to direct TypeSafe or another paid provider.
   Verify the current Gateway price before live use.
-- VE-001…VE-012 remain authoritative for implementation evidence.
+- VE-001…VE-013 remain authoritative for implementation evidence.
 - Keep recipe execution in observation mode until the reviewed evaluation shows
   a benefit without weaker safeguards.
 
