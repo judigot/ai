@@ -69,16 +69,24 @@ Do not implement production code.
 
 ## PR-shell creation
 
-When repository/GitHub writes are authorized, create draft PR shells rather than
-leaving the plan only in chat.
+When repository/GitHub writes are authorized, create the eventual delivery branch
+using the target repository's branch-naming convention, then open that branch's
+PR as a draft shell rather than leaving the plan only in chat. That shell PR is
+the later implementation target. Do not create a separate shell-only PR for the
+same deliverable, and do not infer a `pr-shell/*` branch prefix from this
+overlay.
 
-If GitHub requires a branch difference to create a PR, add the smallest
-planning-only artifact allowed by `settings/pr-shell.md`. Do not add partial
-production implementation merely to open the PR.
+If GitHub requires a branch difference to create the PR, add the smallest
+planning-only artifact allowed by `settings/pr-shell.md` on that same eventual
+delivery branch. Do not add partial production implementation merely to open the
+PR. Later implementation commits must go to the shell PR's existing head branch
+and update the same PR.
 
 When creating several shells:
 
 - create the foundation/parent shells first so their PR numbers are known;
+- make each shell the eventual delivery PR for its independently deliverable
+  unit of work;
 - fill child `depends_on` with actual PR numbers;
 - use stacked bases when implementation can safely proceed before parent merge;
 - leave every shell draft with `state: planned`.
