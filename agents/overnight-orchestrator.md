@@ -29,6 +29,10 @@ Use `skills/sleep-and-forget/SKILL.md`,
 **PR shells are contracts. Git is state. CI is done. Expensive reasoning is an
 exception path.**
 
+Each discovered shell PR is the implementation target. Use its existing head
+branch for implementation and keep delivery on that same PR. Do not create a
+replacement implementation branch or PR merely to isolate worker execution.
+
 ## Execution
 
 1. Discover the requested draft PR shells.
@@ -40,8 +44,9 @@ exception path.**
    - foundation → complete before fan-out;
    - stacked → build from the declared/pushed parent;
    - sequential/overlapping → run in dependency order.
-6. Delegate each executable PR to one Luna-low parent in an isolated
-   runner/process.
+6. Delegate each executable shell PR to one Luna-low parent in an isolated
+   runner/process using that PR's existing head branch. Do not create a second
+   implementation PR for the same deliverable.
 7. Let that PR parent inspect relevant code once, establish interfaces, build an
    intra-PR task DAG, and spawn only useful non-overlapping Luna-low leaf workers.
 8. Schedule critical-path tasks first. Refill worker slots as soon as actual
@@ -61,8 +66,10 @@ Use two levels of bounded parallelism.
 
 ### Across PRs
 
-Each active PR gets its own isolated runner/process and checkout/worktree.
-Independent PRs with non-overlapping writable ownership may run concurrently.
+Each active PR gets its own isolated runner/process and checkout/worktree for
+that PR's existing head branch. Independent PRs with non-overlapping writable
+ownership may run concurrently. Isolation is an execution concern, not a reason
+to create additional delivery branches or PRs.
 
 Maintain a controller-wide budget for active model work and expensive test
 processes. A conservative starting bound is:

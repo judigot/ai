@@ -48,12 +48,18 @@ before starting the Codex implementation session.
 
 The preflight chat should:
 
-1. create only the branch/planning artifact required to open the shell;
+1. create the eventual delivery branch using the target repository's naming
+   convention and only the planning artifact required to open its shell PR;
 2. put the complete implementation contract in the PR description;
 3. create parent/foundation shells first so child dependencies can use real PR
    numbers;
 4. leave every shell draft and implementation-empty;
-5. hand the PR URLs/numbers to the unattended coordinator.
+5. hand the PR URLs/numbers to the unattended coordinator as the implementation
+   targets.
+
+The unattended coordinator implements on those same PR head branches. Do not
+create replacement implementation PRs merely because planning and execution use
+different sessions or agents.
 
 Do not duplicate the same planning work in Codex after valid shells exist.
 If no external planning chat can write GitHub, Terra/spec-compiler may create
@@ -66,7 +72,10 @@ Follow `settings/pr-shell.md`.
 When GitHub writes are available, persist the plan as draft PR shells so the
 queue survives model/session interruption.
 
-A shell contains the contract, not the implementation.
+A shell starts with the contract, not the implementation. When execution
+begins, implementation commits go to that shell PR's existing head branch and
+the same PR advances through its lifecycle. Do not create a second PR for the
+same deliverable.
 
 For multiple shells:
 

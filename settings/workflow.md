@@ -107,9 +107,17 @@ delivered in the current workflow.
 
 Use `settings/pr-shell.md` when creating a draft PR before implementation,
 handing implementation to another agent/model, scheduling unattended work, or
-coordinating dependency-aware parallel/sequential PR execution. A PR shell is a
-durable implementation contract: keep it draft until its ready-state rules pass,
-and let the orchestrator derive execution order from its dependency metadata. For `judigot/scaffolder`, apply the Scaffolder adapter in `settings/repository-pr-contracts.md`; `PR CI / PR Gate` is the stable PR readiness signal.
+coordinating dependency-aware parallel/sequential PR execution. A PR shell is
+the eventual delivery PR opened early, not a precursor PR. Continue
+implementation on that PR's existing head branch and keep the same PR draft
+until its ready-state rules pass. One independently deliverable unit normally
+has one delivery branch and one PR; parallel execution isolates those existing
+branches with runners/checkouts/worktrees rather than creating duplicate PRs.
+Do not infer a `pr-shell/*` branch prefix from the term "PR shell"; follow the
+target repository's branch-naming convention. Let the orchestrator derive
+execution order from dependency metadata. For `judigot/scaffolder`, apply the
+Scaffolder adapter in `settings/repository-pr-contracts.md`; `PR CI / PR Gate`
+is the stable PR readiness signal.
 
 Every PR must include a **manual testing checklist** a non-technical person can
 follow: numbered steps, what to click, what they should see, and how to know it
