@@ -258,6 +258,17 @@ implementation PR with real code changes
   -> video attached to that same PR
 ```
 
+### VE-013 — Comparative evidence pins both source revisions
+
+Before/after or baseline/candidate evidence must resolve both sides to exact immutable revisions before capture.
+
+- Record the baseline and candidate SHAs or equivalent immutable source identifiers.
+- Use the same scenario intent, profile, viewport/device settings, and deterministic data assumptions unless a declared difference is itself part of the evidence.
+- Run each revision in isolated execution state so generated files, caches, dependencies, and temporary artifacts cannot leak across the comparison.
+- Clearly label which revision produced each artifact.
+
+Mutable branch names alone are not sufficient provenance.
+
 ## Capability demo versus PR evidence
 
 A public-site fixture is valid when the goal is to showcase or test
@@ -306,8 +317,9 @@ For target evidence, prefer this sequence:
 12. Upload the video to durable GitHub-hosted media.
 13. Attach/post the playable video to the **same implementation PR** with
     acceptance-criterion and source-SHA context.
-14. Fetch the PR conversation and verify that publication succeeded.
-15. Only then report evidence completion/readiness for that exact SHA.
+14. Fetch/read back the PR body or conversation and verify that durable media references resolved correctly.
+15. When browser access is available, verify the evidence visibly renders or plays in the PR UI.
+16. Only then report evidence completion/readiness for that exact SHA.
 
 A moved target head invalidates the old evidence.
 
@@ -330,6 +342,22 @@ composition.
 For a visual-only change, a PNG may be sufficient. For a multi-step workflow,
 use MP4. Use Playwright traces for debugging rather than as executive review
 evidence.
+
+## Screenshot and capture completeness
+
+Do not equate a successful screenshot command with complete evidence.
+
+For still-image or long-page evidence:
+
+1. Identify the UI state required by the acceptance criterion.
+2. Identify the actual scrolling surface; it may be a nested overflow container rather than the document.
+3. Reach or expose an acceptance-relevant boundary state or element before capture.
+4. Capture the document, relevant container, or element using the least-distorting method that preserves truthful presentation.
+5. Inspect the final artifact for clipping, truncation, hidden required content, and overlays.
+
+`fullPage: true`, viewport height, or output pixel height alone do not prove coverage.
+
+For comparative evidence, use separate checkouts/worktrees or otherwise isolated execution state for each exact revision. Avoid repeated branch switching in one generated/cached application workspace when revision-specific state can survive the checkout.
 
 ## Target-app Playwright
 
@@ -370,6 +398,28 @@ revision, say so explicitly rather than presenting a silent capability demo as
 the canonical narrated showcase.
 
 ## Publication
+
+### GitHub PR screenshots and inline media
+
+When evidence must render inline in a GitHub PR, prefer GitHub's native durable attachment surface rather than assuming repository-relative paths or raw repository URLs will render for every reviewer, especially in private repositories.
+
+When the installed GitHub CLI supports attachment rewriting, a preferred PR-body flow is:
+
+```sh
+gh pr edit "$PR_NUMBER" --body-file pr-body.md \\
+  --attach ./before.png \\
+  --attach ./after.png
+```
+
+Author the body with local artifact references that the CLI can rewrite to GitHub-hosted attachment URLs. After the write:
+
+- fetch/read back the PR body or comment;
+- confirm the intended durable attachment URLs are present;
+- confirm no unresolved `./...` or other local media references remain;
+- remove accidental duplicate attachment entries if the publication tool appended them separately;
+- when browser access is available, verify the images render or video plays in the actual PR UI.
+
+A committed image, workflow artifact, successful upload command, or repository path is not by itself proof that publication succeeded.
 
 Until the trusted Evidence Gate and manifest path is implemented end-to-end,
 GitHub Actions artifacts and PR attachments/comments are acceptable review
