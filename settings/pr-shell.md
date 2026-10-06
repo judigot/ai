@@ -1,20 +1,47 @@
 # PR shell contract
 
-A PR shell is a draft pull request created before implementation. It is the
-durable contract between planning/orchestration and an implementation worker.
+A PR shell is the eventual delivery pull request opened as a draft before
+implementation. It is the durable contract between planning/orchestration and an
+implementation worker, not a separate specification-only PR that precedes a
+second implementation PR. For implementation work, the shell's existing head
+branch receives the implementation commits and the same PR advances through its
+lifecycle until it is ready.
+
 It may contain a small planning-only file when GitHub needs a branch difference
-to create the PR, but it must not contain production implementation merely to
-make the PR creatable.
+to create the PR, but that file belongs on the eventual delivery branch. Do not
+create partial production implementation merely to make the PR creatable.
 
 Use a PR shell when work should be specified now and implemented later, when an
 unattended worker will execute it, or when multiple PRs need dependency-aware
 parallel/sequential scheduling. Ordinary completed PRs continue to use
 `settings/pr-body.md`.
 
+## PR identity invariant
+
+- One independently deliverable unit of work normally has one head branch and
+  one pull request from `planned` through implementation, verification, and
+  merge.
+- Open the eventual delivery PR early as the shell. Continue implementation on
+  that PR's existing head branch instead of creating a replacement PR.
+- "PR shell" describes the PR's contract and lifecycle state. It does not define
+  a branch namespace. This overlay does not define or imply a `pr-shell/*`
+  prefix; follow the target repository's branch-naming convention.
+- A planning-only commit used to make the draft PR creatable stays on the
+  eventual delivery branch. Later implementation commits go to that same branch
+  and PR.
+- Parallelism and isolation use separate runners, checkouts, or worktrees for
+  the existing shell branches. Isolation is not a reason to duplicate delivery
+  PRs.
+- Create a separate specification-only PR only when the user explicitly asks
+  for a separately reviewable specification artifact or the target repository
+  explicitly requires one.
+
 ## Invariants
 
 - PR shells are draft PRs until the ready-state rules pass.
 - The PR description is the implementation contract.
+- Implementation continues on the shell PR's existing head branch; do not
+  replace the shell with a second PR for the same deliverable.
 - Git is the source of truth for branch, commits, worktree state, and PR state.
 - `depends_on` is the canonical dependency direction. Derive reverse
   dependencies instead of maintaining a second list.
