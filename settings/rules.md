@@ -302,6 +302,21 @@ Do not ask about these. Do ask when the goal, UX, data model, or success criteri
   an unavailable skill was read or a check was run. This applies to all routes;
   it does not waive loading the overlay's required instruction files.
 
+# Linear scope and ownership
+
+Linear writes are scoped to the requester by default. Never treat a board or workflow-state query as authorization to modify the whole team.
+
+- Default writable scope is issues assigned to the requester.
+- Widen writable scope only when the request explicitly names issue IDs with an action to perform on them, names another assignee with an action to perform on their issues, or clearly says team-wide, all assignees, or every matching issue.
+- Broad phrases such as "In Review tickets", "clean up the board", or "make sure everything is ready for QA" still mean the requester's matching issues unless the user explicitly widens scope.
+- Issues outside writable scope are read-only. They may be searched, listed, and read for context or reporting, but do not change state, assignee, priority, labels, cycle, comments, linked PRs, or descriptions in ways that change workflow meaning.
+- Mentioning someone else's issue by ID for discussion does not itself authorize a write. Require explicit action intent for that issue.
+- Before any bulk Linear write, resolve the requester identity, filter to the authorized assignee or explicit issue set, and state how many issues matched and who they are assigned to before mutating.
+- If the authorized filter is empty, or the request appears to require team-wide writes without explicitly granting that scope, ask once instead of broadening the write set.
+- If the agent writes to an unauthorized issue during the current task, restore its prior state, remove only comments the agent added when supported, and report the exact issue IDs touched. Do not leave cleanup or explanatory comments on unauthorized issues.
+
+Core invariant: **Linear writes: requester-assigned issues by default; other people's issues require explicit write scope. Never bulk-update other people's tickets from ambiguous board-wide language.**
+
 # File Operations
 
 - If files should have the same content, move them instead of rewriting (saves tokens)
