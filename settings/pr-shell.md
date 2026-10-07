@@ -7,8 +7,9 @@ second implementation PR. For implementation work, the shell's existing head
 branch receives the implementation commits and the same PR advances through its
 lifecycle until it is ready.
 
-It may contain a small planning-only file when GitHub needs a branch difference
-to create the PR, but that file belongs on the eventual delivery branch. Do not
+It may contain a small temporary planning-only file when GitHub needs a branch
+difference to create the PR. Keep the specification in the PR description and
+remove the placeholder on that same delivery branch before integration. Do not
 create partial production implementation merely to make the PR creatable.
 
 Use a PR shell when work should be specified now and implemented later, when an
@@ -26,9 +27,10 @@ parallel/sequential scheduling. Ordinary completed PRs continue to use
 - "PR shell" describes the PR's contract and lifecycle state. It does not define
   a branch namespace. This overlay does not define or imply a `pr-shell/*`
   prefix; follow the target repository's branch-naming convention.
-- A planning-only commit used to make the draft PR creatable stays on the
-  eventual delivery branch. Later implementation commits go to that same branch
-  and PR.
+- A planning-only commit used to make the draft PR creatable is made on the
+  eventual delivery branch. Later implementation and placeholder-removal commits
+  go to that same branch and PR; temporary files must not enter the integration
+  or final target diff.
 - Parallelism and isolation use separate runners, checkouts, or worktrees for
   the existing shell branches. Isolation is not a reason to duplicate delivery
   PRs.
@@ -52,6 +54,19 @@ parallel/sequential scheduling. Ordinary completed PRs continue to use
 - CI is the final success signal when CI applies.
 - The orchestrator, not the implementation worker, decides when a shell becomes
   ready for review.
+- Keep shells open while work is in flight; close only after merge to their
+  declared target or explicit user retirement of duplicate/obsolete work.
+- Preserve published shell branch history. A shared rebase or force-push needs
+  explicit user approval and orchestrator alignment; synchronize metadata and
+  worker handoffs after an approved rewrite.
+
+## Sprint integration branches
+
+When shells integrate into a sprint branch before the final target branch,
+follow [the sprint integration contract](sprint-integration.md). Merge the
+existing shells in dependency order, preserve their PR identities, and let the
+orchestrator own retargeting. Integration, final-target merge, and deployment
+have separate authorization boundaries.
 
 ## Repository PR adapter
 
