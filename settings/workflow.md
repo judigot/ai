@@ -124,6 +124,21 @@ follow: numbered steps, what to click, what they should see, and how to know it
 failed. Infrastructure-only work may use a checks-based verification flow when
 there is no meaningful user-facing manual path.
 
+### Sprint integration and shared environments
+
+For a sprint integration branch before the final target branch, read and follow
+[settings/sprint-integration.md](sprint-integration.md). The orchestrator merges
+existing shells in dependency order and maintains their bases and metadata;
+the integration PR is the single path to the final target.
+
+Dispatch a deployment or otherwise change a shared environment only when the
+user explicitly authorizes that action. Integration or QA authorization does
+not imply deployment authorization. Phrases such as "continue next steps" do
+not expand the approved scope to final-target merges, deployments, shared
+history rewrites, or PR retirement. Check automatic deployment triggers before
+an authorized push or merge; if it would change a shared environment outside
+the user's approval, stop before that action and explain the side effect.
+
 ## 7. Self-audit
 
 Before stopping, follow `skills/self-audit/SKILL.md`. Fix applicable failures and report checks or delivery steps that remain blocked. Do not claim tests passed or work was published when it was not.

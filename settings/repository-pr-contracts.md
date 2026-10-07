@@ -89,6 +89,15 @@ gate. In Scaffolder, the legacy EC2 deployment is manual-only; Vercel
 
 ## Agent responsibilities
 
+When using a sprint integration branch, also apply
+[the sprint integration contract](sprint-integration.md). The orchestrator
+derives bases, dependency metadata, and merge order from the existing shells.
+Once a parent lands on sprint, retarget its child to sprint and synchronize
+repository-native stacking metadata before rerunning the required PR gate.
+Use the declared integration target rather than blindly retargeting to the
+default branch. The Scaffolder adapter above still applies to direct-to-main
+delivery; do not invent unsupported metadata values for another workflow.
+
 ### Spec compiler / orchestrator
 
 - inspect the repository-local PR contract before opening shells;
@@ -107,7 +116,11 @@ gate. In Scaffolder, the legacy EC2 deployment is manual-only; Vercel
 - treat the repository's stable PR gate as the final PR readiness signal when
   CI defines one.
 
-### Stacked PR lifecycle
+### Stacked PR lifecycle (direct delivery)
+
+This example targets `main` directly. For sprint integration, substitute the
+declared integration branch after the parent merges; only the integration PR
+targets the final branch.
 
 ```text
 parent PR open
