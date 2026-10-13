@@ -68,6 +68,12 @@ existing orchestrator without weakening verification or changing worker authorit
 
 For exact ChatGPT GitHub connector tool names, required arguments, branch/PR/comment examples, and known provisioning gaps, follow [the low-tier ChatGPT tool cookbook](../docs/chatgpt-github-tools.md). Do not claim a direct Agent Workspace provisioning tool exists unless it is actually connected and callable.
 
+## Vercel public access and Neon preview databases
+
+When modifying Vercel deployment protection or proposing isolated Neon databases for PRs/branches, read [the Vercel/Neon deployment policy](../docs/vercel-neon-deployment-policy.md) and (for execution in Agent Workspace) [the operational runbook](https://github.com/judigot/agent-workspace/blob/main/docs/vercel-neon-preview-operations.md). Deployment-level SSO is separate from application auth. Do not turn it off merely to work around protected previews, and do not treat documentation as an installed database-branching automation.
+
+Validate the production environment-variable scope before a merge that auto-deploys, even if the PR preview succeeded. Branch-specific Preview secrets are not automatically available to Production. Per-PR databases must be isolated, exact-SHA verified and lifecycle-managed before claiming deployment readiness.
+
 ## GitHub template repository creation
 
 When creating a new application from an existing GitHub template repository, prefer GitHub's native `POST /repos/{template_owner}/{template_repo}/generate` operation over cloning and pushing. Use a descriptive repository name based on the user's request. Confirm target ownership/visibility, check for naming collisions, and never overwrite an existing repository. Template generation creates fresh history rather than copying the template's commits. Preserve generated `main` as the unchanged baseline and implement new features on a PR branch.
