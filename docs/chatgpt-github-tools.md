@@ -52,6 +52,18 @@ text(posted.result.id);
 
 **Never use the second call as a privileged workflow trigger without explicit task authorization and explicit permission for that trigger.**
 
+## Dedicated repository provisioning Action (pending connection)
+
+Agent Workspace implementation PR: `judigot/agent-workspace#117`. The intended ChatGPT Action **operation ID** is `createRepositoryFromTemplate`, described by `judigot/agent-workspace/docs/openapi/repository-provisioning.yaml`. It provisions a **private** `judigot` repository from `judigot/template-monorepo`, accepting `name` and optional `private: true`. It never appends timestamps.
+
+1. First inspect the **current ChatGPT tool catalog**. If, and only if, a connected and authenticated tool exposes `createRepositoryFromTemplate`, read its schema. Confirm with the user before creating an external repository. Call with a descriptive repository name and `private: true`.
+2. After its response, call `mcp__GitHub__get_repo` on the returned repository and compare the complete generated main tree against the selected template baseline. Continue with a feature PR only after verifying creation.
+3. If the Action is **not actually connected**, do not invent its tool handle, send an unauthenticated HTTP request, or claim it ran. A source-code route, merged PR, and OpenAPI YAML are not enough for a fresh chat to invoke the operation.
+4. Existing GitHub tools handle branches, files, PRs, and ordinary comments as described below. Never substitute the legacy owner-command PR-comment **execution trigger** because the user has rejected that mechanism for provisioning.
+5. A timeout or ambiguous error requires checking the intended repository's existence before any retry; never rename, delete, or duplicate resources automatically.
+
+**Deployment prerequisites** (operator action, not an agent assumption): merge and deploy the reviewed endpoint; set the scoped provisioner authentication and GitHub token on the server; register and authenticate the ChatGPT Action; require confirmation for this consequential operation; pass an end-to-end fresh-chat test. See `judigot/agent-workspace/docs/chatgpt-repository-provisioning.md`.
+
 ## New repository from a GitHub template
 
 1. Ask only for missing essential information; choose a meaningful user-requested name **without a timestamp**. Check for collision with `get_repo`. Stop on conflicts; never overwrite.
