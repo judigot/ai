@@ -52,7 +52,20 @@ text(posted.result.id);
 
 **Never use the second call as a privileged workflow trigger without explicit task authorization and explicit permission for that trigger.**
 
-## Dedicated repository provisioning Action (pending connection)
+## Preferred: create a private repository with no merge or PR comments
+
+Once `judigot/agent-workspace/.github/workflows/repository-provision-on-pr.yml` is installed on `main`, follow these exact steps for new repositories:
+
+1. Confirm current-chat owner authorization; choose a descriptive name like `posts-crud` (no timestamps).
+2. `mcp__GitHub__get_repo({repository_full_name:"judigot/posts-crud"})`: stop if it already exists.
+3. `mcp__GitHub__create_branch({repository_full_name:"judigot/agent-workspace",branch_name:"provision/repository-posts-crud",base_ref:"main"})`.
+4. `mcp__GitHub__create_file({repository_full_name:"judigot/agent-workspace",branch:"provision/repository-posts-crud",path:".agent/repository-requests/create.json",content:'{"name":"posts-crud","private":true,"template":"judigot/template-monorepo"}',message:"chore: request private posts-crud repository"})`.
+5. `mcp__GitHub__create_pull_request({repository_full_name:"judigot/agent-workspace",head:"provision/repository-posts-crud",base:"main",title:"chore: provision posts-crud repository",body:"Owner-authorized declarative provisioning request. Do not merge.",draft:false})`.
+6. **Stop editing this request. Do not merge it or post comments.** Opening the owner-authored PR triggers trusted Actions on the default branch with the existing server-side PAT. Check the actual Actions run, then `get_repo` for the destination; verify visibility and `main`. If no run or missing resource, report the missing evidence and do not blindly retry.
+
+**Before using this route**, confirm the trusted workflow exists on `main` via `mcp__GitHub__fetch_file`. If not installed, report the one-time setup requirement. PR comments and custom API registration are not required for this route. Full source, safety, verification, and failure-handling requirements: `judigot/agent-workspace/docs/owner-pr-repository-provisioning.md`.
+
+## Optional: separate repository provisioning Action (only if connected)
 
 Agent Workspace implementation PR: `judigot/agent-workspace#117`. The intended ChatGPT Action **operation ID** is `createRepositoryFromTemplate`, described by `judigot/agent-workspace/docs/openapi/repository-provisioning.yaml`. It provisions a **private** `judigot` repository from `judigot/template-monorepo`, accepting `name` and optional `private: true`. It never appends timestamps.
 
@@ -64,17 +77,12 @@ Agent Workspace implementation PR: `judigot/agent-workspace#117`. The intended C
 
 **Deployment prerequisites** (operator action, not an agent assumption): merge and deploy the reviewed endpoint; set the scoped provisioner authentication and GitHub token on the server; register and authenticate the ChatGPT Action; require confirmation for this consequential operation; pass an end-to-end fresh-chat test. See `judigot/agent-workspace/docs/chatgpt-repository-provisioning.md`.
 
-## New repository from a GitHub template
+## Existing connected plugin cannot directly call template generation
 
-1. Ask only for missing essential information; choose a meaningful user-requested name **without a timestamp**. Check for collision with `get_repo`. Stop on conflicts; never overwrite.
-2. Prefer a **verified callable** native `POST /repos/{template_owner}/{template_repo}/generate` tool with body `{owner,name,private:true,include_all_branches:false}`.
-3. The October 2026 connected GitHub plugin exposed **no** `generate_repository`, arbitrary authenticated REST request, or workflow-dispatch tool. Reinspect the *current* catalog; do not fabricate them.
-4. Look for an **actually connected** authenticated Agent Workspace provisioning action. An imagined API route or documented shell command is not a callable tool.
-5. The legacy Agent Workspace PR-comment trigger exists but **the user does not want this mechanism**. Do not use it unless the user explicitly changes that constraint. If neither direct route is callable, report the specific missing capability without declaring the whole architecture impossible.
-6. After creation, verify destination owner, private status, default `main`, and complete template file tree before proceeding with feature PR, Neon, and Vercel.
+The GitHub plugin's direct template-generation endpoint was not exposed in October 2026. **This does not block provisioning** when the trusted `Owner PR Repository Provisioning` workflow exists on Agent Workspace's `main`. Follow the **Preferred: create a private repository with no merge or PR comments** steps above. A separate ChatGPT Action is optional and does not need to be connected. If that trusted workflow is absent, report the one-time setup requirement.
 
 ## Failure recovery
 
 A `TypeError`, safety-check rejection, validation error, or permission error has a different cause. Re-discover callable tools, inspect side effects before retrying, check for existing PR/comment/resource, and never issue duplicate privileged authorizations. Distinguish submitted command from actual observed success.
 
-**Reminder:** Documentation alone cannot add a new ChatGPT tool. Do not promise direct provisioning until connector registration and an end-to-end fresh-chat test succeed.
+**Reminder:** The existing connected GitHub tools can open a declarative request PR; no custom connector is needed for that route. A direct provisioning API requires separate registration, but is optional.
