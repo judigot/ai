@@ -68,7 +68,7 @@ existing orchestrator without weakening verification or changing worker authorit
 
 ## GitHub template repository creation
 
-When creating a new application from an existing GitHub template repository, prefer GitHub's native `POST /repos/{template_owner}/{template_repo}/generate` operation over cloning and pushing. Choose a collision-resistant timestamped name when requested, confirm target ownership/visibility, and never overwrite an existing repository. Template generation creates fresh history rather than copying the template's commits. Preserve generated `main` as the unchanged baseline and implement new features on a PR branch.
+When creating a new application from an existing GitHub template repository, prefer GitHub's native `POST /repos/{template_owner}/{template_repo}/generate` operation over cloning and pushing. Use a descriptive repository name based on the user's request. Confirm target ownership/visibility, check for naming collisions, and never overwrite an existing repository. Template generation creates fresh history rather than copying the template's commits. Preserve generated `main` as the unchanged baseline and implement new features on a PR branch.
 
 In ChatGPT-first workflows, authorization is expressed in the active conversation. If the connector cannot generate a repository directly, use an existing narrowly scoped privileged Agent Workspace runner only after explicit owner authorization and verify the authenticated dispatch identity and pinned task commit. The existing PR-comment event is an internal transport, not a required user step or proof that a direct API exists. Do not assume the connector can post comments unless the callable tool is verified in the current session.
 
