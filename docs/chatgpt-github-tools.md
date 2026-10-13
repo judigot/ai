@@ -77,17 +77,12 @@ Agent Workspace implementation PR: `judigot/agent-workspace#117`. The intended C
 
 **Deployment prerequisites** (operator action, not an agent assumption): merge and deploy the reviewed endpoint; set the scoped provisioner authentication and GitHub token on the server; register and authenticate the ChatGPT Action; require confirmation for this consequential operation; pass an end-to-end fresh-chat test. See `judigot/agent-workspace/docs/chatgpt-repository-provisioning.md`.
 
-## New repository from a GitHub template
+## Existing connected plugin cannot directly call template generation
 
-1. Ask only for missing essential information; choose a meaningful user-requested name **without a timestamp**. Check for collision with `get_repo`. Stop on conflicts; never overwrite.
-2. Prefer a **verified callable** native `POST /repos/{template_owner}/{template_repo}/generate` tool with body `{owner,name,private:true,include_all_branches:false}`.
-3. The October 2026 connected GitHub plugin exposed **no** `generate_repository`, arbitrary authenticated REST request, or workflow-dispatch tool. Reinspect the *current* catalog; do not fabricate them.
-4. Look for an **actually connected** authenticated Agent Workspace provisioning action. An imagined API route or documented shell command is not a callable tool.
-5. The legacy Agent Workspace PR-comment trigger exists but **the user does not want this mechanism**. Do not use it unless the user explicitly changes that constraint. If neither direct route is callable, report the specific missing capability without declaring the whole architecture impossible.
-6. After creation, verify destination owner, private status, default `main`, and complete template file tree before proceeding with feature PR, Neon, and Vercel.
+The GitHub plugin's direct template-generation endpoint was not exposed in October 2026. **This does not block provisioning** when the trusted `Owner PR Repository Provisioning` workflow exists on Agent Workspace's `main`. Follow the **Preferred: create a private repository with no merge or PR comments** steps above. A separate ChatGPT Action is optional and does not need to be connected. If that trusted workflow is absent, report the one-time setup requirement.
 
 ## Failure recovery
 
 A `TypeError`, safety-check rejection, validation error, or permission error has a different cause. Re-discover callable tools, inspect side effects before retrying, check for existing PR/comment/resource, and never issue duplicate privileged authorizations. Distinguish submitted command from actual observed success.
 
-**Reminder:** Documentation alone cannot add a new ChatGPT tool. Do not promise direct provisioning until connector registration and an end-to-end fresh-chat test succeed.
+**Reminder:** The existing connected GitHub tools can open a declarative request PR; no custom connector is needed for that route. A direct provisioning API requires separate registration, but is optional.
