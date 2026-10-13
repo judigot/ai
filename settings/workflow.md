@@ -66,6 +66,8 @@ existing orchestrator without weakening verification or changing worker authorit
 | Visible EC2 agent desktop / live UI testing / cloud workstation recordings | `skills/cloud-dev-desktop/SKILL.md` |
 | Unsure which Matt Pocock flow | Fetch ask-matt |
 
+For exact ChatGPT GitHub connector tool names, required arguments, branch/PR/comment examples, and known provisioning gaps, follow [the low-tier ChatGPT tool cookbook](../docs/chatgpt-github-tools.md). Do not claim a direct Agent Workspace provisioning tool exists unless it is actually connected and callable.
+
 ## GitHub template repository creation
 
 When creating a new application from an existing GitHub template repository, prefer GitHub's native `POST /repos/{template_owner}/{template_repo}/generate` operation over cloning and pushing. Use a descriptive repository name based on the user's request. Confirm target ownership/visibility, check for naming collisions, and never overwrite an existing repository. Template generation creates fresh history rather than copying the template's commits. Preserve generated `main` as the unchanged baseline and implement new features on a PR branch.
