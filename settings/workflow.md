@@ -66,6 +66,14 @@ existing orchestrator without weakening verification or changing worker authorit
 | Visible EC2 agent desktop / live UI testing / cloud workstation recordings | `skills/cloud-dev-desktop/SKILL.md` |
 | Unsure which Matt Pocock flow | Fetch ask-matt |
 
+## Privileged PR execution
+
+Privileged automation that uses repository secrets, GitHub PATs, cloud credentials, or other elevated access must not automatically execute unreviewed PR code. A private repository or a PR authored by the owner or an AI agent is not, by itself, authorization.
+
+For `judigot/agent-workspace`, preserve the automatic `Agent Exec` execution boundary on trusted `main`. PR-based privileged runs require an explicit owner command `/agent exec <40-character lowercase PR head SHA>` and the trusted default-branch `Owner-approved PR Agent Exec` workflow. Validate commenter identity, same-repository open PR, and exact current head without privileged credentials; revalidate before the privileged job, then checkout and verify that SHA before exposing task secrets. A changed head needs fresh authorization. Review executable code and dependencies before approving. Do not use `pull_request_target` to execute untrusted PR code with secrets.
+
+See `judigot/agent-workspace/docs/owner-approved-pr-exec.md` for the executable contract. Do not confuse PR validation with owner authorization.
+
 ## 3. Test-driven delivery
 
 Apply delivery checks to the task: read-only work needs no tests, commits, CI, or
