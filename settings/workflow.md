@@ -66,6 +66,22 @@ existing orchestrator without weakening verification or changing worker authorit
 | Visible EC2 agent desktop / live UI testing / cloud workstation recordings | `skills/cloud-dev-desktop/SKILL.md` |
 | Unsure which Matt Pocock flow | Fetch ask-matt |
 
+## GitHub template repository creation
+
+When creating a new application from an existing GitHub template repository, prefer GitHub's native `POST /repos/{template_owner}/{template_repo}/generate` operation over cloning and pushing. Choose a collision-resistant timestamped name when requested, confirm target ownership/visibility, and never overwrite an existing repository. Template generation creates fresh history rather than copying the template's commits. Preserve generated `main` as the unchanged baseline and implement new features on a PR branch.
+
+In ChatGPT-first workflows, authorization is expressed in the active conversation. If the connector cannot generate a repository directly, use an existing narrowly scoped privileged Agent Workspace runner only after explicit owner authorization and verify the authenticated dispatch identity and pinned task commit. The existing PR-comment event is an internal transport, not a required user step or proof that a direct API exists. Do not assume the connector can post comments unless the callable tool is verified in the current session.
+
+After execution, inspect the GitHub Actions result and verify repository existence, visibility, default branch, and full initial tree/content against the source template. A single matching file SHA is only partial evidence. Do not declare application features, databases, or deployment complete until independently verified. See `judigot/agent-workspace/docs/github-template-provisioning.md` for the operational procedure.
+
+## Tool capability and execution evidence
+
+- Inspect current tool declarations and verify callability before asserting an operation is unavailable. Distinguish missing operation, safety-check rejection, authorization failure, validation failure, and transient runtime failure. A failed call does not prove a permanent connector limitation.
+- Before retrying any mutation, inspect its possible side effects: branch, commit, PR, comment, workflow run, external resource, or deployment. Do not blindly retry privileged dispatch or assume creating the same resource twice is safe.
+- Check for an existing owner authorization for the same task and exact reviewed SHA before posting another dispatch command. Explicit authorization in ChatGPT can authorize the agent's tool action, but the executor still needs an independently authenticated trusted trigger.
+- Treat these as distinct milestones: request submitted, owner identity accepted, workflow started, workflow succeeded, and target state verified. Report the furthest observed milestone, not the intended one.
+- Prefer an existing approved native tool or trusted workflow over introducing new dispatchers or architectural components. Keep the trust boundary intact and document a durable change only when a repeated failure or reusable invariant justifies it.
+
 ## Privileged PR execution
 
 Privileged automation that uses repository secrets, GitHub PATs, cloud credentials, or other elevated access must not automatically execute unreviewed PR code. A private repository or a PR authored by the owner or an AI agent is not, by itself, authorization.
