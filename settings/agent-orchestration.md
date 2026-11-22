@@ -3,20 +3,31 @@
 This policy separates expensive original reasoning from specification and
 implementation so model cost scales with the value of the work.
 
-## Owner-selected Grok Bot + T3 interactive runtime
+## Selectable workspaces and T3 Chat
 
-The owner reports a preferred **external** workflow (2026-11-22): Grok Bot
-orchestrates on its cloud Linux computer, while T3 Code runs the owner's
-authenticated Cursor CLI or Codex CLI sessions for **all implementation**.
-Grok Bot plans, delegates, reviews, tests, and coordinates PRs; it must not
-author source-code changes. This is an interactive operating preference, not
-a native Agent Workspace integration, automatic deployment mechanism, or
-evidence that this environment has access to the Grok-host computer.
+The owner has **no permanent default host or orchestration workflow**. Choose
+a suitable available runtime for each task. The owner's current chat and
+remote-access interface of choice is **T3 Chat with T3 Connect** wherever
+supported, rather than OpenCode. The interface is not itself an execution
+machine or a guarantee of uptime.
 
-For this **specific owner-selected Grok-host T3 runtime**:
+See the [Agent Workspace workflow list](https://github.com/judigot/agent-workspace/blob/main/README.md#available-development-workflows)
+for options: T3 Chat with connected machines, Grok Bot Linux with T3
+over ngrok, independent Android Termux Ubuntu with T3, Cursor Cloud,
+ChatGPT/Codex Cloud, governed GitHub Actions, and optional EC2.
 
-- Use Cursor CLI with **Cursor Auto** by default, as explicitly selected by
-  the owner. Codex CLI is the alternative for suitable lower-cost work.
+For the **optional Grok Bot + T3 route**, Grok Bot orchestrates on its Linux
+computer while T3 Code runs authenticated Cursor CLI or Codex CLI sessions
+for implementation. Grok Bot plans, delegates, reviews, tests, and coordinates
+PRs; it does not directly author implementation code. This external workflow
+is not a native Agent Workspace integration or a verified executor available
+to every chat.
+
+For this **specific Grok-host T3 runtime**:
+
+- If the owner selects Grok-host T3, Cursor CLI with **Cursor Auto** is
+  the reported host-local implementation default. Codex CLI is an alternative.
+  This host-specific provider preference is not a global workspace default.
   The general prohibition on automatic provider routing below still applies
   everywhere else; this exception does not authorize API billing or overages.
 - For material architecture planning or a costly top-tier model, ask the owner
@@ -26,20 +37,25 @@ For this **specific owner-selected Grok-host T3 runtime**:
 - Preserve worker isolation, dependency sequencing, owner approval, target PR
   metadata, verification, and exact-SHA CI results. The orchestrator must
   inspect actual diffs rather than accept a T3 worker's text summary.
-- T3 threads and local uncommitted files are not guaranteed durable.
-  Keep code, reviewed decisions, and evidence in GitHub. The Grok host is
-  accessed from the phone through an ngrok static domain because T3 Connect
-  is reportedly blocked by the host's network filter.
-- When Grok usage is exhausted but T3 is running, the owner can use the T3
-  mobile app directly. When its host is unavailable, use the existing
-  approved cloud runtime or the Termux + Ubuntu fallback.
+- T3 threads and uncommitted files live on their respective hosts and are
+  not guaranteed durable. Keep code, reviewed decisions, and evidence in
+  GitHub. On the Grok Linux host, an ngrok static domain is used because
+  T3 Connect is reportedly blocked by the host's network filter.
+- If Grok Bot usage or chat access is unavailable but its computer, T3
+  server, and ngrok tunnel are still available, the owner can use those
+  same T3 threads directly. If that computer is offline, its threads are
+  unavailable until recovery; use any other available approved runtime,
+  including the independent Termux Ubuntu environment.
 - Never put third-party host authentication files, session tokens, tunnel
   secrets, or PATs into a repository or a model prompt.
 
 The runtime-specific source of truth is
 [judigot/agent-workspace/docs/grok-t3-runtime.md](https://github.com/judigot/agent-workspace/blob/main/docs/grok-t3-runtime.md).
-Local Termux instructions live in `judigot/user`. Do not duplicate their
-procedures in this cross-provider policy.
+Basic Android and Termux setup is in
+[judigot/user/docs/android-termux.md](https://github.com/judigot/user/blob/main/docs/android-termux.md).
+T3-specific Termux startup and recovery is in
+[judigot/agent-workspace/docs/termux-t3.md](https://github.com/judigot/agent-workspace/blob/main/docs/termux-t3.md).
+Do not duplicate either procedure in this cross-provider policy.
 
 The canonical ladder is:
 
