@@ -3,6 +3,44 @@
 This policy separates expensive original reasoning from specification and
 implementation so model cost scales with the value of the work.
 
+## Owner-selected Grok Bot + T3 interactive runtime
+
+The owner reports a preferred **external** workflow (2026-11-22): Grok Bot
+orchestrates on its cloud Linux computer, while T3 Code runs the owner's
+authenticated Cursor CLI or Codex CLI sessions for **all implementation**.
+Grok Bot plans, delegates, reviews, tests, and coordinates PRs; it must not
+author source-code changes. This is an interactive operating preference, not
+a native Agent Workspace integration, automatic deployment mechanism, or
+evidence that this environment has access to the Grok-host computer.
+
+For this **specific owner-selected Grok-host T3 runtime**:
+
+- Use Cursor CLI with **Cursor Auto** by default, as explicitly selected by
+  the owner. Codex CLI is the alternative for suitable lower-cost work.
+  The general prohibition on automatic provider routing below still applies
+  everywhere else; this exception does not authorize API billing or overages.
+- For material architecture planning or a costly top-tier model, ask the owner
+  to choose the model. Check actual installed provider/model IDs and account
+  limits on that host before promising execution; prior local-host verification
+  status does not prove Grok-host capability.
+- Preserve worker isolation, dependency sequencing, owner approval, target PR
+  metadata, verification, and exact-SHA CI results. The orchestrator must
+  inspect actual diffs rather than accept a T3 worker's text summary.
+- T3 threads and local uncommitted files are not guaranteed durable.
+  Keep code, reviewed decisions, and evidence in GitHub. The Grok host is
+  accessed from the phone through an ngrok static domain because T3 Connect
+  is reportedly blocked by the host's network filter.
+- When Grok usage is exhausted but T3 is running, the owner can use the T3
+  mobile app directly. When its host is unavailable, use the existing
+  approved cloud runtime or the Termux + Ubuntu fallback.
+- Never put third-party host authentication files, session tokens, tunnel
+  secrets, or PATs into a repository or a model prompt.
+
+The runtime-specific source of truth is
+[judigot/agent-workspace/docs/grok-t3-runtime.md](https://github.com/judigot/agent-workspace/blob/main/docs/grok-t3-runtime.md).
+Local Termux instructions live in `judigot/user`. Do not duplicate their
+procedures in this cross-provider policy.
+
 The canonical ladder is:
 
 ```text
@@ -69,15 +107,16 @@ worktrees.
 
 | Route | Requested preference | Current state |
 | --- | --- | --- |
-| Cursor planning | Composer 2.5 Fast | Cursor CLI is not installed; model ID, Fast availability, authentication, and included-subscription use are unverified. |
-| Cursor implementation | Composer 2.5 Fast → GPT-5.6 Luna Low → Grok 4.6 Low → Claude Sonnet 5 Medium | No executable IDs are configured until Cursor CLI and the account model list verify them. |
+| Cursor planning | Composer 2.5 Fast | Not verified in the previously tested local runtime. Owner reports Cursor CLI installed on Grok host; confirm supported IDs, authentication, and subscription usage on that host. |
+| Cursor implementation | Composer 2.5 Fast → GPT-5.6 Luna Low → Grok 4.6 Low → Claude Sonnet 5 Medium | These explicit model IDs remain unverified. The owner-selected Grok-host default is Cursor Auto; verify its actual provider/model behavior there. |
 | OpenCode planning | Approved free planning model | OpenCode is not installed and no free model mapping has been approved. |
 | OpenCode implementation | Approved free coding model mapping | Unconfigured. Discover exact free IDs with `opencode models --refresh --verbose`, present the ordered mapping, and obtain approval before adding it here. |
 | Claude Code | Claude Code worker | Claude Code is not installed. It is not part of the default fallback chain. |
 
-Do not use Auto routing, paid API access, paid credits, or overages without
-explicit approval. Do not assume a subscription has a separate allowance when
-reached through another tool.
+Outside the owner-selected Grok-host Cursor Auto default above, do not use
+Auto routing without explicit approval. Never use paid API access, paid
+credits, or overages without explicit approval. Do not assume a subscription
+has a separate allowance when reached through another tool.
 
 ## Routing
 
