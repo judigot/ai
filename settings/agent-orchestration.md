@@ -39,6 +39,17 @@ PRs; it does not directly author implementation code. This external workflow
 is not a native Agent Workspace integration or a verified executor available
 to every chat.
 
+Ordinary ChatGPT can also optionally orchestrate through the private
+Sites-hosted T3 plugin. On 2026-11-24, ordinary ChatGPT discovered projects,
+retrieved threads, created a harmless task, and read its completed reply. The
+Site reported replay and follow-up testing; that is separate from the observed
+ChatGPT verification. This is an optional route, not a permanent host or a
+change to model routing or approval policy. Chat availability does not ensure
+that the host, T3 server, or tunnel is available. Use
+`skills/t3-orchestration/SKILL.md` for the operating workflow and the
+[canonical runtime setup](https://github.com/judigot/agent-workspace/blob/main/docs/chatgpt-t3-orchestrator.md)
+for setup and recovery.
+
 For this **specific Grok-host T3 runtime**:
 
 - If the owner selects Grok-host T3, Cursor CLI with **Cursor Auto** is
