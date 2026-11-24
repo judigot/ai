@@ -1,3 +1,18 @@
+# Standing rules (workers read first)
+
+Every worker reads this section before acting. Orchestrators do not paste these
+into briefs; point at this file instead.
+
+- Prefer maintained packages at the latest stable release unless the repo pins
+  otherwise.
+- Never delete repositories, force-push, or modify `judigot/infra`.
+- One major feature per pull request.
+- Before any push, run the project's full local CI. In monorepos that expose it,
+  that is `bun run ci:local`. Do not push while local CI is red or unrun when
+  the command exists.
+- Never print secrets, tokens, PATs, or credential material.
+- When reporting back, use 1-2 lines and include PR links.
+
 # General
 
 - I want the code to be self-documenting.
@@ -277,6 +292,10 @@ Use the cheapest model tier that can reliably own the current decision.
 
 Do not ask about these. Do ask when the goal, UX, data model, or success criteria are ambiguous — see `settings/workflow.md`.
 
+Always ask which model to use before every job (for example Cursor Auto, Sol, or
+Astra). That question is not covered by these defaults; see
+`settings/agent-orchestration.md`.
+
 - Stack: `settings/stack.md`. Official skills: `settings/references.md`.
 - TypeScript strict mode, ESM imports
 - Latest stable versions
@@ -456,8 +475,10 @@ Examples: `feat: add user auth`, `fix: null check in parser`, `chore: update dep
 Apply only when committing and pushing are authorized; use the delivery scope in `settings/workflow.md`.
 
 - Commit each logical slice as soon as it is coherent (failing test, then passing implementation, then refactor). Never one large commit at the end.
-- Push after every commit so the PR and remote have the work before the session runs out of tokens.
+- Run full local CI before any push (see Standing rules). When CI is green, push
+  so the PR and remote have the work before the session runs out of tokens.
 - Stage specific files for that slice. Do not mix unrelated files.
+- Never force-push. Never delete repositories. Never modify `judigot/infra`.
 
 # Snippets (~/.devrc)
 

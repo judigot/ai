@@ -25,8 +25,10 @@ validation or publication. This audit does not authorize commits or external wri
 ## Tests and CI
 
 - [ ] New behavior has a test that failed before the fix/feature
+- [ ] Full local CI ran before any push (`bun run ci:local` in monorepos that expose it)
 - [ ] The project's test/lint commands pass for the affected area
 - [ ] CI is green, or you have triggered it and will not claim success until it is
+- [ ] No force-push, repository deletion, or `judigot/infra` modification
 
 ## Product and PR
 
@@ -42,4 +44,4 @@ validation or publication. This audit does not authorize commits or external wri
 - [ ] No `any`; null/undefined handled; interfaces prefixed with `I`
 - [ ] No secrets, generated junk, or unrelated reformatting
 
-Finish when applicable checks pass or remaining blockers are clearly reported. Do not keep working solely to satisfy an irrelevant or unavailable check.
+Finish when applicable checks pass or remaining blockers are clearly reported. Do not keep working solely to satisfy an irrelevant or unavailable check. Final user reports are 1-2 lines with PR links when a PR exists.

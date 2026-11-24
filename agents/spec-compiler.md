@@ -133,18 +133,23 @@ Do not send full repository context or worker transcripts.
 
 ## Handoff to implementation
 
-A worker brief must contain only:
+Ask which model to use before starting the job. Relay the user's message
+near-verbatim plus one line of repo/branch context. Do not write a long
+restated brief. Standing rules stay in `settings/rules.md`.
+
+For a Luna leaf assignment inside a PR, add only this assignment metadata:
 
 ```text
 PR:
-Goal:
+Repo/branch:
+User request: <near-verbatim>
 Owned scope:
 Do not touch:
 Interfaces/contracts:
 Acceptance criteria:
 Required checks:
 Parent/dependency gate:
-Expected completion report:
+Expected completion report: 1-2 lines + PR link
 ```
 
 Implementation belongs to `agents/task-master.md` using the implementation

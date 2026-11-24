@@ -127,7 +127,10 @@ do not claim full validation. These qualifications also apply to delivery skills
 ## 4. Mini commits, push early
 
 - Commit each meaningful slice (failing test, implementation, refactor, lint). Never batch a whole feature into one commit.
-- Push after every commit so the PR and remote have the work before the session hits a token limit.
+- Run full local CI before any push (`bun run ci:local` in monorepos that expose
+  it). Push only after that check passes so the PR and remote stay trustworthy.
+- One major feature per PR. Never force-push, delete repositories, or modify
+  `judigot/infra`.
 - Conventional Commits, short subject. Stage specific files, not `git add .`, unless the slice is the whole intended change.
 
 ## 5. Clarifying questions
