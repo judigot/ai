@@ -3,6 +3,22 @@
 This policy separates expensive original reasoning from specification and
 implementation so model cost scales with the value of the work.
 
+## Orchestrator briefing
+
+Keep job handoffs short. Standing rules live in `settings/rules.md` (read
+first); do not restate them in every brief.
+
+1. Ask the user which model to use before every job (for example Cursor Auto,
+   Sol, or Astra). Do not start work until they choose, unless this session
+   already has an explicit model selection.
+2. Relay the user's message near-verbatim. Add one line of repo/branch context
+   (repository name and current or target branch). Do not write a long restated
+   brief.
+3. Point workers at `settings/rules.md` for standing rules instead of pasting
+   them. Intra-PR leaf handoffs may still list exclusive paths, interfaces, and
+   checks; that is assignment metadata, not a rewritten product brief.
+4. Reports stay 1-2 lines and include PR links.
+
 ## Selectable workspaces and T3 Chat
 
 The owner has **no permanent default host or orchestration workflow**. Choose
@@ -397,10 +413,9 @@ Git publishing or shared-state commands. See `agents/task-master.md` leaf mode.
 Keep trivial/tightly coupled work with the PR parent. Parallelize only
 independent tasks with non-overlapping writable ownership.
 
-Before delegating, tell the user which route/model is being used and show a
-concise worker brief: objective, owned scope, constraints, and expected output.
-Do not repeat inherited conversation context or duplicate long prompts in the
-user-facing announcement.
+Before every job, ask which model to use. When delegating, relay the user's
+message near-verbatim plus one line of repo/branch context. Do not restate a
+long product brief or duplicate standing rules from `settings/rules.md`.
 
 The orchestrator/parent inspects partial changes before replacement, preserves
 valid work, continuously integrates completed shards, and reviews the final diff

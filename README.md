@@ -87,8 +87,10 @@ Session start loads this overlay from `AGENTS.md`. Agents clarify before coding,
 `settings/agent-orchestration.md` is the canonical model-economy policy:
 Astra handles short founder/ideation decisions, Terra compiles specs and
 coordinates unattended work, Luna performs token-heavy implementation, and CI
-is the completion authority. Tool-specific configuration stays in each CLI's
-supported location; the overlay never copies credentials between clients.
+is the completion authority. Orchestrators ask which model to use before every
+job, relay the user message near-verbatim with one repo/branch line, and leave
+standing rules in `settings/rules.md`. Tool-specific configuration stays in each
+CLI's supported location; the overlay never copies credentials between clients.
 
 If a Matt Pocock grilling session (fetched from `settings/references.md`) produces a `CONTEXT.md` in the **app** repo, that is domain language, not worktree state. Worktrees still use git only.
 
