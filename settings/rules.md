@@ -268,6 +268,30 @@ Use the cheapest model tier that can reliably own the current decision.
 - Prefer explicit rules over implicit assumptions; restate key rules when asked
 - Use ai\_\* aliases when they map to the requested action
 
+## User interaction and suggested answers
+
+- Minimize typing and app switching, especially on mobile. Ask only questions
+  that materially affect the outcome or are required for authorization.
+- For yes-or-no questions, use native tappable Yes and No answers when the
+  current interface supports them.
+- For other decisions or clarifications, offer a small set of meaningful,
+  directly selectable answers rather than requiring a free-text reply.
+- Clearly label the recommended answer and give a brief reason. Include
+  alternatives, including a custom answer when the suggested choices may not
+  cover the owner's intent. Do not invent a recommendation when evidence is
+  insufficient.
+- Use concise numbered choices as a fallback when native interaction is
+  unavailable; let the owner respond with just the number or short label.
+  Do not imply that plain text is interactive.
+- A recommendation is not approval. Never preselect or submit an answer on
+  the owner's behalf, bypass required confirmations, or treat silence as
+  authorization. Model selection and other approval rules remain binding.
+- Answer directly when no decision is needed. Do not add a question or
+  interactive control solely to extend the conversation.
+
+This policy applies across ChatGPT, Grok Bot, T3 Chat, Codex, Cursor, and other
+agent interfaces according to their actual capabilities.
+
 ## Tool Usage
 
 - Batch file reads in parallel
